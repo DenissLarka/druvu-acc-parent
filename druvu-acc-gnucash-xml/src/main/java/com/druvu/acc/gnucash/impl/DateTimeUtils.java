@@ -2,8 +2,6 @@ package com.druvu.acc.gnucash.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -19,18 +17,18 @@ public final class DateTimeUtils {
 
 	private static final DateTimeFormatter TIMESTAMP_WITHOUT_ZONE = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-	private static final DateTimeFormatter DATE_ONLY = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	private static final DateTimeFormatter DATE_ONLY = DateTimeFormatter.ISO_LOCAL_DATE;
 
 	private DateTimeUtils() {
 	}
 
 	/**
-	 * Parses a GnuCash timestamp string.
+	 * Parses a GnuCash timestamp string (ts:date element).
 	 *
 	 * @param timestamp the timestamp string (e.g., "2024-01-15 10:30:00 +0100" or "2024-01-15 10:30:00")
-	 * @return the parsed ZonedDateTime
+	 * @return the parsed LocalDateTime
 	 */
-	public static ZonedDateTime parseTimestamp(String timestamp) {
+	public static LocalDateTime parseTimestamp(String timestamp) {
 		if (timestamp == null || timestamp.isBlank()) {
 			return null;
 		}
@@ -38,24 +36,16 @@ public final class DateTimeUtils {
 		String trimmed = timestamp.trim();
 
 		try {
-			// Try with timezone first
-			return ZonedDateTime.parse(trimmed, TIMESTAMP_WITH_ZONE);
+			// Try with timezone first - parse and extract LocalDateTime
+			return LocalDateTime.parse(trimmed, TIMESTAMP_WITH_ZONE);
 		}
 		catch (DateTimeParseException e) {
 			try {
 				// Try without a timezone
-				LocalDateTime ldt = LocalDateTime.parse(trimmed, TIMESTAMP_WITHOUT_ZONE);
-				return ldt.atZone(ZoneId.systemDefault());
+				return LocalDateTime.parse(trimmed, TIMESTAMP_WITHOUT_ZONE);
 			}
 			catch (DateTimeParseException e2) {
-				try {
-					// Try date only
-					LocalDate ld = LocalDate.parse(trimmed, DATE_ONLY);
-					return ld.atStartOfDay(ZoneId.systemDefault());
-				}
-				catch (DateTimeParseException e3) {
-					throw new IllegalArgumentException("Cannot parse timestamp: " + timestamp, e3);
-				}
+				throw new IllegalArgumentException("Cannot parse timestamp: " + timestamp, e2);
 			}
 		}
 	}

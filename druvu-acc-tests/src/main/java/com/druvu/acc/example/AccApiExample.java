@@ -1,28 +1,36 @@
 package com.druvu.acc.example;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.druvu.acc.api.AccBook;
-import com.druvu.acc.loader.AccBookFactory;
+import com.druvu.acc.api.AccStore;
+import com.druvu.acc.loader.AccStoreFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Example usage of Acc API.
  *
- * @author : Deniss Larka
- * <br/>on 11 jan 2026
- **/
+ * @author Deniss Larka
+ *         <br/>on 11 jan 2026
+ */
+@Slf4j
 public class AccApiExample {
 
-	static void main() {
-		AccApiExample accApiExample = new AccApiExample();
-		accApiExample.go();
+	public static void main(String[] args) {
+		if (args.length < 1) {
+			System.err.println("Usage: AccApiExample <gnucash-file>");
+			System.exit(1);
+		}
+		Path filePath = Paths.get(args[0]);
+		new AccApiExample().run(filePath);
 	}
 
-	private void go() {
+	private void run(Path filePath) {
+		log.info("Loading file: {}", filePath);
+		final AccStore store = AccStoreFactory.load(filePath);
 
-		final AccBook book = AccBookFactory.load(Paths.get("/Users/deniss/data/GNUCASH/book3.gnucash"));
-
-		book.accounts().forEach(System.out::println);
-		System.out.println(book);
+		store.accounts().forEach(account -> log.info("{}", account));
+		log.info("{}", store);
 	}
 }

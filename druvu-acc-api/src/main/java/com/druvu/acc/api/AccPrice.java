@@ -1,16 +1,14 @@
 package com.druvu.acc.api;
 
-import com.druvu.acc.auxiliary.CommodityId;
-
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
  * Represents a price quote for a commodity.
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 10
+ *         <br/>on 2026 Jan 10
  */
 public interface AccPrice {
 
@@ -32,7 +30,7 @@ public interface AccPrice {
 	/**
 	 * @return timestamp of the price
 	 */
-	ZonedDateTime time();
+	LocalDateTime time();
 
 	/**
 	 * @return source of the price (e.g., "Finance::Quote", "user:price-editor")

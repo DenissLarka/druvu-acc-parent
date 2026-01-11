@@ -12,9 +12,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.xml.sax.InputSource;
 
-import com.druvu.acc.api.AccBook;
 import com.druvu.acc.gnucash.generated.GncV2;
-import com.druvu.acc.gnucash.impl.GnucashAccBook;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -22,12 +20,12 @@ import jakarta.xml.bind.Unmarshaller;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Reads GnuCash XML files and creates AccBook instances.
+ * Reads GnuCash XML files and parses them into GncV2 objects.
  * <p>
  * Supports both plain XML and gzip-compressed files (typically .gnucash extension).
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 10
+ *         <br/>on 2026 Jan 10
  */
 @Slf4j
 public class GnucashFileReader {
@@ -50,10 +48,10 @@ public class GnucashFileReader {
 	 * Reads a GnuCash file from the specified path.
 	 *
 	 * @param path the path to the GnuCash file
-	 * @return the parsed AccBook
+	 * @return the parsed GncV2
 	 * @throws IOException if the file cannot be read
 	 */
-	public AccBook read(Path path) throws IOException {
+	public GncV2 read(Path path) throws IOException {
 		log.debug("Reading GnuCash file: {}", path);
 
 		try (InputStream is = Files.newInputStream(path); BufferedInputStream bis = new BufferedInputStream(is)) {
@@ -67,10 +65,10 @@ public class GnucashFileReader {
 	 * The stream will be automatically decompressed if it's gzip-compressed.
 	 *
 	 * @param inputStream the input stream (must support mark/reset)
-	 * @return the parsed AccBook
+	 * @return the parsed GncV2
 	 * @throws IOException if the stream cannot be read
 	 */
-	public AccBook read(InputStream inputStream) throws IOException {
+	public GncV2 read(InputStream inputStream) throws IOException {
 		InputStream effectiveStream = inputStream.markSupported() ? inputStream : new BufferedInputStream(inputStream);
 
 		effectiveStream.mark(2);
@@ -99,7 +97,7 @@ public class GnucashFileReader {
 
 			log.debug("Successfully parsed GnuCash file with book ID: {}", gncV2.getGncBook().getBookId().getValue());
 
-			return new GnucashAccBook(gncV2.getGncBook());
+			return gncV2;
 
 		}
 		catch (JAXBException e) {

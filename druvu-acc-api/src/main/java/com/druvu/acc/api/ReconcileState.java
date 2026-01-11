@@ -1,4 +1,4 @@
-package com.druvu.acc.auxiliary;
+package com.druvu.acc.api;
 
 /**
  * Reconciliation state of a transaction split.

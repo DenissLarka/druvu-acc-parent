@@ -1,12 +1,12 @@
-package com.druvu.acc.auxiliary;
+package com.druvu.acc.api;
 
 import lombok.Builder;
 
 /**
  * Identifies a commodity (currency, stock, mutual fund, etc.).
  *
- * @param namespace The namespace (e.g., "ISO4217" for currencies, "NASDAQ" for stocks)
- * @param id        The identifier within the namespace (e.g., "EUR", "AAPL")
+ * @param namespace The namespace (e.g. "CURRENCY" for currencies, "NASDAQ" for stocks)
+ * @param id        The identifier within the namespace (e.g. "EUR", "AAPL")
  *
  * @author Deniss Larka
  * <br/>on 2026 Jan 10
@@ -19,7 +19,7 @@ public record CommodityId(
 	/**
 	 * Standard namespace for ISO 4217 currencies
 	 */
-	public static final String NAMESPACE_CURRENCY = "ISO4217";
+	public static final String NAMESPACE_CURRENCY = "CURRENCY";
 
 	/**
 	 * Creates a currency commodity ID.
@@ -34,7 +34,6 @@ public record CommodityId(
 	/**
 	 * Checks if this commodity is a currency.
 	 *
-	 * @return true if this is an ISO 4217 currency
 	 */
 	public boolean isCurrency() {
 		return NAMESPACE_CURRENCY.equals(namespace);

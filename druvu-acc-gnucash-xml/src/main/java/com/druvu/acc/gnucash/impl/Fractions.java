@@ -1,4 +1,4 @@
-package com.druvu.acc.auxiliary;
+package com.druvu.acc.gnucash.impl;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

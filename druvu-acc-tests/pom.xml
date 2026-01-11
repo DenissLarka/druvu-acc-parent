@@ -37,6 +37,18 @@
 			<artifactId>druvu-lib-loader</artifactId>
 		</dependency>
 
+		<!-- Lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.spotbugs</groupId>
+			<artifactId>spotbugs-annotations</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
 		<!-- LOG -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

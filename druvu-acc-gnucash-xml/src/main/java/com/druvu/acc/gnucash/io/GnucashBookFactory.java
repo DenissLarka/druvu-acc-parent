@@ -4,14 +4,15 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
-import com.druvu.acc.api.AccBook;
+import com.druvu.acc.api.AccStore;
+import com.druvu.acc.gnucash.impl.GnucashAccStore;
 import com.druvu.lib.loader.ComponentFactory;
 import com.druvu.lib.loader.Dependencies;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Factory for creating AccBook instance from GnuCash XML file.
+ * Factory for creating AccStore instance from GnuCash XML file.
  * <p>
  * This factory is registered via ServiceLoader for use with druvu-lib-loader.
  * <p>
@@ -21,22 +22,21 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 10
+ *         <br/>on 2026 Jan 10
  */
 @Slf4j
-public class GnucashBookFactory implements ComponentFactory<AccBook> {
+public class GnucashBookFactory implements ComponentFactory<AccStore> {
 
 	private final GnucashFileReader reader = new GnucashFileReader();
 
 	@Override
-	public AccBook createComponent(Dependencies dependencies) {
-		// Try Path first
+	public AccStore createComponent(Dependencies dependencies) {
 		var pathOpt = dependencies.getOptionalDependency(Path.class);
 		if (pathOpt.isPresent()) {
 			Path path = pathOpt.get();
 			log.info("Loading GnuCash file from path: {}", path);
 			try {
-				return reader.read(path);
+				return new GnucashAccStore(reader.read(path));
 			}
 			catch (IOException e) {
 				throw new UncheckedIOException("Failed to read GnuCash file: " + path, e);
@@ -47,7 +47,7 @@ public class GnucashBookFactory implements ComponentFactory<AccBook> {
 	}
 
 	@Override
-	public Class<AccBook> getComponentType() {
-		return AccBook.class;
+	public Class<AccStore> getComponentType() {
+		return AccStore.class;
 	}
 }

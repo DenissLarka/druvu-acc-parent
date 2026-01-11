@@ -1,12 +1,14 @@
-package com.druvu.acc.test;
+package com.druvu.acc.gnucash;
 
-import com.druvu.acc.auxiliary.Fractions;
-
-import org.testng.annotations.Test;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
-import static org.testng.Assert.*;
+import org.testng.annotations.Test;
+
+import com.druvu.acc.gnucash.impl.Fractions;
 
 /**
  * Tests for Fractions utility class.

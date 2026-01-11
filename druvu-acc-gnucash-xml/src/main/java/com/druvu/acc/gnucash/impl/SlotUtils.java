@@ -4,10 +4,13 @@ import com.druvu.acc.gnucash.generated.Slot;
 import com.druvu.acc.gnucash.generated.SlotValue;
 import com.druvu.acc.gnucash.generated.SlotsType;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.experimental.UtilityClass;
 
 /**
  * Utility class for converting GnuCash slots to Java Maps.
@@ -15,10 +18,9 @@ import java.util.Map;
  * @author Deniss Larka
  * <br/>on 2026 Jan 10
  */
+@UtilityClass
 public final class SlotUtils {
 
-	private SlotUtils() {
-	}
 
 	/**
 	 * Converts a SlotsType to a Map.
@@ -95,7 +97,7 @@ public final class SlotUtils {
 			}
 			case "list" -> {
 				// List of slot values
-				List<Object> list = new java.util.ArrayList<>();
+				List<Object> list = new ArrayList<>();
 				for (Object item : content) {
 					if (item instanceof SlotValue nestedValue) {
 						list.add(extractValue(nestedValue));
