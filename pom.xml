@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.druvu</groupId>
+	<artifactId>druvu-acc-parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>Druvu Accounting Library</name>
+	<description>Modular accounting library with GnuCash XML support</description>
+
+	<scm>
+		<url>https://github.com/DenissLarka/druvu-acc-parent</url>
+		<connection>scm:git:https://github.com/DenissLarka/druvu-acc-parent</connection>
+		<developerConnection>scm:git:https://github.com/DenissLarka/druvu-acc-parent</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>25</java.version>
+
+		<!-- Dependency versions -->
+		<lombok.version>1.18.42</lombok.version>
+		<slf4j.version>2.0.17</slf4j.version>
+		<testng.version>7.11.0</testng.version>
+		<jaxb-api.version>4.0.2</jaxb-api.version>
+		<jaxb-runtime.version>4.0.5</jaxb-runtime.version>
+		<jaxb-maven-plugin.version>4.0.8</jaxb-maven-plugin.version>
+		<druvu-lib-loader.version>1.0.7</druvu-lib-loader.version>
+		<spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
+
+		<!-- Plugin versions -->
+		<maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+		<maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+		<maven-source-plugin.version>3.4.0</maven-source-plugin.version>
+		<maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+		<spotbugs-maven-plugin.version>4.8.6.2</spotbugs-maven-plugin.version>
+		<maven-pmd-plugin.version>3.25.0</maven-pmd-plugin.version>
+		<maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
+		<maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+	</properties>
+
+	<modules>
+		<module>druvu-acc-api</module>
+		<module>druvu-acc-gnucash-xml</module>
+		<module>druvu-acc-tests</module>
+	</modules>
+
+	<repositories>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/DenissLarka/*</url>
+		</repository>
+	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- LOG -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>${slf4j.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<!-- LOMBOK -->
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<!-- TEST -->
+			<dependency>
+				<groupId>org.testng</groupId>
+				<artifactId>testng</artifactId>
+				<version>${testng.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<!-- SPOTBUGS ANNOTATIONS -->
+			<dependency>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-annotations</artifactId>
+				<version>${spotbugs-annotations.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<!-- LOADER -->
+			<dependency>
+				<groupId>com.druvu</groupId>
+				<artifactId>druvu-lib-loader</artifactId>
+				<version>${druvu-lib-loader.version}</version>
+			</dependency>
+
+			<!-- JAXB -->
+			<dependency>
+				<groupId>jakarta.xml.bind</groupId>
+				<artifactId>jakarta.xml.bind-api</artifactId>
+				<version>${jaxb-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish.jaxb</groupId>
+				<artifactId>jaxb-runtime</artifactId>
+				<version>${jaxb-runtime.version}</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven-compiler-plugin.version}</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+						<release>${java.version}</release>
+						<debug>true</debug>
+						<showDeprecation>true</showDeprecation>
+						<showWarnings>true</showWarnings>
+						<compilerArgs>
+							<arg>-parameters</arg>
+						</compilerArgs>
+						<annotationProcessorPaths>
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>${lombok.version}</version>
+							</path>
+						</annotationProcessorPaths>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven-surefire-plugin.version}</version>
+					<configuration>
+						<properties>
+							<property>
+								<name>usedefaultlisteners</name>
+								<value>false</value>
+							</property>
+						</properties>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${maven-source-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>package</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${maven-javadoc-plugin.version}</version>
+					<configuration>
+						<show>public</show>
+						<doclint>none</doclint>
+					</configuration>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<phase>package</phase>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.jvnet.jaxb</groupId>
+					<artifactId>jaxb-maven-plugin</artifactId>
+					<version>${jaxb-maven-plugin.version}</version>
+				</plugin>
+
+				<!-- Code Quality Plugins (uncomment to enable) -->
+
+				<plugin>
+					<groupId>com.github.spotbugs</groupId>
+					<artifactId>spotbugs-maven-plugin</artifactId>
+					<version>${spotbugs-maven-plugin.version}</version>
+					<configuration>
+						<effort>Max</effort>
+						<threshold>Low</threshold>
+						<xmlOutput>true</xmlOutput>
+						<includeTests>true</includeTests>
+						<excludeFilterFile>${project.basedir}/_spotbug-filters/spotbug-exclude.xml</excludeFilterFile>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>${maven-pmd-plugin.version}</version>
+					<configuration>
+						<failurePriority>3</failurePriority>
+						<includeTests>true</includeTests>
+						<linkXRef>false</linkXRef>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>check</goal>
+								<goal>cpd-check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>${maven-checkstyle-plugin.version}</version>
+					<configuration>
+						<configLocation>google_checks.xml</configLocation>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>${maven-enforcer-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>enforce</id>
+							<goals>
+								<goal>enforce</goal>
+							</goals>
+							<configuration>
+								<rules>
+									<banDuplicatePomDependencyVersions/>
+									<reactorModuleConvergence/>
+									<dependencyConvergence/>
+									<requireJavaVersion>
+										<version>${java.version}</version>
+									</requireJavaVersion>
+								</rules>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+
+
+		</plugins>
+	</build>
+</project>

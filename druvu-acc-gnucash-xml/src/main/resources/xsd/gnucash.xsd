@@ -1,0 +1,1218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="cmdty_id" type="xs:string"/>
+	<xs:element name="cmdty_space" type="xs:string"/>
+	<xs:element name="gdate" type="xs:date"/>
+
+	<xs:element name="slots" type="slots_type"/>
+	<xs:complexType name="slots_type">
+		<xs:sequence>
+			<xs:element ref="slot" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="address">
+		<xs:sequence>
+			<xs:element name="addr_name" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="addr_addr1" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="addr_addr2" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="addr_addr3" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="addr_addr4" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="addr_phone" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="addr_fax" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="addr_email" type="xs:string" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+		<xs:attribute name="version" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:element name="gnc-v2">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="gnc_count-data"/>
+				<xs:element name="gnc_book">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="book_id">
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="type" type="xs:string" use="required"/>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="book_slots" type="slots_type" minOccurs="0" maxOccurs="1"/>
+							<xs:element ref="gnc_count-data" minOccurs="0" maxOccurs="unbounded"/>
+
+							<xs:group ref="book_elements" minOccurs="0" maxOccurs="unbounded"/>
+
+						</xs:sequence>
+						<xs:attribute name="version" type="xs:string" use="required"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- ============= elements in a gnc:book=================== -->
+
+	<xs:group name="book_elements">
+		<xs:choice>
+			<!-- ===================== support for currencies and funds that have price-quotes ===================== -->
+
+			<xs:element name="gnc_commodity" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element ref="cmdty_space"/>
+						<xs:element ref="cmdty_id"/>
+						<xs:element name="cmdty_name" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="cmdty_xcode" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="cmdty_fraction" type="xs:int" minOccurs="0" maxOccurs="1"/>
+
+						<!-- added for Gnucash V2.x -->
+						<xs:element name="cmdty_get_quotes" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="cmdty_quote_source" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="cmdty_quote_tz" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<!-- ===================== -->
+					</xs:sequence>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="gnc_pricedb" type="gnc_pricedb" minOccurs="0" maxOccurs="1">
+			</xs:element>
+
+			<!-- ============================================================== -->
+
+			<xs:element ref="gnc_account" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="gnc_budget" type="gnc_budget" minOccurs="0" maxOccurs="unbounded"/>
+
+			<!-- ===================== transactions and scheduled transactions ===================== -->
+
+			<xs:element ref="gnc_transaction" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="gnc_template-transactions" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element ref="gnc_account" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="gnc_transaction" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="gnc_schedxaction" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="sx_id">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="sx_name" type="xs:string"/>
+						<xs:element name="sx_enabled" minOccurs="0" maxOccurs="1">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="n"/>
+									<xs:enumeration value="y"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="sx_autoCreate">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="n"/>
+									<xs:enumeration value="y"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="sx_autoCreateNotify">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="n"/>
+									<xs:enumeration value="y"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="sx_advanceCreateDays" type="xs:byte"/>
+						<xs:element name="sx_advanceRemindDays" type="xs:int"/>
+						<xs:element name="sx_instanceCount" type="xs:byte"/>
+						<xs:element name="sx_start">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="gdate"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="sx_end" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="gdate"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="sx_last" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="gdate"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="sx_num-occur" type="xs:int" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="sx_rem-occur" type="xs:int" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="sx_templ-acct">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type"> <!-- without use="required" it is optional-->
+											<xs:simpleType>
+												<xs:restriction base="xs:NMTOKEN">
+													<xs:enumeration value="guid"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:attribute>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="sx_freqspec" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="gnc_freqspec">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="fs_id">
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:string">
+																<xs:attribute name="type" type="xs:string" use="required"/>
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="fs_ui_type" type="xs:string"/>
+												<xs:element name="fs_monthly">
+													<xs:complexType>
+														<xs:sequence>
+															<xs:element name="fs_interval" type="xs:int"/>
+															<xs:element name="fs_offset" type="xs:int"/>
+															<xs:element name="fs_day" type="xs:int"/>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+											</xs:sequence>
+											<xs:attribute name="version" type="xs:string" use="required"/>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="sx_schedule" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="gnc_recurrence" minOccurs="0" maxOccurs="unbounded">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="recurrence_mult" type="xs:int"/>
+												<xs:element name="recurrence_period_type"
+															type="xs:string"/> <!-- e.g. "2007-09-19" or "month" -->
+												<xs:element name="recurrence_start">
+													<xs:complexType>
+														<xs:sequence>
+															<xs:element name="gdate" type="xs:string"/>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="recurrence_weekend_adj" type="xs:string" minOccurs="0"/>
+											</xs:sequence>
+											<xs:attribute name="version" type="xs:string" use="required"/>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:all>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+
+			<!-- ===================== vendors ===================== -->
+
+			<xs:element name="gnc_GncVendor" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="vendor_guid">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="vendor_name">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="vendor_id" type="xs:string"/>
+						<xs:element name="vendor_addr" type="address"/>
+						<xs:element name="vendor_terms" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" use="required">
+											<xs:simpleType>
+												<xs:restriction base="xs:NMTOKEN">
+													<xs:enumeration value="guid"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:attribute>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="vendor_taxincluded" type="xs:string"/>
+						<xs:element name="vendor_active" type="xs:int"/>
+						<xs:element name="vendor_currency">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="cmdty_space"/>
+									<xs:element ref="cmdty_id"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="vendor_use-tt" type="xs:int"/>
+						<xs:element name="vendor_taxtable" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" use="required">
+											<xs:simpleType>
+												<xs:restriction base="xs:NMTOKEN">
+													<xs:enumeration value="guid"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:attribute>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<!-- ===================== customers, jobs and invoices ===================== -->
+
+			<xs:element name="gnc_GncBillTerm" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="billterm_guid">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="billterm_name">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="billterm_desc" type="xs:string"/>
+						<xs:element name="billterm_refcount" type="xs:int"/>
+						<xs:element name="billterm_invisible" type="xs:int"/>
+						<xs:element name="billterm_parent" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="billterm_child" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="billterm_days" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="bt-days_due-days" type="xs:int" minOccurs="0" maxOccurs="1"/>
+									<xs:element name="bt-days_disc-days" type="xs:int" minOccurs="0" maxOccurs="1"/>
+									<xs:element name="bt-days_discount" type="xs:string" minOccurs="0" maxOccurs="1"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="billterm_proximo" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="bt-prox_due-day" type="xs:int" minOccurs="0" maxOccurs="1"/>
+									<xs:element name="bt-prox_disc-day" type="xs:int" minOccurs="0" maxOccurs="1"/>
+									<xs:element name="bt-prox_cutoff-day" type="xs:int" minOccurs="0" maxOccurs="1"/>
+									<xs:element name="bt-prox_discount" type="xs:string" minOccurs="0" maxOccurs="1"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="gnc_GncCustomer" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="cust_guid">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="cust_name">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="cust_id" type="xs:string"/>
+						<xs:element name="cust_addr" type="address"/>
+						<xs:element name="cust_shipaddr" type="address"/>
+						<xs:element name="cust_notes" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="cust_terms" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" use="required">
+											<xs:simpleType>
+												<xs:restriction base="xs:NMTOKEN">
+													<xs:enumeration value="guid"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:attribute>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="cust_taxincluded" type="xs:string"/>
+						<xs:element name="cust_active" type="xs:int"/>
+						<xs:element name="cust_discount" type="xs:string"/>
+						<xs:element name="cust_credit" type="xs:string"/>
+						<xs:element name="cust_currency">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="cmdty_space"/>
+									<xs:element ref="cmdty_id"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="cust_use-tt" type="xs:int"/>
+						<xs:element name="cust_taxtable" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" use="required">
+											<xs:simpleType>
+												<xs:restriction base="xs:NMTOKEN">
+													<xs:enumeration value="guid"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:attribute>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element type="slots_type" name="cust_slots" minOccurs="0" maxOccurs="1"/>
+					</xs:sequence>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+
+			<!-- added in 2010-05-26 -->
+			<xs:element name="gnc_GncEmployee" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="employee_guid">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="employee_username">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="employee_id" type="xs:string"/>
+						<xs:element name="employee_addr" type="address"/>
+						<xs:element name="employee_language" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="employee_active" type="xs:int"/>
+						<xs:element name="employee_workday" type="xs:string"/>
+						<xs:element name="employee_rate" type="xs:string"/>
+						<xs:element name="employee_currency">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="cmdty_space"/>
+									<xs:element ref="cmdty_id"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="employee_ccard" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" use="required">
+											<xs:simpleType>
+												<xs:restriction base="xs:NMTOKEN">
+													<xs:enumeration value="guid"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:attribute>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element type="slots_type" name="cust_slots" minOccurs="0" maxOccurs="1"/>
+					</xs:sequence>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="gnc_GncJob" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="job_guid">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="job_id" type="xs:string"/>
+						<xs:element name="job_name" type="xs:string"/>
+						<xs:element name="job_reference" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="job_owner">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="owner_type"/>
+									<xs:element ref="owner_id"/>
+								</xs:sequence>
+								<xs:attribute name="version" type="xs:string" use="required"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="job_active" type="xs:int"/>
+					</xs:sequence>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="gnc_GncTaxTable" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="taxtable_guid">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="taxtable_name" type="xs:string"/>
+						<xs:element name="taxtable_refcount" type="xs:int"/>
+						<xs:element name="taxtable_invisible" type="xs:int"/>
+						<xs:element name="taxtable_parent" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="taxtable_child" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="taxtable_entries">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="gnc_GncTaxTableEntry" minOccurs="0" maxOccurs="unbounded">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="tte_acct">
+													<xs:complexType>
+														<xs:simpleContent>
+															<xs:extension base="xs:string">
+																<xs:attribute name="type" type="xs:string" use="required"/>
+															</xs:extension>
+														</xs:simpleContent>
+													</xs:complexType>
+												</xs:element>
+												<xs:element name="tte_amount" type="xs:string"/>
+												<xs:element name="tte_type" type="xs:string"/>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+
+			<xs:element name="gnc_GncInvoice" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="invoice_guid">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="invoice_id" type="xs:string"/>
+						<xs:element name="invoice_owner">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="owner_type"/>
+									<xs:element ref="owner_id"/>
+								</xs:sequence>
+								<xs:attribute name="version" type="xs:string" use="required"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="invoice_opened">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="ts_date"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="invoice_posted" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="ts_date"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="invoice_terms" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="invoice_notes" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="invoice_billing_id" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="invoice_active" type="xs:int"/>
+						<xs:element name="invoice_posttxn" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="invoice_postlot" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="invoice_postacc" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="invoice_currency">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="cmdty_space"/>
+									<xs:element ref="cmdty_id"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+
+						<!-- invoices may have an associated customer -->
+						<xs:element name="invoice_billto" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="owner_type">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="gncCustomer"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="owner_id">
+										<xs:complexType>
+											<xs:simpleContent>
+												<xs:extension base="xs:string">
+													<xs:attribute name="type" type="xs:string" use="required"/>
+												</xs:extension>
+											</xs:simpleContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:all>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="gnc_GncEntry" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="entry_guid">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="entry_date">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="ts_date"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="entry_entered">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="ts_date"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="entry_description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_action" minOccurs="0" maxOccurs="1">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="Auftrag"/>
+									<xs:enumeration value="Material"/>
+									<xs:enumeration value="Stunden"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="entry_qty" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_b-acct" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="entry_b-price" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_bill" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="entry_billable" type="xs:int" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_b-taxable" type="xs:int" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_b-taxincluded" type="xs:int" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_b-pay" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_b-taxtable" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" use="required">
+											<xs:simpleType>
+												<xs:restriction base="xs:NMTOKEN">
+													<xs:enumeration value="guid"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:attribute>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="entry_i-acct" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="entry_i-price" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_i-discount" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_invoice" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="entry_i-disc-type" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_i-disc-how" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_i-taxable" type="xs:int" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_i-taxincluded" type="xs:int" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_i-taxtable" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="entry_slots" type="slots_type" minOccurs="0" maxOccurs="1"/>
+					</xs:all>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+
+		</xs:choice>
+	</xs:group>
+	<!-- ===================== end of the possible elements of a gnc:book ===================== -->
+
+	<xs:element name="gnc_account">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="act_name" type="xs:string"/>
+				<xs:element name="act_id">
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:string">
+								<xs:attribute name="type" type="xs:string" use="required"/>
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="act_type">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="ASSET"/>
+							<xs:enumeration value="BANK"/>
+							<xs:enumeration value="CASH"/>
+							<xs:enumeration value="CREDIT"/>
+							<xs:enumeration value="EQUITY"/>
+							<xs:enumeration value="EXPENSE"/>
+							<xs:enumeration value="INCOME"/>
+							<xs:enumeration value="LIABILITY"/>
+							<xs:enumeration value="MUTUAL"/>
+							<xs:enumeration value="RECEIVABLE"/>
+							<xs:enumeration value="STOCK"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="act_commodity" minOccurs="0" maxOccurs="1"> <!-- root-account has no comodity -->
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="cmdty_space"/>
+							<xs:element ref="cmdty_id"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="act_commodity-scu" minOccurs="0" maxOccurs="1"> <!-- root-account has no comodity -->
+					<xs:simpleType>
+						<xs:restriction base="xs:int">
+							<xs:enumeration value="1"/>
+							<xs:enumeration value="100"/>
+							<xs:enumeration value="1000"/>
+							<xs:enumeration value="10000"/>
+							<xs:enumeration value="100000"/>
+							<xs:enumeration value="1000000"/>
+							<xs:enumeration value="10000000"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="act_non-standard-scu" minOccurs="0" maxOccurs="1">
+					<xs:complexType/>
+				</xs:element>
+				<xs:element name="act_code" type="xs:string" minOccurs="0" maxOccurs="1"/>
+				<xs:element name="act_description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+				<xs:element type="slots_type" name="act_slots" minOccurs="0" maxOccurs="1"/>
+				<xs:element name="act_parent" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:string">
+								<xs:attribute name="type" type="xs:string" use="required"/>
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="act_lots" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="gnc_lot" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="lot_id">
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="type" type="xs:string" use="required"/>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element type="slots_type" name="lot_slots"/>
+									</xs:sequence>
+									<xs:attribute name="version" type="xs:string" use="required"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="gnc_count-data">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:int">
+					<xs:attribute name="cd_type" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:NMTOKEN">
+								<xs:enumeration value="account"/>
+								<xs:enumeration value="book"/>
+								<xs:enumeration value="commodity"/>
+								<xs:enumeration value="gnc:GncCustomer"/>
+								<xs:enumeration value="gnc:GncEntry"/>
+								<xs:enumeration value="gnc:GncEmployee"/>
+								<xs:enumeration value="gnc:GncBillTerm"/>
+								<xs:enumeration value="gnc:GncInvoice"/>
+								<xs:enumeration value="gnc:GncVendor"/>
+								<xs:enumeration value="gnc:GncJob"/>
+								<xs:enumeration value="gnc:GncTaxTable"/>
+								<xs:enumeration value="schedxaction"/>
+								<xs:enumeration value="transaction"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="gnc_transaction">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="trn_id">
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:string">
+								<xs:attribute name="type" type="xs:string" use="required"/>
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="trn_currency">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="cmdty_space"/>
+							<xs:element ref="cmdty_id"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="trn_num" type="xs:string" minOccurs="0" maxOccurs="1"/>
+				<xs:element name="trn_date-posted" minOccurs="0" maxOccurs="1"> <!-- this is illegal but we have code to fix this broken file -->
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="ts_date"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="trn_date-entered">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element ref="ts_date"/>
+							<xs:element name="ts_ns" minOccurs="0" maxOccurs="1" type="xs:int"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="trn_description" type="xs:string"/>
+				<xs:element type="slots_type" name="trn_slots" minOccurs="0" maxOccurs="1"/>
+				<xs:element name="trn_splits">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="trn_split" minOccurs="0"
+										maxOccurs="unbounded"><!-- We need a minimum of 0 for Papierkram temporarily but of 1 for gnucash to accept it-->
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="split_id">
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="type" type="xs:string" use="required"/>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="split_memo" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="split_action" type="xs:string" minOccurs="0" maxOccurs="1"/>
+										<xs:element name="split_reconciled-state">
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:enumeration value="c"/>
+													<xs:enumeration value="n"/>
+													<xs:enumeration value="y"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="split_reconcile-date" minOccurs="0" maxOccurs="1">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element ref="ts_date"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="split_value" type="xs:string"/>
+										<xs:element name="split_quantity" type="xs:string"/>
+										<xs:element name="split_account">
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="type" type="xs:string" use="required"/>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="split_lot" minOccurs="0" maxOccurs="1">
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="type" type="xs:string" use="required"/>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element type="slots_type" name="split_slots" minOccurs="0" maxOccurs="1"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="owner_id">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="type" type="xs:string" use="required"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="owner_type">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="gncCustomer"/>
+				<xs:enumeration value="gncJob"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+	<xs:element name="slot_value">
+		<xs:complexType mixed="true">
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element ref="slot"/>
+				<xs:element ref="ts_date"/>
+				<xs:element ref="gdate"/>
+				<xs:element ref="slot_value"/>
+			</xs:choice>
+			<xs:attribute name="type" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:NMTOKEN">
+						<xs:enumeration value="list"/>
+						<xs:enumeration value="frame"/>
+						<xs:enumeration value="guid"/>
+						<xs:enumeration value="gdate"/>
+						<xs:enumeration value="integer"/>
+						<xs:enumeration value="string"/>
+						<xs:enumeration value="timespec"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="slot">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="slot_key" type="xs:string"/>
+				<xs:element ref="slot_value"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ts_date" type="xs:string"/>
+
+	<xs:complexType name="gnc_budget">
+		<xs:sequence>
+
+			<xs:element name="bgt_id" type="gnc_idType" maxOccurs="1"
+						minOccurs="1">
+			</xs:element>
+			<xs:element name="bgt_name" type="xs:string" maxOccurs="1"
+						minOccurs="1">
+			</xs:element>
+			<xs:element name="bgt_description" type="xs:string"
+						nillable="true" maxOccurs="1" minOccurs="0">
+			</xs:element>
+			<xs:element name="bgt_num-periods" type="xs:int" minOccurs="1"
+						maxOccurs="1">
+			</xs:element>
+			<xs:element name="bgt_recurrence" maxOccurs="1"
+						minOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="recurrence_mult"
+									type="xs:int">
+						</xs:element>
+						<xs:element name="recurrence_period_type"
+									type="xs:string">
+						</xs:element>
+						<xs:element name="recurrence_start" type="recurrence_startType">
+
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="version" type="xs:string"
+								  use="required">
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="bgt_slots" type="slots_type" minOccurs="0"></xs:element>
+		</xs:sequence>
+		<xs:attribute name="version" type="xs:string" use="required"></xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="gnc_idType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="type">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="guid"></xs:enumeration>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+	<xs:complexType name="recurrence_startType">
+		<xs:sequence>
+			<xs:element name="gdate" type="xs:date" minOccurs="1" maxOccurs="1"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="gnc_pricedb">
+		<xs:sequence>
+	    	<xs:element name="price" type="price" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+   		<xs:attribute name="version" type="xs:int" use="required"/>
+	</xs:complexType>
+    
+	<xs:complexType name="price">
+		<xs:sequence>
+            <xs:element name="price_id">
+   				<xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                           <xs:attribute name="type" type="xs:string" use="required"/>
+                        </xs:extension>
+                    </xs:simpleContent>
+   				</xs:complexType>
+            </xs:element>                
+            <xs:element name="price_commodity">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="cmdty_space"/>
+                        <xs:element ref="cmdty_id"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+                                      
+            <xs:element name="price_currency">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="cmdty_space"/>
+                        <xs:element ref="cmdty_id"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="price_time">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ts_date"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="price_source">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="Finance::Quote"/>
+                        <xs:enumeration value="user:price-editor"/>
+                        <xs:enumeration value="user:xfer-dialog"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="price_type" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="last"/>
+                        <xs:enumeration value="nav"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="price_value" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+</xs:schema>
+
