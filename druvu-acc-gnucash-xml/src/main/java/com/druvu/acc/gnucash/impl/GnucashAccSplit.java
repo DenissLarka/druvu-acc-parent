@@ -22,4 +22,20 @@ public record GnucashAccSplit(
 		BigDecimal value,
 		BigDecimal quantity
 ) implements AccSplit {
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		if(value().compareTo(quantity()) != 0) {
+			builder.append("[");
+			builder.append(value());
+			builder.append(' ');
+		}
+		builder.append(quantity());
+		if(value().compareTo(quantity()) != 0) {
+			builder.append(']');
+		}
+
+		return builder.toString();
+	}
 }

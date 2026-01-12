@@ -25,3 +25,4 @@ replay_pid*
 /.idea/
 /.vscode/
 **/target/**
+/.run/

@@ -51,9 +51,9 @@ public interface AccTransaction extends Comparable<AccTransaction> {
 	String description();
 
 	/**
-	 * @return IDs of splits in this transaction
+	 * @return splits in this transaction
 	 */
-	List<String> splitIds();
+	List<AccSplit> splits();
 
 	@Override
 	default int compareTo(AccTransaction other) {

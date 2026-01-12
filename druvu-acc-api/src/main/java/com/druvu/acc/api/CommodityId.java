@@ -1,6 +1,7 @@
 package com.druvu.acc.api;
 
 import lombok.Builder;
+import lombok.NonNull;
 
 /**
  * Identifies a commodity (currency, stock, mutual fund, etc.).
@@ -13,7 +14,9 @@ import lombok.Builder;
  */
 @Builder
 public record CommodityId(
+		@NonNull
 		String namespace,
+		@NonNull
 		String id
 ) {
 	/**
@@ -37,5 +40,16 @@ public record CommodityId(
 	 */
 	public boolean isCurrency() {
 		return NAMESPACE_CURRENCY.equals(namespace);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		if(!NAMESPACE_CURRENCY.equals(namespace())) {
+			builder.append(namespace());
+			builder.append('/');
+		}
+		builder.append(id());
+		return builder.toString();
 	}
 }

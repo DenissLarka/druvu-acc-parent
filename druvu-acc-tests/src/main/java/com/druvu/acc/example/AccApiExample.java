@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.druvu.acc.api.AccStore;
+import com.druvu.acc.api.AccTransaction;
 import com.druvu.acc.loader.AccStoreFactory;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,10 @@ public class AccApiExample {
 		final AccStore store = AccStoreFactory.load(filePath);
 
 		store.accounts().forEach(account -> log.info("{}", account));
+
+		for (AccTransaction tx : store.transactions()) {
+			log.info("{}", tx);
+		}
 		log.info("{}", store);
 	}
 }
