@@ -29,7 +29,7 @@
 		<testng.version>7.11.0</testng.version>
 		<jaxb-api.version>4.0.4</jaxb-api.version>
 		<jaxb-runtime.version>4.0.6</jaxb-runtime.version>
-		<jaxb-maven-plugin.version>4.0.8</jaxb-maven-plugin.version>
+		<jaxb-maven-plugin.version>4.0.12</jaxb-maven-plugin.version>
 		<druvu-lib-loader.version>1.0.7</druvu-lib-loader.version>
 		<spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
 
