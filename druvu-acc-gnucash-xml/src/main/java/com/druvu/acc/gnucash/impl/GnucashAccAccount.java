@@ -31,9 +31,7 @@ public record GnucashAccAccount(
 		builder.append("acc[");
 		builder.append(type);
 		builder.append(' ');
-		if (commodity.isPresent()) {
-			builder.append(commodity.get());
-		}
+		commodity.ifPresent(builder::append);
 		builder.append(' ');
 		builder.append(name);
 		builder.append(']');
