@@ -1,7 +1,7 @@
 package com.druvu.acc.test;
 
 import com.druvu.acc.api.AccStore;
-import com.druvu.acc.gnucash.io.GnucashBookFactory;
+import com.druvu.acc.gnucash.api.GnucashBookFactory;
 import com.druvu.lib.loader.Dependencies;
 
 import org.testng.annotations.BeforeClass;

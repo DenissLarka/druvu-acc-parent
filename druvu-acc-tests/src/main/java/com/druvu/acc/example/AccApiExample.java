@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AccApiExample {
 
-	public static void main(String[] args) {
+	static void main(String[] args) {
 		if (args.length < 1) {
 			System.err.println("Usage: AccApiExample <gnucash-file>");
 			System.exit(1);

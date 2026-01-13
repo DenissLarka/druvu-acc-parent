@@ -1,4 +1,4 @@
-package com.druvu.acc.gnucash.io;
+package com.druvu.acc.gnucash.api;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -6,6 +6,7 @@ import java.nio.file.Path;
 
 import com.druvu.acc.api.AccStore;
 import com.druvu.acc.gnucash.impl.GnucashAccStore;
+import com.druvu.acc.gnucash.reader.GnucashFileReader;
 import com.druvu.lib.loader.ComponentFactory;
 import com.druvu.lib.loader.Dependencies;
 

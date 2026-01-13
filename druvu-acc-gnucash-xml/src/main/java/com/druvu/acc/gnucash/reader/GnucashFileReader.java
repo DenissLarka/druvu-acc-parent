@@ -1,4 +1,4 @@
-package com.druvu.acc.gnucash.io;
+package com.druvu.acc.gnucash.reader;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;

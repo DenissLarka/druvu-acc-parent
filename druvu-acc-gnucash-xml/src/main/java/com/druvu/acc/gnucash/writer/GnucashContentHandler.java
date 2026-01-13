@@ -1,4 +1,4 @@
-package com.druvu.acc.gnucash.io;
+package com.druvu.acc.gnucash.writer;
 
 import java.io.IOException;
 import java.io.Writer;

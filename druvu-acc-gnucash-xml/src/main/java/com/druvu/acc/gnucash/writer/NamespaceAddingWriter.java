@@ -1,7 +1,9 @@
-package com.druvu.acc.gnucash.io;
+package com.druvu.acc.gnucash.writer;
 
 import java.io.IOException;
 import java.io.Writer;
+
+import com.druvu.acc.gnucash.reader.NamespaceRemovingReader;
 
 /**
  * A Writer that replaces '_' in XML tag names and attribute names with ':'.

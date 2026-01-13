@@ -12,8 +12,8 @@ module druvu.acc.gnucash.xml {
 	opens com.druvu.acc.gnucash.generated to jakarta.xml.bind;
 
 	// Export public API
-	exports com.druvu.acc.gnucash.io;
+	exports com.druvu.acc.gnucash.api;
 
 	// Register factory with ServiceLoader
-	provides com.druvu.lib.loader.ComponentFactory with com.druvu.acc.gnucash.io.GnucashBookFactory;
+	provides com.druvu.lib.loader.ComponentFactory with com.druvu.acc.gnucash.api.GnucashBookFactory;
 }
