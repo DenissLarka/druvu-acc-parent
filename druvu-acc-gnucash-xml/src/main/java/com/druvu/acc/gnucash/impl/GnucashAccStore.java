@@ -98,13 +98,6 @@ public class GnucashAccStore implements AccStore {
 				.map(AccountMapper::map);
 	}
 
-	@Override
-	public Optional<String> computeQualifiedName(String accountId) {
-		return bookElements(GncAccount.class)
-				.filter(account -> account.getActId().getValue().equals(accountId))
-				.findFirst()
-				.map(account -> computeQualifiedNameInternal(accountId));
-	}
 
 	@Override
 	public List<String> fetchChildIds(String accountId) {

@@ -18,14 +18,14 @@ public interface AccSplit {
 	String id();
 
 	/**
-	 * @return ID of the parent transaction
-	 */
-	String transactionId();
-
-	/**
 	 * @return ID of the account this split affects
 	 */
 	String accountId();
+
+	/**
+	 * @return ID of the parent transaction
+	 */
+	String transactionId();
 
 	/**
 	 * @return reconciliation state

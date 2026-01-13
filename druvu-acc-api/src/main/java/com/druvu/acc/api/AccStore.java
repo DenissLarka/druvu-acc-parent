@@ -66,14 +66,6 @@ public interface AccStore {
 	Optional<AccAccount> accountByName(String qualifiedName);
 
 	/**
-	 * Computes the fully qualified name for an account (e.g., "Assets:Bank:Checking").
-	 *
-	 * @param accountId the account ID
-	 * @return the qualified name or empty if an account not found
-	 */
-	Optional<String> computeQualifiedName(String accountId);
-
-	/**
 	 * Fetches the IDs of child accounts for a given account.
 	 *
 	 * @param accountId the parent account ID
