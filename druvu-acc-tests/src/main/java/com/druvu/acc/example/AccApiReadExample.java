@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  *         <br/>on 11 jan 2026
  */
 @Slf4j
-public class AccApiExample {
+public class AccApiReadExample {
 
 	static void main(String[] args) {
 		if (args.length < 1) {
@@ -24,10 +24,10 @@ public class AccApiExample {
 			System.exit(1);
 		}
 		Path filePath = Paths.get(args[0]);
-		new AccApiExample().run(filePath);
+		new AccApiReadExample().run(filePath);
 	}
 
-	private void run(Path filePath) {
+	void run(Path filePath) {
 		log.info("Loading file: {}", filePath);
 		final AccStore store = AccStoreFactory.load(filePath);
 
