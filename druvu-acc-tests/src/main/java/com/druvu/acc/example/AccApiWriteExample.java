@@ -1,11 +1,11 @@
 package com.druvu.acc.example;
 
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
 
 import com.druvu.acc.api.AccAccount;
+import com.druvu.acc.api.AccService;
 import com.druvu.acc.api.AccStore;
 import com.druvu.acc.api.AccTransaction;
 import com.druvu.acc.loader.AccStoreFactory;
@@ -34,15 +34,14 @@ public class AccApiWriteExample {
 		log.info("Loading file: {}", filePath);
 		final AccStore store = AccStoreFactory.load(filePath);
 
-		final Optional<AccAccount> revenusOpt = store.accountByName("Root Account:Revenus");
-		if(revenusOpt.isEmpty()) {
-			throw new IllegalStateException("Account not found");
-		}
-		final AccAccount revenus = revenusOpt.get();
+		final AccService service = AccService.create(store,"Root Account");
 
-		store.rootAccounts()
+		final AccAccount revenus = service.accountByName("Revenus");
+		final AccAccount depenses = service.accountByName("Dépenses");
 
-		log.info("{}", revenus);
+		service.transaction(depenses,revenus,new BigDecimal("1000"));
+
+		log.info("{}", depenses);
 
 		for (AccTransaction tx : store.transactions()) {
 			log.info("{}", tx);

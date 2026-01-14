@@ -26,3 +26,4 @@ replay_pid*
 /.vscode/
 **/target/**
 /.run/
+.DS_Store
