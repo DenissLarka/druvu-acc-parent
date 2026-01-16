@@ -1,11 +1,9 @@
 package com.druvu.acc.gnucash.impl;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.druvu.acc.api.AccAccount;
@@ -89,15 +87,20 @@ public class GnucashAccStore implements AccStore {
 
 	@Override
 	public Optional<AccAccount> accountByName(String qualifiedName) {
-		return bookElements(GncAccount.class)
-				.filter(account -> {
-					String accountId = account.getActId().getValue();
-					return computeQualifiedNameInternal(accountId).equals(qualifiedName);
-				})
-				.findFirst()
-				.map(AccountMapper::map);
-	}
+		String[] path = qualifiedName.split(":");
+		Optional<AccAccount> current = Optional.empty();
+		String currentParentId = null;
 
+		for (String name : path) {
+			current = accountByNameWithParent(name, currentParentId);
+			if (current.isEmpty()) {
+				return Optional.empty();
+			}
+			currentParentId = current.get().id();
+		}
+
+		return current;
+	}
 
 	@Override
 	public List<String> fetchChildIds(String accountId) {
@@ -166,30 +169,19 @@ public class GnucashAccStore implements AccStore {
 				.map(type::cast);
 	}
 
-	private String computeQualifiedNameInternal(String accountId) {
-		Map<String, String> idToName = new HashMap<>();
-		Map<String, String> idToParentId = new HashMap<>();
-
-		bookElements(GncAccount.class).forEach(account -> {
-			String id = account.getActId().getValue();
-			idToName.put(id, account.getActName());
-			if (account.getActParent() != null) {
-				idToParentId.put(id, account.getActParent().getValue());
-			}
-		});
-
-		List<String> parts = new ArrayList<>();
-		String currentId = accountId;
-
-		while (currentId != null) {
-			String name = idToName.get(currentId);
-			if (name != null) {
-				parts.addFirst(name);
-			}
-			currentId = idToParentId.get(currentId);
+	private Optional<AccAccount> accountByNameWithParent(String accountName, String parentId) {
+		Predicate<GncAccount> predicate = parentId == null
+				? account -> account.getActParent() == null
+				: account -> account.getActParent() != null && parentId.equals(account.getActParent().getValue());
+		final List<AccAccount> list = bookElements(GncAccount.class)
+				.filter(predicate)
+				.filter(account -> accountName.equals(account.getActName()))
+				.map(AccountMapper::map)
+				.toList();
+		if (list.size() > 1) {
+			throw new IllegalStateException("Multiple accounts found with name: " + accountName);
 		}
-
-		return String.join(":", parts);
+		return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
 	}
 
 	@Override

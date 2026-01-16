@@ -1,6 +1,5 @@
 package com.druvu.acc.example;
 
-import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -34,12 +33,12 @@ public class AccApiWriteExample {
 		log.info("Loading file: {}", filePath);
 		final AccStore store = AccStoreFactory.load(filePath);
 
-		final AccService service = AccService.create(store,"Root Account");
+		final AccService service = AccService.create(store,"Root Account2");
 
 		final AccAccount revenus = service.accountByName("Revenus");
 		final AccAccount depenses = service.accountByName("Dépenses");
 
-		service.transaction(depenses,revenus,new BigDecimal("1000"));
+
 
 		log.info("{}", depenses);
 

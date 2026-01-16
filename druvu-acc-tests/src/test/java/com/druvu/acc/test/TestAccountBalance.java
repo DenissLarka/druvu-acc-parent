@@ -22,8 +22,8 @@ public class TestAccountBalance {
 
 	@BeforeClass
 	public void setUp() throws URISyntaxException {
-		var resourceUrl = getClass().getResource("/test.gnucash");
-		assertNotNull(resourceUrl, "test.gnucash resource not found");
+		var resourceUrl = getClass().getResource("/common.gnucash");
+		assertNotNull(resourceUrl, "common.gnucash resource not found");
 
 		Path path = Paths.get(resourceUrl.toURI());
 		GnucashBookFactory factory = new GnucashBookFactory();
@@ -35,4 +35,12 @@ public class TestAccountBalance {
 		assertNotNull(store);
 		assertNotNull(store.id());
 	}
+
+	@Test
+	public void testAccountByName() {
+		var account = store.accountByName("Root Account2:Actif");
+		assertTrue(account.isPresent(), "Account 'Root Account2:Actif' should be found");
+		assertEquals(account.get().name(), "Actif");
+	}
+
 }

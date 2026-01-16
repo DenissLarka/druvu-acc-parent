@@ -1,10 +1,8 @@
 package com.druvu.acc.api;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 
 /**
  * Business logic for account operations.
@@ -34,9 +32,4 @@ public class AccService {
 		return accAccountOpt.orElseThrow(() -> new IllegalArgumentException("Account not found: " + accountName));
 	}
 
-	public void transaction(@NonNull AccAccount accFrom, @NonNull AccAccount accTo, @NonNull BigDecimal amount) {
-
-
-
-	}
 }
