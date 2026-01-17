@@ -7,6 +7,8 @@ module druvu.acc.api {
 
 	exports com.druvu.acc.api;
 	exports com.druvu.acc.loader;
+	exports com.druvu.acc.api.entity;
+	exports com.druvu.acc.api.service;
 
 	uses com.druvu.lib.loader.ComponentFactory;
 }

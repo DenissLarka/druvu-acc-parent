@@ -6,12 +6,12 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import com.druvu.acc.api.AccAccount;
-import com.druvu.acc.api.AccPrice;
-import com.druvu.acc.api.AccSplit;
+import com.druvu.acc.api.entity.Account;
+import com.druvu.acc.api.entity.Price;
+import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.AccStore;
-import com.druvu.acc.api.AccTransaction;
-import com.druvu.acc.api.CommodityId;
+import com.druvu.acc.api.entity.Transaction;
+import com.druvu.acc.api.entity.CommodityId;
 import com.druvu.acc.gnucash.generated.GncAccount;
 import com.druvu.acc.gnucash.generated.GncPricedb;
 import com.druvu.acc.gnucash.generated.GncTransaction;
@@ -54,7 +54,7 @@ public class GnucashAccStore implements AccStore {
 	}
 
 	@Override
-	public List<AccPrice> prices() {
+	public List<Price> prices() {
 		return bookElements(GncPricedb.class)
 				.filter(pricedb -> pricedb.getPrice() != null)
 				.flatMap(pricedb -> pricedb.getPrice().stream())
@@ -63,14 +63,14 @@ public class GnucashAccStore implements AccStore {
 	}
 
 	@Override
-	public List<AccAccount> accounts() {
+	public List<Account> accounts() {
 		return bookElements(GncAccount.class)
 				.map(AccountMapper::map)
 				.toList();
 	}
 
 	@Override
-	public List<AccAccount> rootAccounts() {
+	public List<Account> rootAccounts() {
 		return bookElements(GncAccount.class)
 				.filter(account -> account.getActParent() == null)
 				.map(AccountMapper::map)
@@ -78,7 +78,7 @@ public class GnucashAccStore implements AccStore {
 	}
 
 	@Override
-	public Optional<AccAccount> accountById(String id) {
+	public Optional<Account> accountById(String id) {
 		return bookElements(GncAccount.class)
 				.filter(account -> account.getActId().getValue().equals(id))
 				.findFirst()
@@ -86,9 +86,9 @@ public class GnucashAccStore implements AccStore {
 	}
 
 	@Override
-	public Optional<AccAccount> accountByName(String qualifiedName) {
+	public Optional<Account> accountByName(String qualifiedName) {
 		String[] path = qualifiedName.split(":");
-		Optional<AccAccount> current = Optional.empty();
+		Optional<Account> current = Optional.empty();
 		String currentParentId = null;
 
 		for (String name : path) {
@@ -114,7 +114,7 @@ public class GnucashAccStore implements AccStore {
 	}
 
 	@Override
-	public List<AccTransaction> transactions() {
+	public List<Transaction> transactions() {
 		return bookElements(GncTransaction.class)
 				.map(TransactionMapper::map)
 				.sorted()
@@ -122,7 +122,7 @@ public class GnucashAccStore implements AccStore {
 	}
 
 	@Override
-	public Optional<AccTransaction> transactionById(String id) {
+	public Optional<Transaction> transactionById(String id) {
 		return bookElements(GncTransaction.class)
 				.filter(transaction -> transaction.getTrnId().getValue().equals(id))
 				.findFirst()
@@ -130,11 +130,11 @@ public class GnucashAccStore implements AccStore {
 	}
 
 	@Override
-	public List<AccTransaction> transactions(LocalDate from, LocalDate to) {
+	public List<Transaction> transactions(LocalDate from, LocalDate to) {
 		return bookElements(GncTransaction.class)
 				.map(TransactionMapper::map)
 				.filter(mapped -> {
-					LocalDate date = mapped.date();
+					LocalDate date = mapped.datePosted();
 					return !date.isBefore(from) && !date.isAfter(to);
 				})
 				.sorted()
@@ -142,7 +142,7 @@ public class GnucashAccStore implements AccStore {
 	}
 
 	@Override
-	public List<AccTransaction> transactionsForAccount(String accountId) {
+	public List<Transaction> transactionsForAccount(String accountId) {
 		return transactions().stream()
 				.filter(transaction -> transaction.splits().stream()
 						.anyMatch(split -> split.accountId().equals(accountId)))
@@ -150,7 +150,7 @@ public class GnucashAccStore implements AccStore {
 	}
 
 	@Override
-	public List<AccSplit> splitsForAccount(String accountId) {
+	public List<Split> splitsForAccount(String accountId) {
 		return transactions().stream()
 				.flatMap(transaction -> transaction.splits().stream())
 				.filter(split -> split.accountId().equals(accountId))
@@ -169,11 +169,11 @@ public class GnucashAccStore implements AccStore {
 				.map(type::cast);
 	}
 
-	private Optional<AccAccount> accountByNameWithParent(String accountName, String parentId) {
+	private Optional<Account> accountByNameWithParent(String accountName, String parentId) {
 		Predicate<GncAccount> predicate = parentId == null
 				? account -> account.getActParent() == null
 				: account -> account.getActParent() != null && parentId.equals(account.getActParent().getValue());
-		final List<AccAccount> list = bookElements(GncAccount.class)
+		final List<Account> list = bookElements(GncAccount.class)
 				.filter(predicate)
 				.filter(account -> accountName.equals(account.getActName()))
 				.map(AccountMapper::map)

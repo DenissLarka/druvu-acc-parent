@@ -2,11 +2,10 @@ package com.druvu.acc.gnucash.mapper;
 
 import java.util.Optional;
 
-import com.druvu.acc.api.AccAccount;
-import com.druvu.acc.api.AccountType;
-import com.druvu.acc.api.CommodityId;
+import com.druvu.acc.api.entity.Account;
+import com.druvu.acc.api.entity.AccountType;
+import com.druvu.acc.api.entity.CommodityId;
 import com.druvu.acc.gnucash.generated.GncAccount;
-import com.druvu.acc.gnucash.impl.GnucashAccAccount;
 
 import lombok.experimental.UtilityClass;
 
@@ -19,7 +18,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public final class AccountMapper {
 
-	public static AccAccount map(GncAccount peer) {
+	public static Account map(GncAccount peer) {
 		var commodity = peer.getActCommodity();
 		Optional<CommodityId> commodityId = commodity != null
 				? Optional.of(new CommodityId(commodity.getCmdtySpace(), commodity.getCmdtyId()))
@@ -38,7 +37,7 @@ public final class AccountMapper {
 			type = AccountType.ASSET;
 		}
 
-		return new GnucashAccAccount(
+		return new Account(
 				peer.getActId().getValue(),
 				peer.getActName(),
 				type,

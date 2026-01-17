@@ -1,4 +1,4 @@
-package com.druvu.acc.api;
+package com.druvu.acc.api.entity;
 
 /**
  * Types of accounts in double-entry bookkeeping.

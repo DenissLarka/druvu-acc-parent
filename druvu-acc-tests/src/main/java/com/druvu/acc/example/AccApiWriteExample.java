@@ -3,10 +3,10 @@ package com.druvu.acc.example;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.druvu.acc.api.AccAccount;
-import com.druvu.acc.api.AccService;
+import com.druvu.acc.api.entity.Account;
+import com.druvu.acc.api.service.AccountService;
 import com.druvu.acc.api.AccStore;
-import com.druvu.acc.api.AccTransaction;
+import com.druvu.acc.api.entity.Transaction;
 import com.druvu.acc.loader.AccStoreFactory;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,16 +33,18 @@ public class AccApiWriteExample {
 		log.info("Loading file: {}", filePath);
 		final AccStore store = AccStoreFactory.load(filePath);
 
-		final AccService service = AccService.create(store,"Root Account2");
+		final AccountService service = AccountService.create(store,"Root Account2");
 
-		final AccAccount revenus = service.accountByName("Revenus");
-		final AccAccount depenses = service.accountByName("Dépenses");
+		final Account revenus = service.accountByName("Revenus");
+		final Account depenses = service.accountByName("Dépenses");
+
+		//IN PROGRESS
 
 
 
 		log.info("{}", depenses);
 
-		for (AccTransaction tx : store.transactions()) {
+		for (Transaction tx : store.transactions()) {
 			log.info("{}", tx);
 		}
 		log.info("{}", store);

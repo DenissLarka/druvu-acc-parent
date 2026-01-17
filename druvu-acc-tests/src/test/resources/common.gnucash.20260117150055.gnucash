@@ -202,7 +202,7 @@
   </slot>
 </book:slots>
 <gnc:count-data cd:type="commodity">1</gnc:count-data>
-<gnc:count-data cd:type="account">7</gnc:count-data>
+<gnc:count-data cd:type="account">8</gnc:count-data>
 <gnc:count-data cd:type="transaction">5</gnc:count-data>
 <gnc:commodity version="2.0.0">
   <cmdty:space>CURRENCY</cmdty:space>
@@ -350,6 +350,17 @@
   </act:slots>
   <act:parent type="guid">1f861239b462433fb2f93e1f7a687639</act:parent>
 </gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Non soldé-CHF</act:name>
+  <act:id type="guid">36c14ed68a24489889770a8517b45ad6</act:id>
+  <act:type>BANK</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>CHF</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:parent type="guid">cfc4c7e90aaa48b8913d45bf3925e7ee</act:parent>
+</gnc:account>
 <gnc:transaction version="2.0.0">
   <trn:id type="guid">4a0761b83327427fb6cefec5ecbf6f0e</trn:id>
   <trn:currency>
@@ -374,18 +385,18 @@
   </trn:slots>
   <trn:splits>
     <trn:split>
-      <split:id type="guid">e769c2a834f74fefab68251840b98b26</split:id>
+      <split:id type="guid">8e99c6a58cd347d2928da3af7cfa293a</split:id>
       <split:reconciled-state>n</split:reconciled-state>
       <split:value>10000/100</split:value>
       <split:quantity>10000/100</split:quantity>
-      <split:account type="guid">8045706b3dc94697baa0ab7601536216</split:account>
+      <split:account type="guid">079289ff195444bba660b244762c5368</split:account>
     </trn:split>
     <trn:split>
-      <split:id type="guid">8e99c6a58cd347d2928da3af7cfa293a</split:id>
+      <split:id type="guid">e769c2a834f74fefab68251840b98b26</split:id>
       <split:reconciled-state>n</split:reconciled-state>
       <split:value>-10000/100</split:value>
       <split:quantity>-10000/100</split:quantity>
-      <split:account type="guid">079289ff195444bba660b244762c5368</split:account>
+      <split:account type="guid">9826503d12a141159f123fb6cc3db109</split:account>
     </trn:split>
   </trn:splits>
 </gnc:transaction>
@@ -413,18 +424,18 @@
   </trn:slots>
   <trn:splits>
     <trn:split>
-      <split:id type="guid">1d2bcdda597a4f6f92df127425161f09</split:id>
+      <split:id type="guid">08f31135f9c24c088d944dc9298d1130</split:id>
       <split:reconciled-state>n</split:reconciled-state>
       <split:value>20000/100</split:value>
       <split:quantity>20000/100</split:quantity>
-      <split:account type="guid">8045706b3dc94697baa0ab7601536216</split:account>
+      <split:account type="guid">079289ff195444bba660b244762c5368</split:account>
     </trn:split>
     <trn:split>
-      <split:id type="guid">08f31135f9c24c088d944dc9298d1130</split:id>
+      <split:id type="guid">1d2bcdda597a4f6f92df127425161f09</split:id>
       <split:reconciled-state>n</split:reconciled-state>
       <split:value>-20000/100</split:value>
       <split:quantity>-20000/100</split:quantity>
-      <split:account type="guid">079289ff195444bba660b244762c5368</split:account>
+      <split:account type="guid">9826503d12a141159f123fb6cc3db109</split:account>
     </trn:split>
   </trn:splits>
 </gnc:transaction>
@@ -452,18 +463,18 @@
   </trn:slots>
   <trn:splits>
     <trn:split>
-      <split:id type="guid">f931c217e3a0406b9f2ed96312a3de2c</split:id>
+      <split:id type="guid">84ee4e1a153747a1bd4ef6a1b1196338</split:id>
       <split:reconciled-state>n</split:reconciled-state>
       <split:value>30000/100</split:value>
       <split:quantity>30000/100</split:quantity>
-      <split:account type="guid">8045706b3dc94697baa0ab7601536216</split:account>
+      <split:account type="guid">079289ff195444bba660b244762c5368</split:account>
     </trn:split>
     <trn:split>
-      <split:id type="guid">84ee4e1a153747a1bd4ef6a1b1196338</split:id>
+      <split:id type="guid">f931c217e3a0406b9f2ed96312a3de2c</split:id>
       <split:reconciled-state>n</split:reconciled-state>
       <split:value>-30000/100</split:value>
       <split:quantity>-30000/100</split:quantity>
-      <split:account type="guid">079289ff195444bba660b244762c5368</split:account>
+      <split:account type="guid">9826503d12a141159f123fb6cc3db109</split:account>
     </trn:split>
   </trn:splits>
 </gnc:transaction>
@@ -491,18 +502,18 @@
   </trn:slots>
   <trn:splits>
     <trn:split>
-      <split:id type="guid">367aaac6e9b4419ca2c48da94c6a0013</split:id>
+      <split:id type="guid">9c9b6989496e4b74aafe1779ab0de746</split:id>
       <split:reconciled-state>n</split:reconciled-state>
       <split:value>40000/100</split:value>
       <split:quantity>40000/100</split:quantity>
-      <split:account type="guid">8045706b3dc94697baa0ab7601536216</split:account>
+      <split:account type="guid">079289ff195444bba660b244762c5368</split:account>
     </trn:split>
     <trn:split>
-      <split:id type="guid">9c9b6989496e4b74aafe1779ab0de746</split:id>
+      <split:id type="guid">367aaac6e9b4419ca2c48da94c6a0013</split:id>
       <split:reconciled-state>n</split:reconciled-state>
       <split:value>-40000/100</split:value>
       <split:quantity>-40000/100</split:quantity>
-      <split:account type="guid">079289ff195444bba660b244762c5368</split:account>
+      <split:account type="guid">9826503d12a141159f123fb6cc3db109</split:account>
     </trn:split>
   </trn:splits>
 </gnc:transaction>
@@ -530,18 +541,18 @@
   </trn:slots>
   <trn:splits>
     <trn:split>
-      <split:id type="guid">9d71dd405fd548d99032d271ff2bee01</split:id>
+      <split:id type="guid">675b92df835b424b81c25b25ebf8a477</split:id>
       <split:reconciled-state>n</split:reconciled-state>
       <split:value>50000/100</split:value>
       <split:quantity>50000/100</split:quantity>
-      <split:account type="guid">8045706b3dc94697baa0ab7601536216</split:account>
+      <split:account type="guid">079289ff195444bba660b244762c5368</split:account>
     </trn:split>
     <trn:split>
-      <split:id type="guid">675b92df835b424b81c25b25ebf8a477</split:id>
+      <split:id type="guid">9d71dd405fd548d99032d271ff2bee01</split:id>
       <split:reconciled-state>n</split:reconciled-state>
       <split:value>-50000/100</split:value>
       <split:quantity>-50000/100</split:quantity>
-      <split:account type="guid">079289ff195444bba660b244762c5368</split:account>
+      <split:account type="guid">9826503d12a141159f123fb6cc3db109</split:account>
     </trn:split>
   </trn:splits>
 </gnc:transaction>

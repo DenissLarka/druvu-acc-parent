@@ -2,12 +2,10 @@ package com.druvu.acc.gnucash.mapper;
 
 import java.util.Optional;
 
-import com.druvu.acc.api.AccPrice;
-import com.druvu.acc.api.CommodityId;
-import com.druvu.acc.gnucash.generated.Price;
+import com.druvu.acc.api.entity.Price;
+import com.druvu.acc.api.entity.CommodityId;
 import com.druvu.acc.gnucash.impl.DateTimeUtils;
 import com.druvu.acc.gnucash.impl.Fractions;
-import com.druvu.acc.gnucash.impl.GnucashAccPrice;
 
 /**
  * Maps GnuCash XML Price entity to AccPrice business object.
@@ -20,11 +18,11 @@ public final class PriceMapper {
 	private PriceMapper() {
 	}
 
-	public static AccPrice map(Price peer) {
+	public static Price map(com.druvu.acc.gnucash.generated.Price peer) {
 		var commodity = peer.getPriceCommodity();
 		var currency = peer.getPriceCurrency();
 
-		return new GnucashAccPrice(
+		return new Price(
 				peer.getPriceId().getValue(),
 				new CommodityId(commodity.getCmdtySpace(), commodity.getCmdtyId()),
 				new CommodityId(currency.getCmdtySpace(), currency.getCmdtyId()),

@@ -6,45 +6,41 @@ A modular Java library for reading and processing accounting data. The library p
 
 - **Modular JPMS Design** - Full Java Platform Module System support
 - **Pluggable Store Implementations** - Support for multiple accounting file formats via ServiceLoader
-- **Read-Only API** - Safe, immutable access to accounting data
-- **Balance Calculations** - Account balances, recursive balances, and currency conversion
-- **Clean Separation** - Store layer (raw data access) separate from API layer (business logic)
+- **Record-based Entities** - Immutable data entities using Java records
+- **GnuCash Support** - Read GnuCash XML files (plain and gzip-compressed)
 
 ## Modules
 
 ```
 druvu-acc-parent
-├── druvu-acc-store-parent          # Parent for store implementations
-│   ├── druvu-acc-store-api         # Core interfaces for data access
-│   └── druvu-acc-store-gnucash-xml # GnuCash XML format implementation
-├── druvu-acc-api                   # High-level accounting API
-└── druvu-acc-tests                 # Integration tests
+├── druvu-acc-api           # Core API: AccStore interface, entities, services
+├── druvu-acc-gnucash-xml   # GnuCash XML format implementation
+└── druvu-acc-tests         # Integration tests and examples
 ```
-
-### druvu-acc-store-api
-
-Core interfaces for accessing accounting data:
-
-- `AccBook` - The accounting book containing all data
-- `AccAccount` - Chart of accounts with hierarchy
-- `AccTransaction` - Transactions with splits
-- `AccTransactionSplit` - Individual journal entries
-- `AccCommodity` - Currencies and securities
-- `AccPrice` - Price quotes for commodities
-
-### druvu-acc-store-gnucash-xml
-
-Implementation for reading GnuCash XML files (`.gnucash`). Supports both plain XML and gzip-compressed files.
 
 ### druvu-acc-api
 
-High-level API with business logic:
+Core interfaces and entities for accounting data:
 
-- `AccountingBook` - Main entry point with account/transaction lookups
-- `AccountingAccount` - Account with balance calculations and hierarchy navigation
-- `AccountingTransaction` - Transaction with split access
-- `AccountingSplit` - Split with parsed values and running balance
-- `CurrencyTable` - Currency conversion using price quotes
+**Main Interface:**
+- `AccStore` - Main entry point for accessing accounting data (accounts, transactions, splits, prices)
+
+**Entity Records:**
+- `Account` - Account with id, name, type, code, description, commodity, and parentId
+- `Transaction` - Transaction with currency, date, description, and splits
+- `Split` - Transaction split with value, quantity, and reconciliation state
+- `Price` - Price quote for commodities
+- `CommodityId` - Identifies currencies and securities (namespace + id)
+- `AccountType` - Enum for account types (ASSET, LIABILITY, INCOME, EXPENSE, EQUITY, etc.)
+- `ReconcileState` - Reconciliation state (NOT_RECONCILED, CLEARED, RECONCILED)
+
+**Services:**
+- `AccountService` - Business logic for account operations (balance calculations)
+- `AccStoreFactory` - Factory for loading AccStore implementations via ServiceLoader
+
+### druvu-acc-gnucash-xml
+
+Implementation for reading and writing GnuCash XML files (`.gnucash`). Supports both plain XML and gzip-compressed files.
 
 ## Requirements
 
@@ -56,78 +52,66 @@ High-level API with business logic:
 ### Reading a GnuCash File
 
 ```java
-import com.druvu.acc.api.AccountingBook;
-import com.druvu.acc.api.DefaultAccountingBook;
-import com.druvu.acc.store.gnucash.io.GnucashFileReader;
+import com.druvu.acc.api.AccStore;
+import com.druvu.acc.api.entity.Account;
+import com.druvu.acc.api.entity.Transaction;
+import com.druvu.acc.loader.AccStoreFactory;
 
-// Read the file
-GnucashFileReader reader = new GnucashFileReader();
-var store = reader.read(Path.of("myfile.gnucash"));
+import java.nio.file.Path;
 
-// Create the high-level API wrapper
-AccountingBook book = new DefaultAccountingBook(store);
+// Load the store (auto-discovers GnuCash implementation via ServiceLoader)
+AccStore store = AccStoreFactory.load(Path.of("myfile.gnucash"));
 
 // Access accounts
-for (var account : book.rootAccounts()) {
-    System.out.println(account.qualifiedName() + ": " + account.balanceRecursive());
+for (Account account : store.accounts()) {
+    System.out.println(account.name() + " [" + account.type() + "]");
 }
 
 // Access transactions
-for (var transaction : book.transactions()) {
-    System.out.println(transaction.date() + " - " + transaction.description());
-    for (var split : transaction.splits()) {
-        System.out.println("  " + split.account().name() + ": " + split.quantity());
+for (Transaction tx : store.transactions()) {
+    System.out.println(tx.datePosted() + " - " + tx.description());
+    for (var split : tx.splits()) {
+        System.out.println("  " + split.quantity());
     }
 }
 ```
 
-### Using ServiceLoader for Dynamic Loading
+### Using AccountService for Balance Calculations
 
 ```java
-import com.druvu.acc.store.loader.AccBookFactory;
-import com.druvu.lib.loader.ComponentLoader;
+import com.druvu.acc.api.service.AccountService;
+import com.druvu.acc.api.entity.Account;
 
-// Load implementation dynamically
-var factory = ComponentLoader.load(AccBookFactory.class);
-var store = factory.load(Path.of("myfile.gnucash"));
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+// Create service with optional root account prefix
+AccountService service = AccountService.create(store, "Root Account");
+
+// Find account by name (relative to root)
+Account revenue = service.accountByName("Revenue");
+
+// Calculate balance
+BigDecimal currentBalance = service.balance(revenue);
+
+// Calculate balance up to a specific date
+BigDecimal historicBalance = service.balance(revenue, LocalDate.of(2026, 1, 1));
 ```
 
-### Balance Calculations
+### Working with Commodities
 
 ```java
-// Current balance
-BigDecimal balance = account.balance();
+import com.druvu.acc.api.entity.CommodityId;
 
-// Balance at specific date
-BigDecimal historicBalance = account.balance(LocalDate.of(2024, 1, 1));
+// Create a currency ID
+CommodityId eur = CommodityId.currency("EUR");
+CommodityId usd = new CommodityId("CURRENCY", "USD");
 
-// Recursive balance (including sub-accounts)
-BigDecimal totalBalance = account.balanceRecursive();
+// Create a stock ID
+CommodityId stock = new CommodityId("NASDAQ", "AAPL");
 
-// Recursive balance in specific currency
-BigDecimal balanceInEur = account.balanceRecursive(
-    LocalDate.now(),
-    new CommodityId("CURRENCY", "EUR")
-);
-```
-
-### Currency Conversion
-
-```java
-CurrencyTable currencyTable = book.currencyTable();
-
-// Get latest exchange rate
-Optional<BigDecimal> rate = currencyTable.getLatestPrice(
-    new CommodityId("CURRENCY", "USD"),
-    new CommodityId("CURRENCY", "EUR")
-);
-
-// Convert amount
-Optional<BigDecimal> converted = currencyTable.convert(
-    new BigDecimal("100.00"),
-    new CommodityId("CURRENCY", "USD"),
-    new CommodityId("CURRENCY", "EUR")
-);
+// Check if commodity is a currency
+boolean isCurrency = eur.isCurrency(); // true
 ```
 
 ## Building
@@ -146,20 +130,21 @@ mvn test
 
 To add support for a new accounting file format:
 
-1. Create a new module under `druvu-acc-store-parent`
-2. Implement the interfaces from `druvu-acc-store-api`
-3. Create an `AccBookFactory` implementation
+1. Create a new module
+2. Implement the `AccStore` interface
+3. Create a `ComponentFactory<AccStore>` implementation
 4. Register it via `provides` in `module-info.java`:
 
 ```java
 module druvu.acc.store.myformat {
-    requires druvu.acc.store.api;
+    requires druvu.acc.api;
+    requires druvu.lib.loader;
 
-    provides com.druvu.acc.store.loader.AccBookFactory
-        with com.mycompany.MyFormatBookFactory;
+    provides com.druvu.lib.loader.ComponentFactory
+        with com.mycompany.MyFormatStoreFactory;
 }
 ```
 
 ## License
 
-[Your license here]
+[Apache License Version 2.0](LICENSE)

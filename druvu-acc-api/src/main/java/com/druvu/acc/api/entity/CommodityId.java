@@ -1,4 +1,4 @@
-package com.druvu.acc.api;
+package com.druvu.acc.api.entity;
 
 import lombok.Builder;
 import lombok.NonNull;

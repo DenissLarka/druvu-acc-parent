@@ -1,10 +1,15 @@
 package com.druvu.acc.example;
 
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.Month;
 
+import com.druvu.acc.api.entity.Account;
+import com.druvu.acc.api.service.AccountService;
 import com.druvu.acc.api.AccStore;
-import com.druvu.acc.api.AccTransaction;
+import com.druvu.acc.api.entity.Transaction;
 import com.druvu.acc.loader.AccStoreFactory;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +38,15 @@ public class AccApiReadExample {
 
 		store.accounts().forEach(account -> log.info("{}", account));
 
-		for (AccTransaction tx : store.transactions()) {
+		for (Transaction tx : store.transactions()) {
 			log.info("{}", tx);
 		}
-		log.info("{}", store);
+
+		final AccountService service = AccountService.create(store, "Root Account2");
+		final Account revenue = service.accountByName("Revenus");
+
+		final BigDecimal balance = service.balance(revenue, LocalDate.of(2026, Month.JANUARY, 14));
+
+		log.info("{}", balance.toPlainString());
 	}
 }
