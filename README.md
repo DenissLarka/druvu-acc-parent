@@ -1,4 +1,4 @@
-# Druvu Accounting Library
+# Accounting Library
 
 A modular Java library for reading and processing accounting data. The library provides a clean API for working with double-entry bookkeeping data including accounts, transactions, commodities, and prices.
 
