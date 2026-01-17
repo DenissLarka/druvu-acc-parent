@@ -18,7 +18,7 @@ if (-not (Test-Path $GnucashFile)) {
 
 # Build the project (package JARs)
 Write-Host "Building project..." -ForegroundColor Cyan
-mvn clean package -DskipTests -q
+mvn clean install -DskipTests -q
 if ($LASTEXITCODE -ne 0) {
 	Write-Host "Build failed!" -ForegroundColor Red
 	exit 1
@@ -39,5 +39,5 @@ $modulePath = @(
 
 # Run with module path
 Write-Host "Running AccApiExample..." -ForegroundColor Cyan
-Write-Host ($modulePath -replace ':', "`n")
-java --module-path $modulePath --module druvu.acc.examples/com.druvu.acc.example.AccApiReadExample $GnucashFile
+#Write-Host ($modulePath -replace ':', "`n")
+java --module-path $modulePath --module com.druvu.acc.examples/com.druvu.acc.example.AccApiReadExample $GnucashFile

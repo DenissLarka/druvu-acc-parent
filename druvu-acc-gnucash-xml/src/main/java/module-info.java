@@ -1,9 +1,9 @@
 
-module druvu.acc.gnucash.xml {
+module com.druvu.acc.gnucash.xml {
 	requires static lombok;
 	requires static com.github.spotbugs.annotations;
 
-	requires druvu.acc.api;
+	requires com.druvu.acc.api;
 	requires druvu.lib.loader;
 	requires jakarta.xml.bind;
 	requires org.slf4j;

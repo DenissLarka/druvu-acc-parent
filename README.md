@@ -114,6 +114,14 @@ CommodityId stock = new CommodityId("NASDAQ", "AAPL");
 boolean isCurrency = eur.isCurrency(); // true
 ```
 
+### Running the Example
+
+Run `AccApiReadExample` to print account balances and transactions from a GnuCash file:
+
+```powershell
+./run-example.ps1 path/to/myfile.gnucash
+```
+
 ## Building
 
 ```bash
@@ -126,24 +134,6 @@ mvn clean install
 mvn test
 ```
 
-## Adding New Store Implementations
-
-To add support for a new accounting file format:
-
-1. Create a new module
-2. Implement the `AccStore` interface
-3. Create a `ComponentFactory<AccStore>` implementation
-4. Register it via `provides` in `module-info.java`:
-
-```java
-module druvu.acc.store.myformat {
-    requires druvu.acc.api;
-    requires druvu.lib.loader;
-
-    provides com.druvu.lib.loader.ComponentFactory
-        with com.mycompany.MyFormatStoreFactory;
-}
-```
 
 ## License
 

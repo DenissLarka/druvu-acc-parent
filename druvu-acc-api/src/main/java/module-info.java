@@ -1,4 +1,4 @@
-module druvu.acc.api {
+module com.druvu.acc.api {
 	requires static lombok;
 	requires static com.github.spotbugs.annotations;
 
@@ -8,6 +8,7 @@ module druvu.acc.api {
 	exports com.druvu.acc.api;
 	exports com.druvu.acc.loader;
 	exports com.druvu.acc.api.entity;
+
 	exports com.druvu.acc.api.service;
 
 	uses com.druvu.lib.loader.ComponentFactory;

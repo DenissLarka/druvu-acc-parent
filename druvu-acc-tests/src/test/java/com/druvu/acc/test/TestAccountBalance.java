@@ -38,8 +38,8 @@ public class TestAccountBalance {
 
 	@Test
 	public void testAccountByName() {
-		var account = store.accountByName("Root Account2:Actif");
-		assertTrue(account.isPresent(), "Account 'Root Account2:Actif' should be found");
+		var account = store.accountByName("Root Account:Actif");
+		assertTrue(account.isPresent(), "Account 'Root Account:Actif' should be found");
 		assertEquals(account.get().name(), "Actif");
 	}
 

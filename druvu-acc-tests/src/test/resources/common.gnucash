@@ -219,7 +219,7 @@
   <cmdty:fraction>1</cmdty:fraction>
 </gnc:commodity>
 <gnc:account version="2.0.0">
-  <act:name>Root Account2</act:name>
+  <act:name>Root Account</act:name>
   <act:id type="guid">cfc4c7e90aaa48b8913d45bf3925e7ee</act:id>
   <act:type>ROOT</act:type>
   <act:commodity>

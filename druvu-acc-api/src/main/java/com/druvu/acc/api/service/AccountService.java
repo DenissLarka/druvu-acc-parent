@@ -4,12 +4,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import com.druvu.acc.api.AccStore;
 import com.druvu.acc.api.entity.Account;
 import com.druvu.acc.api.entity.Split;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 
 /**
  * Business logic for account operations.
@@ -39,14 +41,17 @@ public class AccountService {
 		return accAccountOpt.orElseThrow(() -> new IllegalArgumentException("Account not found: " + accountName));
 	}
 
-	public BigDecimal balance(Account revenue) {
-		return balance(revenue, LocalDate.MAX);
+	public BigDecimal balance(String accountId) {
+		return balance(accountId, null);
 	}
 
-	public BigDecimal balance(Account revenue, LocalDate toDate) {
-		final List<Split> splits = store.splitsForAccount(revenue.id());
+	public BigDecimal balance(@NonNull String accountId, LocalDate toDate) {
+		final List<Split> splits = store.splitsForAccount(accountId);
+		final Predicate<Split> datePredicate = toDate != null
+				? split -> split.datePosted().isBefore(toDate.plusDays(1))
+				: _ -> true;
 		return splits.stream()
-				.filter(split -> split.datePosted().isBefore(toDate.plusDays(1)))
+				.filter(datePredicate)
 				.map(Split::quantity)
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
