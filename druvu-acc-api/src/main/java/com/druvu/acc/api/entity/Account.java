@@ -19,7 +19,7 @@ import com.druvu.acc.api.AccStore;
  * @param parentId    ID of a parent account, empty for root accounts
  *
  * @author Deniss Larka
- *         <br/>on 2026 Jan 10
+ *         <br/>on 10 Jan 2026
  */
 public record Account(
 		String id,

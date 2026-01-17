@@ -15,7 +15,7 @@ import java.util.Optional;
  * @param value          the value in transaction currency
  * @param quantity       the quantity in account currency
  * @author Deniss Larka
- *         <br/>on 2026 Jan 10
+ *         <br/>on 10 Jan 2026
  */
 public record Split(
 		String id,

@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * Example with writing operations.
  *
  * @author : Deniss Larka
- * on 13 janvier 2026
+ * on 13 Jan 2026
  **/
 @Slf4j
 public class AccApiWriteExample {

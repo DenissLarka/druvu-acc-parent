@@ -16,7 +16,7 @@ import lombok.experimental.UtilityClass;
  * Utility class for converting GnuCash slots to Java Maps.
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 10
+ * <br/>on 10 Jan 2026
  */
 @UtilityClass
 public final class SlotUtils {

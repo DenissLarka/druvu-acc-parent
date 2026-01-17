@@ -15,7 +15,7 @@ import com.druvu.acc.gnucash.reader.NamespaceRemovingReader;
  * Also, injects the required xmlns declarations after the root element.
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 13
+ * <br/>on 13 Jan 2026
  */
 public class NamespaceAddingWriter extends Writer {
 

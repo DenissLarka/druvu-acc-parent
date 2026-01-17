@@ -13,7 +13,7 @@ import lombok.experimental.UtilityClass;
  * Maps GnuCash XML GncAccount entity to AccAccount business object.
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 12
+ * <br/>on 12 Jan 2026
  */
 @UtilityClass
 public final class AccountMapper {

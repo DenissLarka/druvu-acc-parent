@@ -14,7 +14,7 @@ import java.util.Optional;
  * @param description transaction description
  * @param splits      splits in this transaction
  * @author Deniss Larka
- *         <br/>on 2026 Jan 10
+ *         <br/>on 10 Jan 2026
  */
 public record Transaction(
 		String id,

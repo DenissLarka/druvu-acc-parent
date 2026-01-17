@@ -16,7 +16,7 @@ import java.util.Optional;
  * @param value     the price value
  *
  * @author Deniss Larka
- *         <br/>on 2026 Jan 10
+ *         <br/>on 10 Jan 2026
  */
 public record Price(
 		String id,

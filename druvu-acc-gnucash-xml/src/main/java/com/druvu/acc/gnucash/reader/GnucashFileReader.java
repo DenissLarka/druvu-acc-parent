@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * Supports both plain XML and gzip-compressed files (typically .gnucash extension).
  *
  * @author Deniss Larka
- *         <br/>on 2026 Jan 10
+ *         <br/>on 10 Jan 2026
  */
 @Slf4j
 public class GnucashFileReader {

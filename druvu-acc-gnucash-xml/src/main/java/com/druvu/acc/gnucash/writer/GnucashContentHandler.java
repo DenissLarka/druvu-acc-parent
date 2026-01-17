@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * to produce output that is compatible with what GnuCash itself writes.
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 13
+ * <br/>on 13 Jan 2026
  */
 @Slf4j
 public class GnucashContentHandler implements ContentHandler {

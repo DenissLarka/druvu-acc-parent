@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  *
  * @author Deniss Larka
- *         <br/>on 2026 Jan 10
+ *         <br/>on 10 Jan 2026
  */
 @Slf4j
 public class GnucashBookFactory implements ComponentFactory<AccStore> {

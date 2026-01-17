@@ -4,7 +4,7 @@ package com.druvu.acc.api.entity;
  * Reconciliation state of a transaction split.
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 10
+ * <br/>on 10 Jan 2026
  */
 public enum ReconcileState {
 	/**

@@ -10,7 +10,7 @@ import lombok.NonNull;
  * @param id        The identifier within the namespace (e.g. "EUR", "AAPL")
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 10
+ * <br/>on 10 Jan 2026
  */
 @Builder
 public record CommodityId(

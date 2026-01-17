@@ -12,7 +12,7 @@ import lombok.experimental.UtilityClass;
  * GnuCash stores numeric values as fractions (e.g., "12345/100" for 123.45).
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 10
+ * <br/>on 10 Jan 2026
  */
 @UtilityClass
 public final class Fractions {

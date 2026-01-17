@@ -29,7 +29,7 @@ import lombok.NonNull;
  * This allows for future mutation support and keeps a single source of truth.
  *
  * @author Deniss Larka
- * on 11 janvier 2026
+ * <br/>on 11 Jan 2026
  */
 public class GnucashAccStore implements AccStore {
 

@@ -11,7 +11,7 @@ import com.druvu.acc.gnucash.impl.Fractions;
  * Maps GnuCash XML Price entity to AccPrice business object.
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 12
+ * <br/>on 12 Jan 2026
  */
 public final class PriceMapper {
 

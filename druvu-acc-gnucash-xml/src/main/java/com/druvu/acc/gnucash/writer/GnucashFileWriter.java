@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
  * The output format is compatible with the GnuCash application.
  *
  * @author Deniss Larka
- * <br/>on 2026 Jan 13
+ * <br/>on 13 Jan 2026
  */
 @Slf4j
 public class GnucashFileWriter {
