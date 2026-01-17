@@ -1,5 +1,7 @@
 # Accounting Library
 
+> **Early Development** - This project is in active early development. Feedback is very welcome! I'm looking to add new core accounting functionality and support for additional storage formats (KMyMoney, SQL databases, etc.). If you have suggestions, feature requests, or want to contribute, please open an issue or reach out.
+
 A modular Java library for reading and processing accounting data. The library provides a clean API for working with double-entry bookkeeping data including accounts, transactions, commodities, and prices.
 
 ## Features
