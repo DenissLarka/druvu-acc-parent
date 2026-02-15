@@ -6,11 +6,12 @@
 
 	<groupId>com.druvu</groupId>
 	<artifactId>druvu-acc-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
 	<name>Druvu Accounting Library</name>
 	<description>Modular accounting library with GnuCash XML support</description>
+	<url>https://github.com/DenissLarka/druvu-acc-parent</url>
 
 	<scm>
 		<url>https://github.com/DenissLarka/druvu-acc-parent</url>
@@ -49,6 +50,14 @@
 		<module>druvu-acc-gnucash-xml</module>
 		<module>druvu-acc-tests</module>
 	</modules>
+
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/DenissLarka/druvu-acc-parent/</url>
+		</repository>
+	</distributionManagement>
 
 	<repositories>
 		<repository>
