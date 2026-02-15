@@ -27,3 +27,4 @@ replay_pid*
 **/target/**
 /.run/
 .DS_Store
+**/pom.xml.versionsBackup
