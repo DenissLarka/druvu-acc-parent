@@ -124,6 +124,54 @@ Run `AccApiReadExample` to print account balances and transactions from a GnuCas
 ./run-example.ps1 path/to/myfile.gnucash
 ```
 
+## Installation
+
+This library is published to **GitHub Packages**. To use it, you need to configure Maven authentication.
+
+**1. Generate a GitHub Personal Access Token:**
+
+Go to [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens) and create a token with the `read:packages` scope.
+
+**2. Add the server to `~/.m2/settings.xml`:**
+
+```xml
+<settings>
+  <servers>
+    <server>
+      <id>github</id>
+      <username>YOUR_GITHUB_USERNAME</username>
+      <password>YOUR_GITHUB_TOKEN</password>
+    </server>
+  </servers>
+</settings>
+```
+
+**3. Add the repository and dependency to your project `pom.xml`:**
+
+```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/DenissLarka/druvu-acc-parent</url>
+    </repository>
+</repositories>
+```
+
+```xml
+<dependency>
+    <groupId>com.druvu</groupId>
+    <artifactId>druvu-acc-api</artifactId>
+    <version>1.0.0</version>
+</dependency>
+
+<!-- GnuCash XML support (optional) -->
+<dependency>
+    <groupId>com.druvu</groupId>
+    <artifactId>druvu-acc-gnucash-xml</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 ## Building
 
 ```bash
