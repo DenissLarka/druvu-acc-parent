@@ -31,7 +31,7 @@
 		<jaxb-api.version>4.0.5</jaxb-api.version>
 		<jaxb-runtime.version>4.0.7</jaxb-runtime.version>
 		<jaxb-maven-plugin.version>4.0.12</jaxb-maven-plugin.version>
-		<druvu-lib-loader.version>1.0.7</druvu-lib-loader.version>
+		<druvu-lib-loader.version>1.1.0</druvu-lib-loader.version>
 		<spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
 
 		<!-- Plugin versions -->
