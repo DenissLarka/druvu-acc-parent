@@ -18,7 +18,6 @@ import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.ReconcileState;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.entity.Transaction;
-import com.druvu.acc.loader.AccStoreFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,7 +41,7 @@ public class AccApiWriteExample {
 
 	private void run(Path filePath) throws Exception {
 		log.info("Loading file: {}", filePath);
-		WritableAccStore store = AccStoreFactory.loadWritable(filePath);
+		WritableAccStore store = AccStore.loadWritable(filePath);
 		log.info("Loaded {} accounts, {} transactions",
 				store.accounts().size(), store.transactions().size());
 
@@ -88,7 +87,7 @@ public class AccApiWriteExample {
 		log.info("Saved modified store to: {}", output);
 
 		// 5. Reload and confirm.
-		AccStore reloaded = AccStoreFactory.load(output);
+		AccStore reloaded = AccStore.load(output);
 		log.info("Reloaded {} accounts, {} transactions, {} commodities, {} prices",
 				reloaded.accounts().size(), reloaded.transactions().size(),
 				reloaded.commodities().size(), reloaded.prices().size());

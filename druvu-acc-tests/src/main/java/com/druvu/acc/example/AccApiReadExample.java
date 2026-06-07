@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import com.druvu.acc.api.AccStore;
 import com.druvu.acc.api.entity.Transaction;
 import com.druvu.acc.api.service.AccountService;
-import com.druvu.acc.loader.AccStoreFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +29,7 @@ public class AccApiReadExample {
 
 	void run(Path filePath) {
 
-		final AccStore store = AccStoreFactory.load(filePath);
+		final AccStore store = AccStore.load(filePath);
 		final AccountService accountService = AccountService.create(store, "Root Account");
 
 		for (var account : store.accounts()) {

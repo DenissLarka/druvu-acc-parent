@@ -1,5 +1,6 @@
 package com.druvu.acc.api;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,8 @@ import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.entity.Transaction;
 import com.druvu.acc.api.entity.CommodityId;
+import com.druvu.lib.loader.ComponentLoader;
+import com.druvu.lib.loader.Dependencies;
 
 /**
  * Interface representing an abstraction of storing account entities to underlying backend storage.
@@ -20,6 +23,34 @@ import com.druvu.acc.api.entity.CommodityId;
  *         <br/>on 11 Jan 2026
  */
 public interface AccStore {
+
+	// ========== Loading ==========
+
+	/**
+	 * Loads a store from the given file, auto-discovering the format implementation via ServiceLoader.
+	 *
+	 * @param path path to the file to load
+	 * @return the loaded store
+	 */
+	static AccStore load(Path path) {
+		return ComponentLoader.load(AccStore.class, Dependencies.of(Path.class, path));
+	}
+
+	/**
+	 * Loads a store and returns it as a {@link WritableAccStore} for mutation and saving.
+	 *
+	 * @param path path to the file to load
+	 * @return the loaded store, supporting mutation and {@link WritableAccStore#save}
+	 * @throws UnsupportedOperationException if the discovered implementation does not support writing
+	 */
+	static WritableAccStore loadWritable(Path path) {
+		AccStore store = load(path);
+		if (store instanceof WritableAccStore writable) {
+			return writable;
+		}
+		throw new UnsupportedOperationException(
+				"Loaded store does not support writing: " + store.getClass().getName());
+	}
 
 	// ========== Book Metadata ==========
 

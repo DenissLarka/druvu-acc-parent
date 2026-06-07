@@ -67,7 +67,7 @@ Core interfaces and entities for accounting data:
 
 **Services:**
 - `AccountService` - Business logic for account operations (balance calculations)
-- `AccStoreFactory` - Factory for loading AccStore implementations via ServiceLoader
+- `AccStore.load(Path)` / `AccStore.loadWritable(Path)` - static factory methods that load a store via ServiceLoader
 
 ### druvu-acc-gnucash-xml
 
@@ -86,12 +86,11 @@ Implementation for reading and writing GnuCash XML files (`.gnucash`). Supports 
 import com.druvu.acc.api.AccStore;
 import com.druvu.acc.api.entity.Account;
 import com.druvu.acc.api.entity.Transaction;
-import com.druvu.acc.loader.AccStoreFactory;
 
 import java.nio.file.Path;
 
 // Load the store (auto-discovers GnuCash implementation via ServiceLoader)
-AccStore store = AccStoreFactory.load(Path.of("myfile.gnucash"));
+AccStore store = AccStore.load(Path.of("myfile.gnucash"));
 
 // Access accounts
 for (Account account : store.accounts()) {
@@ -152,9 +151,9 @@ save the result. Mutations are applied in place; call `save(Path)` to persist th
 Entity IDs are caller-supplied — use 32-character hex GUIDs for GnuCash compatibility.
 
 ```java
+import com.druvu.acc.api.AccStore;
 import com.druvu.acc.api.WritableAccStore;
 import com.druvu.acc.api.entity.*;
-import com.druvu.acc.loader.AccStoreFactory;
 
 import java.math.BigDecimal;
 import java.nio.file.Path;
@@ -164,7 +163,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 // Load as writable
-WritableAccStore store = AccStoreFactory.loadWritable(Path.of("myfile.gnucash"));
+WritableAccStore store = AccStore.loadWritable(Path.of("myfile.gnucash"));
 
 String rootId = store.rootAccounts().getFirst().id();
 CommodityId eur = CommodityId.currency("EUR");
@@ -257,14 +256,14 @@ Go to [GitHub Settings > Developer settings > Personal access tokens](https://gi
 <dependency>
     <groupId>com.druvu</groupId>
     <artifactId>druvu-acc-api</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 
 <!-- GnuCash XML support (optional) -->
 <dependency>
     <groupId>com.druvu</groupId>
     <artifactId>druvu-acc-gnucash-xml</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 

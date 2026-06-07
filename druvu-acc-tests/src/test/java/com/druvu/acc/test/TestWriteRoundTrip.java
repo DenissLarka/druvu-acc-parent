@@ -10,7 +10,6 @@ import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.ReconcileState;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.entity.Transaction;
-import com.druvu.acc.loader.AccStoreFactory;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,7 +43,7 @@ public class TestWriteRoundTrip {
 
 	@Test
 	public void addAccountRoundTrips() throws IOException {
-		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		WritableAccStore store = AccStore.loadWritable(source);
 		int before = store.accounts().size();
 		String rootId = store.rootAccounts().get(0).id();
 		String id = newGuid();
@@ -72,7 +71,7 @@ public class TestWriteRoundTrip {
 
 	@Test
 	public void addTransactionRoundTrips() throws IOException {
-		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		WritableAccStore store = AccStore.loadWritable(source);
 		List<Account> accounts = store.accounts();
 		String accountA = accounts.get(0).id();
 		String accountB = accounts.get(1).id();
@@ -104,7 +103,7 @@ public class TestWriteRoundTrip {
 
 	@Test
 	public void removeTransactionRoundTrips() throws IOException {
-		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		WritableAccStore store = AccStore.loadWritable(source);
 		Transaction victim = store.transactions().get(0);
 		int before = store.transactions().size();
 
@@ -117,7 +116,7 @@ public class TestWriteRoundTrip {
 
 	@Test
 	public void removeAccountRoundTrips() throws IOException {
-		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		WritableAccStore store = AccStore.loadWritable(source);
 		String id = newGuid();
 		store.addAccount(new Account(id, "Temp", AccountType.EXPENSE, Optional.empty(),
 				Optional.empty(), Optional.of(CommodityId.currency("EUR")),
@@ -133,7 +132,7 @@ public class TestWriteRoundTrip {
 
 	@Test
 	public void addCommodityRoundTrips() throws IOException {
-		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		WritableAccStore store = AccStore.loadWritable(source);
 		int before = store.commodities().size();
 		CommodityId apple = new CommodityId("NASDAQ", "AAPL");
 
@@ -147,7 +146,7 @@ public class TestWriteRoundTrip {
 
 	@Test
 	public void addPriceRoundTrips() throws IOException {
-		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		WritableAccStore store = AccStore.loadWritable(source);
 		store.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
 		int before = store.prices().size();
 
@@ -174,7 +173,7 @@ public class TestWriteRoundTrip {
 
 	@Test
 	public void savedFileDeclaresGnuCashNamespaces() throws IOException {
-		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		WritableAccStore store = AccStore.loadWritable(source);
 		// Save uncompressed so we can read the raw XML text.
 		Path out = Files.createTempFile("acc-write", ".xml");
 		try {
@@ -195,13 +194,13 @@ public class TestWriteRoundTrip {
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void addDuplicateAccountFails() {
-		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		WritableAccStore store = AccStore.loadWritable(source);
 		store.addAccount(store.accounts().get(0));
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void removeMissingTransactionFails() {
-		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		WritableAccStore store = AccStore.loadWritable(source);
 		store.removeTransaction("does-not-exist");
 	}
 
@@ -209,7 +208,7 @@ public class TestWriteRoundTrip {
 		Path out = Files.createTempFile("acc-write", ".gnucash");
 		try {
 			store.save(out);
-			return AccStoreFactory.load(out);
+			return AccStore.load(out);
 		}
 		finally {
 			Files.deleteIfExists(out);

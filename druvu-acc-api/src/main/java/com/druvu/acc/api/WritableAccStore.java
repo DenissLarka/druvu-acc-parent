@@ -13,7 +13,7 @@ import com.druvu.acc.api.entity.Transaction;
  * A mutable {@link AccStore} that supports adding/removing entities and persisting
  * the result back to its backend.
  * <p>
- * Obtain a writable store via {@link AccStoreFactory#loadWritable(Path)} (or by casting an
+ * Obtain a writable store via {@link AccStore#loadWritable(Path)} (or by casting an
  * {@link AccStore} whose implementation supports writing). Mutations are applied in place;
  * call {@link #save(Path)} to serialize the current state to a file.
  * <p>
