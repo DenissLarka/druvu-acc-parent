@@ -6,7 +6,7 @@
 
 	<groupId>com.druvu</groupId>
 	<artifactId>druvu-acc-parent</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.1.0</version>
 	<packaging>pom</packaging>
 
 	<name>Druvu Accounting Library</name>
