@@ -4,7 +4,7 @@ module com.druvu.acc.gnucash.xml {
 	requires static com.github.spotbugs.annotations;
 
 	requires com.druvu.acc.api;
-	requires druvu.lib.loader;
+	requires com.druvu.lib.loader;
 	requires jakarta.xml.bind;
 	requires org.slf4j;
 
