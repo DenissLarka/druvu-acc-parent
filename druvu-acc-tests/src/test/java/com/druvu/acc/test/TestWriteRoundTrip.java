@@ -4,7 +4,9 @@ import com.druvu.acc.api.AccStore;
 import com.druvu.acc.api.WritableAccStore;
 import com.druvu.acc.api.entity.Account;
 import com.druvu.acc.api.entity.AccountType;
+import com.druvu.acc.api.entity.Commodity;
 import com.druvu.acc.api.entity.CommodityId;
+import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.ReconcileState;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.entity.Transaction;
@@ -20,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -126,6 +129,47 @@ public class TestWriteRoundTrip {
 
 		assertEquals(reloaded.accounts().size(), afterAdd - 1);
 		assertTrue(reloaded.accountById(id).isEmpty());
+	}
+
+	@Test
+	public void addCommodityRoundTrips() throws IOException {
+		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		int before = store.commodities().size();
+		CommodityId apple = new CommodityId("NASDAQ", "AAPL");
+
+		store.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
+
+		AccStore reloaded = saveAndReload(store);
+
+		assertEquals(reloaded.commodities().size(), before + 1);
+		assertTrue(reloaded.commodities().contains(apple), "added commodity should be present after reload");
+	}
+
+	@Test
+	public void addPriceRoundTrips() throws IOException {
+		WritableAccStore store = AccStoreFactory.loadWritable(source);
+		store.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
+		int before = store.prices().size();
+
+		CommodityId apple = new CommodityId("NASDAQ", "AAPL");
+		CommodityId usd = CommodityId.currency("USD");
+		String priceId = newGuid();
+		LocalDateTime when = LocalDateTime.of(2026, 6, 7, 12, 0, 0);
+
+		store.addPrice(new Price(priceId, apple, usd, when, "user:price-editor",
+				Optional.of("last"), new BigDecimal("212.50")));
+
+		AccStore reloaded = saveAndReload(store);
+
+		assertEquals(reloaded.prices().size(), before + 1);
+		Price found = reloaded.prices().stream()
+				.filter(p -> p.id().equals(priceId)).findFirst().orElse(null);
+		assertTrue(found != null, "added price should be present after reload");
+		assertEquals(found.commodity(), apple);
+		assertEquals(found.currency(), usd);
+		assertEquals(found.value().compareTo(new BigDecimal("212.50")), 0);
+		assertEquals(found.source(), "user:price-editor");
+		assertEquals(found.type(), Optional.of("last"));
 	}
 
 	@Test

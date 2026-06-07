@@ -63,6 +63,17 @@ public final class DateTimeUtils {
 	}
 
 	/**
+	 * Formats a date-time as a GnuCash timestamp string (ts:date element), in UTC.
+	 * The result round-trips through {@link #parseTimestamp(String)}.
+	 *
+	 * @param dateTime the date-time to format
+	 * @return the GnuCash timestamp string (e.g., "2026-06-07 14:30:00 +0000")
+	 */
+	public static String formatTimestamp(LocalDateTime dateTime) {
+		return dateTime.atOffset(ZoneOffset.UTC).format(TIMESTAMP_WITH_ZONE);
+	}
+
+	/**
 	 * Parses a GnuCash date string.
 	 *
 	 * @param date the date string (e.g., "2024-01-15")

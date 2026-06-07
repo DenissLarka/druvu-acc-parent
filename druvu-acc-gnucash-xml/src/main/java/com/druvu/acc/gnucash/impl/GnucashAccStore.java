@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.druvu.acc.api.entity.Account;
+import com.druvu.acc.api.entity.Commodity;
 import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.AccStore;
@@ -21,6 +22,7 @@ import com.druvu.acc.gnucash.generated.GncPricedb;
 import com.druvu.acc.gnucash.generated.GncTransaction;
 import com.druvu.acc.gnucash.generated.GncV2;
 import com.druvu.acc.gnucash.mapper.AccountMapper;
+import com.druvu.acc.gnucash.mapper.CommodityMapper;
 import com.druvu.acc.gnucash.mapper.PriceMapper;
 import com.druvu.acc.gnucash.mapper.TransactionMapper;
 import com.druvu.acc.gnucash.writer.GnucashFileWriter;
@@ -41,6 +43,12 @@ public class GnucashAccStore implements WritableAccStore {
 	private static final String CD_TYPE_ACCOUNT = "account";
 
 	private static final String CD_TYPE_TRANSACTION = "transaction";
+
+	private static final String CD_TYPE_COMMODITY = "commodity";
+
+	private static final String CD_TYPE_PRICE = "price";
+
+	private static final int PRICEDB_VERSION = 1;
 
 	private final GncV2 root;
 
@@ -209,6 +217,53 @@ public class GnucashAccStore implements WritableAccStore {
 	}
 
 	@Override
+	public void addCommodity(@NonNull Commodity commodity) {
+		CommodityId id = commodity.id();
+		boolean exists = bookElements(GncV2.GncBook.GncCommodity.class)
+				.anyMatch(c -> id.namespace().equals(c.getCmdtySpace()) && id.id().equals(c.getCmdtyId()));
+		if (exists) {
+			throw new IllegalArgumentException("Commodity already exists: " + id);
+		}
+		book().getBookElements().add(CommodityMapper.toGnc(commodity));
+		adjustCount(CD_TYPE_COMMODITY, 1);
+	}
+
+	@Override
+	public void removeCommodity(CommodityId commodityId) {
+		boolean removed = book().getBookElements().removeIf(
+				element -> element instanceof GncV2.GncBook.GncCommodity commodity
+						&& commodityId.namespace().equals(commodity.getCmdtySpace())
+						&& commodityId.id().equals(commodity.getCmdtyId()));
+		if (!removed) {
+			throw new IllegalArgumentException("No commodity: " + commodityId);
+		}
+		adjustCount(CD_TYPE_COMMODITY, -1);
+	}
+
+	@Override
+	public void addPrice(@NonNull Price price) {
+		GncPricedb pricedb = priceDb();
+		boolean exists = pricedb.getPrice().stream()
+				.anyMatch(p -> p.getPriceId().getValue().equals(price.id()));
+		if (exists) {
+			throw new IllegalArgumentException("Price already exists: " + price.id());
+		}
+		pricedb.getPrice().add(PriceMapper.toGnc(price));
+		adjustCount(CD_TYPE_PRICE, 1);
+	}
+
+	@Override
+	public void removePrice(String priceId) {
+		GncPricedb pricedb = bookElements(GncPricedb.class).findFirst().orElse(null);
+		boolean removed = pricedb != null
+				&& pricedb.getPrice().removeIf(p -> p.getPriceId().getValue().equals(priceId));
+		if (!removed) {
+			throw new IllegalArgumentException("No price with ID: " + priceId);
+		}
+		adjustCount(CD_TYPE_PRICE, -1);
+	}
+
+	@Override
 	public void save(Path path) throws IOException {
 		new GnucashFileWriter().write(root, path);
 	}
@@ -217,6 +272,18 @@ public class GnucashAccStore implements WritableAccStore {
 
 	private GncV2.GncBook book() {
 		return root.getGncBook();
+	}
+
+	/**
+	 * Returns the book's price database, creating and registering an empty one if absent.
+	 */
+	private GncPricedb priceDb() {
+		return bookElements(GncPricedb.class).findFirst().orElseGet(() -> {
+			GncPricedb pricedb = new GncPricedb();
+			pricedb.setVersion(PRICEDB_VERSION);
+			book().getBookElements().add(pricedb);
+			return pricedb;
+		});
 	}
 
 	/**

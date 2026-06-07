@@ -1,7 +1,5 @@
 # Accounting Library
 
-> **Early Development** - This project is in active early development. Feedback is very welcome! I'm looking to add new core accounting functionality and support for additional storage formats (KMyMoney, SQL databases, etc.). If you have suggestions, feature requests, or want to contribute, please open an issue or reach out.
-
 A modular Java library for reading and processing accounting data. The library provides a clean API for working with double-entry bookkeeping data including accounts, transactions, commodities, and prices.
 
 ## Features
@@ -10,6 +8,35 @@ A modular Java library for reading and processing accounting data. The library p
 - **Pluggable Store Implementations** - Support for multiple accounting file formats via ServiceLoader
 - **Record-based Entities** - Immutable data entities using Java records
 - **GnuCash Support** - Read *and write* GnuCash XML files (plain and gzip-compressed)
+
+## Supported entities
+
+GnuCash files can hold many entity types. The table below tracks what this library supports
+today against the GnuCash XML v2 data model. The core double-entry entities and the
+investment/multi-currency entities are covered; the business (accounts-receivable/payable)
+and planning entities are not yet implemented.
+
+| Entity | In GnuCash | druvu-acc |
+|---|:---:|---|
+| Accounts | ✓ | **read + write** |
+| Transactions & splits | ✓ | **read + write** |
+| Commodities (currencies & securities) | ✓ | **read + write** |
+| Prices (price database) | ✓ | **read + write** |
+| Scheduled (recurring) transactions | ✓ | — *not yet* |
+| Budgets | ✓ | — *not yet* |
+| Customers | ✓ | — *not yet* |
+| Vendors | ✓ | — *not yet* |
+| Employees | ✓ | — *not yet* |
+| Invoices & bills (+ line entries) | ✓ | — *not yet* |
+| Jobs | ✓ | — *not yet* |
+| Orders | ✓ | — *not yet* |
+| Billing terms | ✓ | — *not yet* |
+| Tax tables | ✓ | — *not yet* |
+| Lots | ✓ | — *not yet* |
+
+> **Which entity should come next?** If you need one of the *not yet* rows, please
+> [open an issue](https://github.com/DenissLarka/druvu-acc-parent/issues) (or vote on an
+> existing one) describing your use case. Prioritisation follows real demand.
 
 ## Modules
 
@@ -159,6 +186,17 @@ List<Split> splits = List.of(
                 new BigDecimal("-4.50"), new BigDecimal("-4.50")));
 store.addTransaction(new Transaction(
         txId, eur, Optional.empty(), today, "Morning coffee", splits));
+
+// Add a security commodity and a price quote (investments / multi-currency)
+store.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
+store.addPrice(new Price(
+        UUID.randomUUID().toString().replace("-", ""),
+        new CommodityId("NASDAQ", "AAPL"),
+        CommodityId.currency("USD"),
+        today.atStartOfDay(),
+        "user:price-editor",
+        Optional.of("last"),
+        new BigDecimal("212.50")));
 
 // Remove entities by ID
 store.removeTransaction(txId);

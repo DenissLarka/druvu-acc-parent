@@ -12,7 +12,9 @@ import com.druvu.acc.api.AccStore;
 import com.druvu.acc.api.WritableAccStore;
 import com.druvu.acc.api.entity.Account;
 import com.druvu.acc.api.entity.AccountType;
+import com.druvu.acc.api.entity.Commodity;
 import com.druvu.acc.api.entity.CommodityId;
+import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.ReconcileState;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.entity.Transaction;
@@ -69,17 +71,30 @@ public class AccApiWriteExample {
 		store.addTransaction(new Transaction(
 				txId, eur, Optional.empty(), today, "Morning coffee", splits));
 
-		// 3. Save to a sibling file.
+		// 3. Add a security commodity and a price quote (investment use case).
+		store.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
+		store.addPrice(new Price(
+				newGuid(),
+				new CommodityId("NASDAQ", "AAPL"),
+				CommodityId.currency("USD"),
+				today.atStartOfDay(),
+				"user:price-editor",
+				Optional.of("last"),
+				new BigDecimal("212.50")));
+
+		// 4. Save to a sibling file.
 		Path output = siblingOutput(filePath);
 		store.save(output);
 		log.info("Saved modified store to: {}", output);
 
-		// 4. Reload and confirm.
+		// 5. Reload and confirm.
 		AccStore reloaded = AccStoreFactory.load(output);
-		log.info("Reloaded {} accounts, {} transactions",
-				reloaded.accounts().size(), reloaded.transactions().size());
+		log.info("Reloaded {} accounts, {} transactions, {} commodities, {} prices",
+				reloaded.accounts().size(), reloaded.transactions().size(),
+				reloaded.commodities().size(), reloaded.prices().size());
 		log.info("New account present: {}", reloaded.accountById(accountId).isPresent());
 		log.info("New transaction present: {}", reloaded.transactionById(txId).isPresent());
+		log.info("New commodity present: {}", reloaded.commodities().contains(new CommodityId("NASDAQ", "AAPL")));
 	}
 
 	private static Path siblingOutput(Path input) {

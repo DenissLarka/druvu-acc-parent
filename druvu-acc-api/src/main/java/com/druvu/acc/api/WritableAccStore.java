@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import com.druvu.acc.api.entity.Account;
+import com.druvu.acc.api.entity.Commodity;
+import com.druvu.acc.api.entity.CommodityId;
+import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.Transaction;
 
 /**
@@ -53,6 +56,38 @@ public interface WritableAccStore extends AccStore {
 	 * @throws IllegalArgumentException if no transaction with the given ID exists
 	 */
 	void removeTransaction(String transactionId);
+
+	/**
+	 * Adds a commodity definition (currency or security).
+	 *
+	 * @param commodity the commodity to add
+	 * @throws IllegalArgumentException if a commodity with the same namespace and symbol already exists
+	 */
+	void addCommodity(Commodity commodity);
+
+	/**
+	 * Removes a commodity definition by its identifier.
+	 *
+	 * @param commodityId the namespace + symbol of the commodity to remove
+	 * @throws IllegalArgumentException if no matching commodity exists
+	 */
+	void removeCommodity(CommodityId commodityId);
+
+	/**
+	 * Adds a price quote to the price database.
+	 *
+	 * @param price the price to add
+	 * @throws IllegalArgumentException if a price with the same ID already exists
+	 */
+	void addPrice(Price price);
+
+	/**
+	 * Removes a price quote by ID.
+	 *
+	 * @param priceId the ID of the price to remove
+	 * @throws IllegalArgumentException if no price with the given ID exists
+	 */
+	void removePrice(String priceId);
 
 	/**
 	 * Persists the current state of the store to the given path.
