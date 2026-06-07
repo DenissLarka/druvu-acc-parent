@@ -50,4 +50,48 @@ public final class TransactionMapper {
 				splits
 		);
 	}
+
+	/**
+	 * Maps a {@link Transaction} business object (with its splits) to a GnuCash XML
+	 * {@link GncTransaction} element.
+	 *
+	 * @param transaction the transaction to map
+	 * @return the GnuCash XML representation
+	 */
+	public static GncTransaction toGnc(Transaction transaction) {
+		GncTransaction peer = new GncTransaction();
+		peer.setVersion(GncConstants.VERSION);
+
+		GncTransaction.TrnId id = new GncTransaction.TrnId();
+		id.setType(GncConstants.GUID);
+		id.setValue(transaction.id());
+		peer.setTrnId(id);
+
+		GncTransaction.TrnCurrency currency = new GncTransaction.TrnCurrency();
+		currency.setCmdtySpace(transaction.currency().namespace());
+		currency.setCmdtyId(transaction.currency().id());
+		peer.setTrnCurrency(currency);
+
+		transaction.number().ifPresent(peer::setTrnNum);
+
+		String timestamp = DateTimeUtils.formatTimestamp(transaction.datePosted());
+
+		GncTransaction.TrnDatePosted datePosted = new GncTransaction.TrnDatePosted();
+		datePosted.setTsDate(timestamp);
+		peer.setTrnDatePosted(datePosted);
+
+		GncTransaction.TrnDateEntered dateEntered = new GncTransaction.TrnDateEntered();
+		dateEntered.setTsDate(timestamp);
+		peer.setTrnDateEntered(dateEntered);
+
+		peer.setTrnDescription(transaction.description());
+
+		GncTransaction.TrnSplits trnSplits = new GncTransaction.TrnSplits();
+		for (Split split : transaction.splits()) {
+			trnSplits.getTrnSplit().add(SplitMapper.toGnc(split));
+		}
+		peer.setTrnSplits(trnSplits);
+
+		return peer;
+	}
 }

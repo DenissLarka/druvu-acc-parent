@@ -1,6 +1,7 @@
 package com.druvu.acc.gnucash.impl;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
@@ -46,6 +47,33 @@ public final class Fractions {
 		} else {
 			return parseDecimal(cleaned);
 		}
+	}
+
+	/**
+	 * Formats a BigDecimal as a GnuCash fraction string ({@code "numerator/denominator"}),
+	 * the inverse of {@link #parse(String)}.
+	 * <p>
+	 * The denominator is the smallest power of ten that represents the value exactly
+	 * (e.g. {@code 123.45} -&gt; {@code "12345/100"}, {@code 100} -&gt; {@code "100/1"}).
+	 *
+	 * @param value the value to format
+	 * @return the GnuCash fraction representation
+	 */
+	public static String format(BigDecimal value) {
+		if (value == null) {
+			throw new NumberFormatException("Value cannot be null");
+		}
+
+		BigDecimal stripped = value.stripTrailingZeros();
+		int scale = stripped.scale();
+		if (scale < 0) {
+			stripped = stripped.setScale(0, RoundingMode.UNNECESSARY);
+			scale = 0;
+		}
+
+		BigInteger numerator = stripped.unscaledValue();
+		BigInteger denominator = BigInteger.TEN.pow(scale);
+		return numerator + "/" + denominator;
 	}
 
 	private static BigDecimal parseFraction(String str, int dividerIndex) {

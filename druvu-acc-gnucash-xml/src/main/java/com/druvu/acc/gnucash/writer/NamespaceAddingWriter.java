@@ -89,8 +89,10 @@ public class NamespaceAddingWriter extends Writer {
 
 		output.write(cbuf, off, len);
 
-		// Inject xmlns declarations after <gnc-v2 (which becomes <gnc:v2 after replacement)
-		if (len == 7 && new String(cbuf, off, len).equals("<gnc:v2")) {
+		// Inject xmlns declarations after the root element start tag.
+		// The root is "gnc-v2" with a hyphen (not a namespace separator), so it is NOT
+		// transformed to a colon above — match the hyphenated form.
+		if (len == 7 && new String(cbuf, off, len).equals("<gnc-v2")) {
 			output.write(XMLNS_DECLARATIONS);
 		}
 	}

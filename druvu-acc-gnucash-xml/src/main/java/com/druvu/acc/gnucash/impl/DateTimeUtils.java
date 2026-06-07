@@ -2,6 +2,7 @@ package com.druvu.acc.gnucash.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -48,6 +49,17 @@ public final class DateTimeUtils {
 				throw new IllegalArgumentException("Cannot parse timestamp: " + timestamp, e2);
 			}
 		}
+	}
+
+	/**
+	 * Formats a date as a GnuCash timestamp string (ts:date element), at start of day in UTC.
+	 * The result round-trips through {@link #parseTimestamp(String)}.
+	 *
+	 * @param date the date to format
+	 * @return the GnuCash timestamp string (e.g., "2026-06-07 00:00:00 +0000")
+	 */
+	public static String formatTimestamp(LocalDate date) {
+		return date.atStartOfDay().atOffset(ZoneOffset.UTC).format(TIMESTAMP_WITH_ZONE);
 	}
 
 	/**

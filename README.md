@@ -9,7 +9,7 @@ A modular Java library for reading and processing accounting data. The library p
 - **Modular JPMS Design** - Full Java Platform Module System support
 - **Pluggable Store Implementations** - Support for multiple accounting file formats via ServiceLoader
 - **Record-based Entities** - Immutable data entities using Java records
-- **GnuCash Support** - Read GnuCash XML files (plain and gzip-compressed)
+- **GnuCash Support** - Read *and write* GnuCash XML files (plain and gzip-compressed)
 
 ## Modules
 
@@ -115,6 +115,62 @@ CommodityId stock = new CommodityId("NASDAQ", "AAPL");
 // Check if commodity is a currency
 boolean isCurrency = eur.isCurrency(); // true
 ```
+
+### Writing and Modifying
+
+Load a store as a `WritableAccStore` to add or remove accounts and transactions and
+save the result. Mutations are applied in place; call `save(Path)` to persist them.
+Entity IDs are caller-supplied — use 32-character hex GUIDs for GnuCash compatibility.
+
+```java
+import com.druvu.acc.api.WritableAccStore;
+import com.druvu.acc.api.entity.*;
+import com.druvu.acc.loader.AccStoreFactory;
+
+import java.math.BigDecimal;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+// Load as writable
+WritableAccStore store = AccStoreFactory.loadWritable(Path.of("myfile.gnucash"));
+
+String rootId = store.rootAccounts().getFirst().id();
+CommodityId eur = CommodityId.currency("EUR");
+
+// Add a new expense account under the root
+String accountId = UUID.randomUUID().toString().replace("-", "");
+store.addAccount(new Account(
+        accountId, "Coffee", AccountType.EXPENSE,
+        Optional.empty(), Optional.of("Daily coffee"),
+        Optional.of(eur), Optional.of(rootId)));
+
+// Add a balanced transaction (splits must sum to zero in the transaction currency)
+String txId = UUID.randomUUID().toString().replace("-", "");
+LocalDate today = LocalDate.now();
+List<Split> splits = List.of(
+        new Split(UUID.randomUUID().toString().replace("-", ""), txId, accountId, today,
+                ReconcileState.NOT_RECONCILED, Optional.empty(),
+                new BigDecimal("4.50"), new BigDecimal("4.50")),
+        new Split(UUID.randomUUID().toString().replace("-", ""), txId, rootId, today,
+                ReconcileState.NOT_RECONCILED, Optional.empty(),
+                new BigDecimal("-4.50"), new BigDecimal("-4.50")));
+store.addTransaction(new Transaction(
+        txId, eur, Optional.empty(), today, "Morning coffee", splits));
+
+// Remove entities by ID
+store.removeTransaction(txId);
+store.removeAccount(accountId);
+
+// Persist (gzip-compressed when the path ends with .gnucash or .gz)
+store.save(Path.of("myfile-modified.gnucash"));
+```
+
+> **Note:** the library does not enforce accounting invariants (e.g. that a transaction's
+> splits balance, or that referenced accounts exist) — supply consistent data. `save` writes
+> the GnuCash XML and keeps the file's `count-data` headers in sync with its contents.
 
 ### Running the Example
 

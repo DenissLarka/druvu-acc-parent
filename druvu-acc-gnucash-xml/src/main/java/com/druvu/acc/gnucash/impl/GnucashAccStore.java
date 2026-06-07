@@ -1,5 +1,7 @@
 package com.druvu.acc.gnucash.impl;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -10,15 +12,18 @@ import com.druvu.acc.api.entity.Account;
 import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.AccStore;
+import com.druvu.acc.api.WritableAccStore;
 import com.druvu.acc.api.entity.Transaction;
 import com.druvu.acc.api.entity.CommodityId;
 import com.druvu.acc.gnucash.generated.GncAccount;
+import com.druvu.acc.gnucash.generated.GncCountData;
 import com.druvu.acc.gnucash.generated.GncPricedb;
 import com.druvu.acc.gnucash.generated.GncTransaction;
 import com.druvu.acc.gnucash.generated.GncV2;
 import com.druvu.acc.gnucash.mapper.AccountMapper;
 import com.druvu.acc.gnucash.mapper.PriceMapper;
 import com.druvu.acc.gnucash.mapper.TransactionMapper;
+import com.druvu.acc.gnucash.writer.GnucashFileWriter;
 
 import lombok.NonNull;
 
@@ -31,7 +36,11 @@ import lombok.NonNull;
  * @author Deniss Larka
  * <br/>on 11 Jan 2026
  */
-public class GnucashAccStore implements AccStore {
+public class GnucashAccStore implements WritableAccStore {
+
+	private static final String CD_TYPE_ACCOUNT = "account";
+
+	private static final String CD_TYPE_TRANSACTION = "transaction";
 
 	private final GncV2 root;
 
@@ -157,10 +166,76 @@ public class GnucashAccStore implements AccStore {
 				.toList();
 	}
 
+	// ========== WritableAccStore Interface ==========
+
+	@Override
+	public void addAccount(@NonNull Account account) {
+		if (accountById(account.id()).isPresent()) {
+			throw new IllegalArgumentException("Account already exists: " + account.id());
+		}
+		book().getBookElements().add(AccountMapper.toGnc(account));
+		adjustCount(CD_TYPE_ACCOUNT, 1);
+	}
+
+	@Override
+	public void addTransaction(@NonNull Transaction transaction) {
+		if (transactionById(transaction.id()).isPresent()) {
+			throw new IllegalArgumentException("Transaction already exists: " + transaction.id());
+		}
+		book().getBookElements().add(TransactionMapper.toGnc(transaction));
+		adjustCount(CD_TYPE_TRANSACTION, 1);
+	}
+
+	@Override
+	public void removeAccount(String accountId) {
+		boolean removed = book().getBookElements().removeIf(
+				element -> element instanceof GncAccount account
+						&& account.getActId().getValue().equals(accountId));
+		if (!removed) {
+			throw new IllegalArgumentException("No account with ID: " + accountId);
+		}
+		adjustCount(CD_TYPE_ACCOUNT, -1);
+	}
+
+	@Override
+	public void removeTransaction(String transactionId) {
+		boolean removed = book().getBookElements().removeIf(
+				element -> element instanceof GncTransaction transaction
+						&& transaction.getTrnId().getValue().equals(transactionId));
+		if (!removed) {
+			throw new IllegalArgumentException("No transaction with ID: " + transactionId);
+		}
+		adjustCount(CD_TYPE_TRANSACTION, -1);
+	}
+
+	@Override
+	public void save(Path path) throws IOException {
+		new GnucashFileWriter().write(root, path);
+	}
+
 	// ========== Helper Methods ==========
 
 	private GncV2.GncBook book() {
 		return root.getGncBook();
+	}
+
+	/**
+	 * Adjusts the {@code gnc:count-data} entry for the given type, keeping the file's
+	 * declared counts consistent with its contents. Creates the entry if absent.
+	 */
+	private void adjustCount(String cdType, int delta) {
+		for (GncCountData count : book().getGncCountData()) {
+			if (cdType.equals(count.getCdType())) {
+				count.setValue(count.getValue() + delta);
+				return;
+			}
+		}
+		if (delta > 0) {
+			GncCountData count = new GncCountData();
+			count.setCdType(cdType);
+			count.setValue(delta);
+			book().getGncCountData().add(count);
+		}
 	}
 
 	private <T> Stream<T> bookElements(Class<T> type) {

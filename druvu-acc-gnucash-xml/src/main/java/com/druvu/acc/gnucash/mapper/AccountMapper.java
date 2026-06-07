@@ -47,4 +47,43 @@ public final class AccountMapper {
 				parentId
 		);
 	}
+
+	/**
+	 * Maps an {@link Account} business object to a GnuCash XML {@link GncAccount} element.
+	 *
+	 * @param account the account to map
+	 * @return the GnuCash XML representation
+	 */
+	public static GncAccount toGnc(Account account) {
+		GncAccount peer = new GncAccount();
+		peer.setVersion(GncConstants.VERSION);
+		peer.setActName(account.name());
+
+		GncAccount.ActId id = new GncAccount.ActId();
+		id.setType(GncConstants.GUID);
+		id.setValue(account.id());
+		peer.setActId(id);
+
+		peer.setActType(account.type().name());
+
+		account.commodity().ifPresent(commodity -> {
+			GncAccount.ActCommodity actCommodity = new GncAccount.ActCommodity();
+			actCommodity.setCmdtySpace(commodity.namespace());
+			actCommodity.setCmdtyId(commodity.id());
+			peer.setActCommodity(actCommodity);
+			peer.setActCommodityScu(GncConstants.DEFAULT_SCU);
+		});
+
+		account.code().ifPresent(peer::setActCode);
+		account.description().ifPresent(peer::setActDescription);
+
+		account.parentId().ifPresent(parentId -> {
+			GncAccount.ActParent parent = new GncAccount.ActParent();
+			parent.setType(GncConstants.GUID);
+			parent.setValue(parentId);
+			peer.setActParent(parent);
+		});
+
+		return peer;
+	}
 }
