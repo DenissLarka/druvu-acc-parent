@@ -15,13 +15,22 @@ import java.nio.file.Path;
  * implementation supports writing). Mutations are applied in place; call {@link #save(Path)} to serialize the current
  * state to a file.
  *
- * <p>Entity IDs are caller-supplied. For GnuCash compatibility use 32-character hex GUIDs (e.g.
- * {@code UUID.randomUUID().toString().replace("-", "")}).
+ * <p>Entity IDs are caller-supplied; use {@link #newId()} to mint one in whatever format the backend expects.
  *
  * @author Deniss Larka <br>
  *     on 07 Jun 2026
  */
 public interface WritableAccStore extends AccStore {
+
+    /**
+     * Mints a fresh entity ID in this backend's own format.
+     *
+     * <p>What a valid ID looks like is a property of the storage format, not of the caller: the GnuCash XML backend
+     * wants a 32-character hex GUID, another backend may not. Callers should not hand-roll one.
+     *
+     * @return an ID not currently used by any entity in this store
+     */
+    String newId();
 
     /**
      * Adds a new account to the store.
@@ -93,8 +102,12 @@ public interface WritableAccStore extends AccStore {
      * <p>The output format is determined by the implementation (for GnuCash XML, gzip compression is applied when the
      * path ends with {@code .gnucash} or {@code .gz}).
      *
+     * <p>The book is {@link #validate() validated} first and nothing is written if it fails: a structurally broken file
+     * is worse than no file, and GnuCash reacts badly to one.
+     *
      * @param path the path to write to
      * @throws IOException if the file cannot be written
+     * @throws IllegalStateException if the book is structurally invalid; the message lists every problem found
      */
     void save(Path path) throws IOException;
 }

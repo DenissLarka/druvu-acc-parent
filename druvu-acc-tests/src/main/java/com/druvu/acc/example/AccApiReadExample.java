@@ -32,12 +32,12 @@ public class AccApiReadExample {
 
         for (var account : store.accounts()) {
             // 'balance' is the account's own splits, 'total' rolls up its sub-accounts - the two
-            // columns of the GnuCash account tree. A total can span several commodities, so it is
-            // printed per commodity rather than collapsed into one number.
+            // columns of the GnuCash account tree. Both carry their commodity: a balance is always
+            // one, a total can span several and is printed per commodity rather than collapsed.
             log.info(
                     "{} balance: {} total: {}",
                     account,
-                    accountService.balance(account.id()).toPlainString(),
+                    accountService.balance(account.id()),
                     accountService.totalBalance(account.id()));
         }
 

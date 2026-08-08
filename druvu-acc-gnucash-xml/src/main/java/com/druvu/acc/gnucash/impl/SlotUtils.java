@@ -26,7 +26,8 @@ public final class SlotUtils {
      * @return an unmodifiable map of slot key-value pairs
      */
     public static Map<String, Object> toMap(SlotsType slots) {
-        if (slots == null || slots.getSlot() == null) {
+        // getSlot() lazily creates the list, so only the container itself can be null.
+        if (slots == null) {
             return Collections.emptyMap();
         }
 
@@ -48,7 +49,7 @@ public final class SlotUtils {
 
         // Get mixed content (text and elements)
         List<Object> content = slotValue.getContent();
-        if (content == null || content.isEmpty()) {
+        if (content.isEmpty()) {
             return null;
         }
 
@@ -62,10 +63,9 @@ public final class SlotUtils {
             case "gdate" -> {
                 // gdate contains a nested gdate element
                 for (Object item : content) {
-                    if (item instanceof jakarta.xml.bind.JAXBElement<?> elem) {
-                        if ("gdate".equals(elem.getName().getLocalPart())) {
-                            yield elem.getValue();
-                        }
+                    if (item instanceof jakarta.xml.bind.JAXBElement<?> elem
+                            && "gdate".equals(elem.getName().getLocalPart())) {
+                        yield elem.getValue();
                     }
                 }
                 yield null;
@@ -73,11 +73,9 @@ public final class SlotUtils {
             case "timespec" -> {
                 // timespec contains a ts:date element
                 for (Object item : content) {
-                    if (item instanceof jakarta.xml.bind.JAXBElement<?> elem) {
-                        if ("ts_date".equals(elem.getName().getLocalPart())) {
-                            String ts = (String) elem.getValue();
-                            yield DateTimeUtils.parseTimestamp(ts);
-                        }
+                    if (item instanceof jakarta.xml.bind.JAXBElement<?> elem
+                            && "ts_date".equals(elem.getName().getLocalPart())) {
+                        yield DateTimeUtils.parseTimestamp((String) elem.getValue());
                     }
                 }
                 yield null;

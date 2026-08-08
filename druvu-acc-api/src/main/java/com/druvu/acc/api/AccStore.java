@@ -66,6 +66,22 @@ public interface AccStore {
     /** @return all price quotes in this store */
     List<Price> prices();
 
+    // ========== Validation ==========
+
+    /**
+     * Checks the book's structure and reports what is wrong with it.
+     *
+     * <p>Reading is deliberately tolerant - a damaged book still loads, because inspecting or repairing one is a
+     * legitimate reason to reach for this library. This method is how a caller asks the question explicitly. Writing is
+     * strict by contrast: {@link WritableAccStore#save} refuses to emit a book that fails these checks.
+     *
+     * <p>Structural problems only - a dangling parent, a second root, a split pointing at an account that is not there.
+     * Accounting rules are not checked: whether a transaction's splits sum to zero is the caller's business.
+     *
+     * @return one description per problem found, empty if the book is structurally sound
+     */
+    List<String> validate();
+
     // ========== Accounts ==========
 
     /** @return all accounts */

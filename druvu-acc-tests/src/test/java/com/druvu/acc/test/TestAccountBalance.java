@@ -1,15 +1,16 @@
 package com.druvu.acc.test;
 
+import static com.druvu.acc.api.entity.CommodityId.CHF;
 import static org.testng.Assert.*;
 
 import com.druvu.acc.api.AccStore;
 import com.druvu.acc.api.WritableAccStore;
 import com.druvu.acc.api.entity.Account;
 import com.druvu.acc.api.entity.AccountType;
+import com.druvu.acc.api.entity.Amount;
 import com.druvu.acc.api.entity.Commodity;
 import com.druvu.acc.api.entity.CommodityId;
-import com.druvu.acc.api.entity.MultiAsset;
-import com.druvu.acc.api.entity.ReconcileState;
+import com.druvu.acc.api.entity.MultiAmount;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.entity.Transaction;
 import com.druvu.acc.api.service.AccountService;
@@ -21,8 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -34,8 +33,6 @@ import org.testng.annotations.Test;
  */
 public class TestAccountBalance {
 
-    private static final CommodityId CHF = CommodityId.currency("CHF");
-
     private static final CommodityId AAPL = new CommodityId("NASDAQ", "AAPL");
 
     private static final BigDecimal ACTIF_BALANCE = new BigDecimal("1500.00");
@@ -46,7 +43,7 @@ public class TestAccountBalance {
 
     @BeforeClass
     public void setUp() throws URISyntaxException {
-        var resourceUrl = getClass().getResource("/common.gnucash");
+        var resourceUrl = TestAccountBalance.class.getResource("/common.gnucash");
         assertNotNull(resourceUrl, "common.gnucash resource not found");
 
         source = Paths.get(resourceUrl.toURI());
@@ -73,8 +70,9 @@ public class TestAccountBalance {
         String rootId = store.rootAccounts().get(0).id();
 
         // The root has no splits of its own, even though the book below it is far from empty.
-        assertEquals(service.balance(rootId).compareTo(BigDecimal.ZERO), 0);
-        assertEquals(service.balance(service.accountByName("Actif").id()).compareTo(ACTIF_BALANCE), 0);
+        assertEquals(service.balance(rootId).value().compareTo(BigDecimal.ZERO), 0);
+        assertEquals(
+                service.balance(service.accountByName("Actif").id()).value().compareTo(ACTIF_BALANCE), 0);
     }
 
     @Test
@@ -82,10 +80,10 @@ public class TestAccountBalance {
         AccountService service = AccountService.create(store, "Root Account");
         String actifId = service.accountByName("Actif").id();
 
-        MultiAsset total = service.totalBalance(actifId);
+        MultiAmount total = service.totalBalance(actifId);
 
         assertTrue(total.isSingle(), "a single-currency leaf holds exactly one commodity");
-        assertEquals(total.amount(CHF).compareTo(service.balance(actifId)), 0);
+        assertEquals(total.value(CHF).compareTo(service.balance(actifId).value()), 0);
     }
 
     @Test
@@ -101,32 +99,44 @@ public class TestAccountBalance {
         addTransaction(writable, CHF, LocalDate.of(2026, 2, 2), savingsId, new BigDecimal("70.00"));
 
         // The account's own balance must not change - only the total rolls the children up.
-        assertEquals(service.balance(actifId).compareTo(ACTIF_BALANCE), 0);
-        assertEquals(service.totalBalance(actifId).amount(CHF).compareTo(new BigDecimal("1820.00")), 0);
-        assertEquals(service.totalBalance(bankId).amount(CHF).compareTo(new BigDecimal("320.00")), 0);
+        assertEquals(service.balance(actifId).value().compareTo(ACTIF_BALANCE), 0);
+        assertEquals(service.totalBalance(actifId).value(CHF).compareTo(new BigDecimal("1820.00")), 0);
+        assertEquals(service.totalBalance(bankId).value(CHF).compareTo(new BigDecimal("320.00")), 0);
+    }
+
+    @Test
+    public void totalAmountServesTheSingleCurrencyCase() {
+        AccountService service = AccountService.create(store, "Root Account");
+
+        assertEquals(service.totalAmount(service.accountByName("Actif").id()), Amount.of(ACTIF_BALANCE, CHF));
+    }
+
+    @Test
+    public void totalAmountRefusesAMixedSubtreeAndSaysWhy() {
+        AccountService service = mixedSubtree();
+        String actifId = service.accountByName("Actif").id();
+
+        String message = expectThrows(IllegalStateException.class, () -> service.totalAmount(actifId))
+                .getMessage();
+        // The message has to name the account and what it actually holds, or it is useless in a loop.
+        assertTrue(message.contains(actifId), "should name the account: " + message);
+        assertTrue(message.contains("NASDAQ/AAPL"), "should name the commodities: " + message);
+        assertTrue(message.contains("totalBalance"), "should point at the fix: " + message);
     }
 
     @Test
     public void totalBalanceKeepsCommoditiesApart() {
-        WritableAccStore writable = AccStore.loadWritable(source);
-        AccountService service = AccountService.create(writable, "Root Account");
+        AccountService service = mixedSubtree();
         String actifId = service.accountByName("Actif").id();
 
-        writable.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
-        String stockId = addAccount(writable, "Apple", AccountType.STOCK, AAPL, actifId);
-        // 100 shares in, the money out on the other side - a real share purchase, not a CHF amount
-        // hidden in a stock account.
-        addTransaction(
-                writable, CHF, LocalDate.of(2026, 2, 1), stockId, new BigDecimal("100"), new BigDecimal("-21250.00"));
-
-        MultiAsset total = service.totalBalance(actifId);
+        MultiAmount total = service.totalBalance(actifId);
 
         // 100 shares must not be added to 1500 francs - both are reported, neither is converted.
         assertFalse(total.isSingle(), "a mixed subtree holds more than one commodity");
         assertEquals(total.commodities().size(), 2);
-        assertEquals(total.amount(CHF).compareTo(ACTIF_BALANCE), 0);
-        assertEquals(total.amount(AAPL).compareTo(new BigDecimal("100")), 0);
-        assertTrue(total.singleAmount().isEmpty(), "a mixed subtree has no single figure");
+        assertEquals(total.value(CHF).compareTo(ACTIF_BALANCE), 0);
+        assertEquals(total.value(AAPL).compareTo(new BigDecimal("100")), 0);
+        assertTrue(total.single().isEmpty(), "a mixed subtree has no single figure");
     }
 
     @Test
@@ -140,8 +150,8 @@ public class TestAccountBalance {
 
         // The child's June transaction is out of range; the fixture's January ones are not.
         LocalDate cutOff = LocalDate.of(2026, 1, 31);
-        assertEquals(service.totalBalance(actifId, cutOff).amount(CHF).compareTo(ACTIF_BALANCE), 0);
-        assertEquals(service.totalBalance(actifId).amount(CHF).compareTo(new BigDecimal("1750.00")), 0);
+        assertEquals(service.totalBalance(actifId, cutOff).value(CHF).compareTo(ACTIF_BALANCE), 0);
+        assertEquals(service.totalBalance(actifId).value(CHF).compareTo(new BigDecimal("1750.00")), 0);
     }
 
     @Test
@@ -149,10 +159,10 @@ public class TestAccountBalance {
         AccountService service = AccountService.create(store, "Root Account");
         String rootId = store.rootAccounts().get(0).id();
 
-        MultiAsset total = service.totalBalance(rootId);
+        MultiAmount total = service.totalBalance(rootId);
 
         // Double entry: every split in the book is inside the root's subtree, so they cancel out.
-        assertEquals(total.amount(CHF).compareTo(BigDecimal.ZERO), 0);
+        assertEquals(total.value(CHF).compareTo(BigDecimal.ZERO), 0);
     }
 
     @Test
@@ -160,18 +170,33 @@ public class TestAccountBalance {
         AccountService service = AccountService.create(store, "Root Account");
 
         // 'Capitaux propres' and its child 'Soldes initiaux' carry no splits at all.
-        MultiAsset total =
+        MultiAmount total =
                 service.totalBalance(service.accountByName("Capitaux propres").id());
 
         assertFalse(total.isEmpty(), "an empty CHF subtree still reports CHF, at zero");
-        assertEquals(total.amount(CHF).compareTo(BigDecimal.ZERO), 0);
+        assertEquals(total.value(CHF).compareTo(BigDecimal.ZERO), 0);
+    }
+
+    /**
+     * A book whose 'Actif' subtree mixes CHF with a NASDAQ/AAPL stock account - 100 shares in, the money out on the
+     * other side, which is what a real share purchase looks like rather than a CHF amount hidden in a stock account.
+     */
+    private AccountService mixedSubtree() {
+        WritableAccStore writable = AccStore.loadWritable(source);
+        AccountService service = AccountService.create(writable, "Root Account");
+        String actifId = service.accountByName("Actif").id();
+
+        writable.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
+        String stockId = addAccount(writable, "Apple", AccountType.STOCK, AAPL, actifId);
+        addTransaction(
+                writable, CHF, LocalDate.of(2026, 2, 1), stockId, new BigDecimal("100"), new BigDecimal("-21250.00"));
+        return service;
     }
 
     private static String addAccount(
             WritableAccStore store, String name, AccountType type, CommodityId commodity, String parentId) {
-        String id = newGuid();
-        store.addAccount(new Account(
-                id, name, type, Optional.empty(), Optional.empty(), Optional.of(commodity), Optional.of(parentId)));
+        String id = store.newId();
+        store.addAccount(Account.of(id, name, type).withCommodity(commodity).withParent(parentId));
         return id;
     }
 
@@ -192,32 +217,12 @@ public class TestAccountBalance {
             String accountId,
             BigDecimal amount,
             BigDecimal counterpartAmount) {
-        String txId = newGuid();
+        String txId = store.newId();
         String counterpartId =
                 store.accountByName("Root Account:Revenus").orElseThrow().id();
         List<Split> splits = List.of(
-                new Split(
-                        newGuid(),
-                        txId,
-                        accountId,
-                        date,
-                        ReconcileState.NOT_RECONCILED,
-                        Optional.empty(),
-                        amount,
-                        amount),
-                new Split(
-                        newGuid(),
-                        txId,
-                        counterpartId,
-                        date,
-                        ReconcileState.NOT_RECONCILED,
-                        Optional.empty(),
-                        counterpartAmount,
-                        counterpartAmount));
-        store.addTransaction(new Transaction(txId, currency, Optional.empty(), date, "balance test", splits));
-    }
-
-    private static String newGuid() {
-        return UUID.randomUUID().toString().replace("-", "");
+                Split.of(store.newId(), txId, accountId, date, amount),
+                Split.of(store.newId(), txId, counterpartId, date, counterpartAmount));
+        store.addTransaction(Transaction.of(txId, currency, date, "balance test", splits));
     }
 }

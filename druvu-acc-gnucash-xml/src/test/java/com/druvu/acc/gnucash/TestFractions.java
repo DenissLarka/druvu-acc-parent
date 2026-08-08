@@ -77,7 +77,7 @@ public class TestFractions {
     @Test
     public void testBigDecimalMultiplication() {
         BigDecimal a = Fractions.parse("10.50");
-        BigDecimal b = new BigDecimal("2");
+        BigDecimal b = BigDecimal.TWO;
         BigDecimal result = a.multiply(b);
 
         assertEquals(result.doubleValue(), 21.0, 0.001);

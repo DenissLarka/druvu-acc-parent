@@ -34,7 +34,7 @@ public final class TransactionMapper {
 
         List<Split> splits = List.of();
         var trnSplits = peer.getTrnSplits();
-        if (trnSplits != null && trnSplits.getTrnSplit() != null) {
+        if (trnSplits != null) {
             splits = trnSplits.getTrnSplit().stream()
                     .map(split -> SplitMapper.map(split, transactionId, datePosted))
                     .toList();

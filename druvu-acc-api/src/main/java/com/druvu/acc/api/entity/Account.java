@@ -27,6 +27,51 @@ public record Account(
         Optional<CommodityId> commodity,
         Optional<String> parentId) {
 
+    /**
+     * A new account with only the fields every account must have; everything optional is left unset and added with the
+     * {@code with...} methods.
+     *
+     * @param id unique ID - see {@link com.druvu.acc.api.WritableAccStore#newId()}
+     * @param name account name (simple name, not qualified)
+     * @param type account type
+     * @return the account
+     */
+    public static Account of(String id, String name, AccountType type) {
+        return new Account(id, name, type, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+    }
+
+    /**
+     * @param code the account code/number
+     * @return a copy carrying that code
+     */
+    public Account withCode(String code) {
+        return new Account(id, name, type, Optional.of(code), description, commodity, parentId);
+    }
+
+    /**
+     * @param description the account description
+     * @return a copy carrying that description
+     */
+    public Account withDescription(String description) {
+        return new Account(id, name, type, code, Optional.of(description), commodity, parentId);
+    }
+
+    /**
+     * @param commodity the commodity the account is denominated in
+     * @return a copy carrying that commodity
+     */
+    public Account withCommodity(CommodityId commodity) {
+        return new Account(id, name, type, code, description, Optional.of(commodity), parentId);
+    }
+
+    /**
+     * @param parentId ID of the parent account
+     * @return a copy sitting under that parent
+     */
+    public Account withParent(String parentId) {
+        return new Account(id, name, type, code, description, commodity, Optional.of(parentId));
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

@@ -1,6 +1,8 @@
 package com.druvu.acc.test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.assertTrue;
 
 import com.druvu.acc.api.AccStore;
@@ -23,7 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -34,7 +35,8 @@ public class TestWriteRoundTrip {
 
     @BeforeClass
     public void setUp() throws URISyntaxException {
-        source = Paths.get(getClass().getResource("/common.gnucash").toURI());
+        source = Paths.get(
+                TestWriteRoundTrip.class.getResource("/common.gnucash").toURI());
     }
 
     @Test
@@ -42,7 +44,7 @@ public class TestWriteRoundTrip {
         WritableAccStore store = AccStore.loadWritable(source);
         int before = store.accounts().size();
         String rootId = store.rootAccounts().get(0).id();
-        String id = newGuid();
+        String id = store.newId();
 
         store.addAccount(new Account(
                 id,
@@ -74,10 +76,10 @@ public class TestWriteRoundTrip {
         LocalDate date = LocalDate.of(2026, 6, 7);
         int before = store.transactions().size();
 
-        String txId = newGuid();
+        String txId = store.newId();
         List<Split> splits = List.of(
                 new Split(
-                        newGuid(),
+                        store.newId(),
                         txId,
                         accountA,
                         date,
@@ -86,7 +88,7 @@ public class TestWriteRoundTrip {
                         new BigDecimal("10.00"),
                         new BigDecimal("10.00")),
                 new Split(
-                        newGuid(),
+                        store.newId(),
                         txId,
                         accountB,
                         date,
@@ -127,7 +129,7 @@ public class TestWriteRoundTrip {
     @Test
     public void removeAccountRoundTrips() throws IOException {
         WritableAccStore store = AccStore.loadWritable(source);
-        String id = newGuid();
+        String id = store.newId();
         store.addAccount(new Account(
                 id,
                 "Temp",
@@ -167,7 +169,7 @@ public class TestWriteRoundTrip {
 
         CommodityId apple = new CommodityId("NASDAQ", "AAPL");
         CommodityId usd = CommodityId.currency("USD");
-        String priceId = newGuid();
+        String priceId = store.newId();
         LocalDateTime when = LocalDateTime.of(2026, 6, 7, 12, 0, 0);
 
         store.addPrice(new Price(
@@ -208,6 +210,69 @@ public class TestWriteRoundTrip {
         }
     }
 
+    @Test
+    public void aSoundBookValidatesClean() {
+        assertEquals(AccStore.load(source).validate(), List.of());
+    }
+
+    @Test
+    public void saveRefusesABookWithDanglingSplits() {
+        WritableAccStore store = AccStore.loadWritable(source);
+        // removeAccount does not cascade: its splits are left pointing at an account that is gone.
+        Account victim = store.accountByName("Root Account:Actif").orElseThrow();
+        store.removeAccount(victim.id());
+
+        List<String> problems = store.validate();
+        assertFalse(problems.isEmpty(), "dangling splits should be reported");
+        assertTrue(
+                problems.stream().anyMatch(p -> p.contains("split on an account that is not in the book")),
+                "expected a dangling-split problem, got: " + problems);
+
+        Path out = Paths.get(System.getProperty("java.io.tmpdir"), "should-not-be-written.gnucash");
+        assertThrows(IllegalStateException.class, () -> store.save(out));
+        assertFalse(Files.exists(out), "nothing should be written when validation fails");
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void addSecondRootAccountFails() {
+        WritableAccStore store = AccStore.loadWritable(source);
+        // The GnuCash API tolerates several roots; its UI does not display such a book correctly.
+        store.addAccount(Account.of(store.newId(), "Another Root", AccountType.ROOT));
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void addParentlessAccountFails() {
+        WritableAccStore store = AccStore.loadWritable(source);
+        // A GnuCash book has one ROOT; a parentless EXPENSE account would become a second root and the
+        // book would not open properly. Account.of(...) makes this easy to do by accident.
+        store.addAccount(
+                Account.of(store.newId(), "Orphan", AccountType.EXPENSE).withCommodity(CommodityId.CHF));
+    }
+
+    @Test
+    public void accountScuFollowsItsCommodity() throws IOException {
+        WritableAccStore store = AccStore.loadWritable(source);
+        String rootId = store.rootAccounts().get(0).id();
+
+        store.addCommodity(Commodity.currency("JPY"));
+        store.addAccount(Account.of(store.newId(), "Tokyo", AccountType.BANK)
+                .withCommodity(CommodityId.JPY)
+                .withParent(rootId));
+
+        Path out = Files.createTempFile("acc-scu", ".xml");
+        try {
+            store.save(out);
+            String xml = Files.readString(out);
+            String tokyo = xml.substring(xml.indexOf("<act:name>Tokyo</act:name>"));
+            // Yen has no minor unit: writing a flat 100 here would misstate the account's precision.
+            assertTrue(
+                    tokyo.contains("<act:commodity-scu>1</act:commodity-scu>"),
+                    "JPY account should record scu 1, got: " + tokyo.substring(0, Math.min(400, tokyo.length())));
+        } finally {
+            Files.deleteIfExists(out);
+        }
+    }
+
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void addDuplicateAccountFails() {
         WritableAccStore store = AccStore.loadWritable(source);
@@ -228,9 +293,5 @@ public class TestWriteRoundTrip {
         } finally {
             Files.deleteIfExists(out);
         }
-    }
-
-    private static String newGuid() {
-        return UUID.randomUUID().toString().replace("-", "");
     }
 }

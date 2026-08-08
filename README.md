@@ -61,10 +61,18 @@ Core interfaces and entities for accounting data:
 - `Transaction` - Transaction with currency, date, description, and splits
 - `Split` - Transaction split with value, quantity, and reconciliation state
 - `Price` - Price quote for commodities
-- `CommodityId` - Identifies currencies and securities (namespace + id)
-- `MultiAsset` - An amount held across one or more commodities, returned by subtree totals
+- `CommodityId` - Identifies currencies and securities (namespace + id); constants for the
+  common currencies (`CommodityId.USD`, `.EUR`, `.GBP`, `.CHF`, `.JPY`), anything else via
+  `CommodityId.currency(code)`
+- `Amount` - A quantity of one commodity (1500.00 CHF, or 100 NASDAQ/AAPL shares)
+- `MultiAmount` - A quantity held across one or more commodities, returned by subtree totals
 - `AccountType` - Enum for account types (ASSET, LIABILITY, INCOME, EXPENSE, EQUITY, etc.)
 - `ReconcileState` - Reconciliation state (NOT_RECONCILED, CLEARED, RECONCILED)
+
+**Validation:**
+- `AccStore.validate()` - reports structural problems (a second root, a dangling parent, a split on a
+  missing account). Reading is tolerant so a damaged book can still be inspected or repaired;
+  `save(Path)` is strict and refuses to write a book that fails these checks.
 
 **Services:**
 - `AccountService` - Business logic for account operations (own balances and subtree totals)
@@ -112,7 +120,8 @@ for (Transaction tx : store.transactions()) {
 ```java
 import com.druvu.acc.api.service.AccountService;
 import com.druvu.acc.api.entity.Account;
-import com.druvu.acc.api.entity.MultiAsset;
+import com.druvu.acc.api.entity.Amount;
+import com.druvu.acc.api.entity.MultiAmount;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -124,10 +133,10 @@ AccountService service = AccountService.create(store, "Root Account");
 Account revenue = service.accountByName("Revenue");
 
 // Calculate balance
-BigDecimal currentBalance = service.balance(revenue.id());
+Amount currentBalance = service.balance(revenue.id());   // e.g. "1500.00 CHF"
 
 // Calculate balance up to a specific date
-BigDecimal historicBalance = service.balance(revenue.id(), LocalDate.of(2026, 1, 1));
+Amount historicBalance = service.balance(revenue.id(), LocalDate.of(2026, 1, 1));
 ```
 
 #### Balance vs. total: rolling up sub-accounts
@@ -137,43 +146,58 @@ The two figures mirror the two columns of the GnuCash account tree:
 | Method | GnuCash column | Covers |
 |---|---|---|
 | `balance(accountId)` | **Balance** | the account's own splits only |
-| `totalBalance(accountId)` | **Total** | the account and every account beneath it |
+| `totalAmount(accountId)` | **Total** | the account and every account beneath it, as one `Amount` |
+| `totalBalance(accountId)` | **Total** | the same, as a `MultiAmount` when the subtree mixes commodities |
 
 An account subtree can mix commodities — a EUR savings account and a NASDAQ/AAPL stock account under
-the same parent — so `totalBalance` returns a `MultiAsset` carrying one figure per commodity rather
+the same parent — so `totalBalance` returns a `MultiAmount` carrying one figure per commodity rather
 than a single number. Nothing is converted and nothing is dropped: applying an exchange rate needs a
 rate source and a policy for missing quotes, which is the caller's decision, not the library's.
 
 ```java
-MultiAsset total = service.totalBalance(assets.id());
+// Most books use one currency — totalAmount is the form you want, and it fails loudly
+// (naming the account and what it holds) if a subtree turns out to mix commodities.
+Amount total = service.totalAmount(assets.id());
 
-// One currency in the subtree — the common case
-total.singleAmount().ifPresent(amount -> System.out.println("Total: " + amount));
+// When a subtree genuinely mixes commodities:
+MultiAmount mixed = service.totalBalance(assets.id());
 
 // Several commodities — handle each, converting only if you want to
-for (CommodityId commodity : total.commodities()) {
-    System.out.println(commodity + " " + total.amount(commodity));
+for (Amount amount : mixed.amounts()) {
+    System.out.println(amount.commodity() + " " + amount.value());
 }
 
 // Cut-off date works the same way as on balance()
-MultiAsset atYearEnd = service.totalBalance(assets.id(), LocalDate.of(2026, 12, 31));
+Amount atYearEnd = service.totalAmount(assets.id(), LocalDate.of(2026, 12, 31));
 ```
 
 Use `store.prices()` if you do want to collapse a mixed total into one currency.
 
-`MultiAsset` is an immutable value: `plus`/`minus` return new instances, `isZero()` tells an
-all-zero holding from an empty one, and `MultiAsset.summing()` is a collector for aggregating a
+Both types are immutable values: `plus`/`minus`/`negate` return new instances, `isZero()` tells
+an all-zero holding from an empty one, and `MultiAmount.summing()` is a collector for aggregating a
 stream of them. Equality is by numeric quantity rather than `BigDecimal` scale, so a figure read
 from `1500/1` equals the same figure read from `150000/100`.
 
+For a single-currency book, `single()` returns empty when a subtree holds more than one commodity —
+use it to assert the assumption rather than silently reading one commodity and ignoring the rest.
+It hands back the quantity *and* its commodity together, so nothing has to be guessed:
+
+```java
+Amount amount = total.single()
+        .orElseThrow(() -> new IllegalStateException("mixed commodities: " + total));
+```
+
+`Amount` arithmetic refuses to mix commodities — `Amount.of("10", CHF).plus(Amount.of("1", USD))`
+throws rather than producing a meaningless 11.
+
 ```java
 // Movement over a period
-MultiAsset movement = service.totalBalance(id, to).minus(service.totalBalance(id, from));
+MultiAmount movement = service.totalBalance(id, to).minus(service.totalBalance(id, from));
 
 // Aggregate several subtrees
-MultiAsset combined = accountIds.stream()
+MultiAmount combined = accountIds.stream()
         .map(service::totalBalance)
-        .collect(MultiAsset.summing());
+        .collect(MultiAmount.summing());
 ```
 
 ### Working with Commodities
@@ -208,38 +232,34 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-
 // Load as writable
 WritableAccStore store = AccStore.loadWritable(Path.of("myfile.gnucash"));
 
 String rootId = store.rootAccounts().getFirst().id();
 CommodityId eur = CommodityId.currency("EUR");
 
-// Add a new expense account under the root
-String accountId = UUID.randomUUID().toString().replace("-", "");
-store.addAccount(new Account(
-        accountId, "Coffee", AccountType.EXPENSE,
-        Optional.empty(), Optional.of("Daily coffee"),
-        Optional.of(eur), Optional.of(rootId)));
+// Add a new expense account under the root. store.newId() mints an ID in the
+// backend's own format, so callers never hand-roll one.
+String accountId = store.newId();
+store.addAccount(Account.of(accountId, "Coffee", AccountType.EXPENSE)
+        .withDescription("Daily coffee")
+        .withCommodity(eur)
+        .withParent(rootId));
 
 // Add a balanced transaction (splits must sum to zero in the transaction currency)
-String txId = UUID.randomUUID().toString().replace("-", "");
+String txId = store.newId();
 LocalDate today = LocalDate.now();
+BigDecimal price = new BigDecimal("4.50");
 List<Split> splits = List.of(
-        new Split(UUID.randomUUID().toString().replace("-", ""), txId, accountId, today,
-                ReconcileState.NOT_RECONCILED, Optional.empty(),
-                new BigDecimal("4.50"), new BigDecimal("4.50")),
-        new Split(UUID.randomUUID().toString().replace("-", ""), txId, rootId, today,
-                ReconcileState.NOT_RECONCILED, Optional.empty(),
-                new BigDecimal("-4.50"), new BigDecimal("-4.50")));
-store.addTransaction(new Transaction(
-        txId, eur, Optional.empty(), today, "Morning coffee", splits));
+        Split.of(store.newId(), txId, accountId, today, price),
+        Split.of(store.newId(), txId, rootId, today, price.negate()));
+store.addTransaction(Transaction.of(txId, eur, today, "Morning coffee", splits));
 
 // Add a security commodity and a price quote (investments / multi-currency)
+// Commodity.currency("JPY") gets fraction 1, "KWD" gets 1000 — read from ISO 4217, not assumed.
 store.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
 store.addPrice(new Price(
-        UUID.randomUUID().toString().replace("-", ""),
+        store.newId(),
         new CommodityId("NASDAQ", "AAPL"),
         CommodityId.currency("USD"),
         today.atStartOfDay(),

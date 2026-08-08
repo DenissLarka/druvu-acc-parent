@@ -77,11 +77,9 @@ public class NamespaceAddingWriter extends Writer {
                 isInTag = true;
             } else if (c == '>' && !isInQuotation) {
                 isInTag = false;
-            } else if (c == '_' && isInTag && !isInQuotation) {
+            } else if (c == '_' && isInTag && !isInQuotation && !isUnderscoreException(cbuf, i)) {
                 // Replace '_' with ':' unless it's a legitimate underscore
-                if (!isUnderscoreException(cbuf, i)) {
-                    cbuf[i] = ':';
-                }
+                cbuf[i] = ':';
             }
         }
 

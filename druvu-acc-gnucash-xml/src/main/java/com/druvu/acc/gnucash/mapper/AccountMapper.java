@@ -49,6 +49,16 @@ public final class AccountMapper {
      * @return the GnuCash XML representation
      */
     public static GncAccount toGnc(Account account) {
+        return toGnc(account, GncConstants.DEFAULT_SCU);
+    }
+
+    /**
+     * @param account the account to convert
+     * @param scu the smallest currency unit of the account's commodity - 100 for most currencies, but 1 for JPY and
+     *     10000 for many securities. Writing a flat 100 for everything misstates the account's precision.
+     * @return the JAXB peer
+     */
+    public static GncAccount toGnc(Account account, int scu) {
         GncAccount peer = new GncAccount();
         peer.setVersion(GncConstants.VERSION);
         peer.setActName(account.name());
@@ -65,7 +75,7 @@ public final class AccountMapper {
             actCommodity.setCmdtySpace(commodity.namespace());
             actCommodity.setCmdtyId(commodity.id());
             peer.setActCommodity(actCommodity);
-            peer.setActCommodityScu(GncConstants.DEFAULT_SCU);
+            peer.setActCommodityScu(scu);
         });
 
         account.code().ifPresent(peer::setActCode);

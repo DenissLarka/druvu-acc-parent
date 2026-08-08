@@ -3,6 +3,7 @@ package com.druvu.acc.gnucash.writer;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -159,7 +160,7 @@ public class GnucashContentHandler implements ContentHandler {
             // GUIDs should be written in lowercase
             if (isGUID) {
                 String s = new String(ch, start, length);
-                writer.write(s.toLowerCase());
+                writer.write(s.toLowerCase(Locale.ROOT));
             } else {
                 StringBuilder sb = new StringBuilder();
                 sb.append(ch, start, length);

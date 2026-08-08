@@ -2,6 +2,7 @@ package com.druvu.acc.gnucash.impl;
 
 import com.druvu.acc.api.WritableAccStore;
 import com.druvu.acc.api.entity.Account;
+import com.druvu.acc.api.entity.AccountType;
 import com.druvu.acc.api.entity.Commodity;
 import com.druvu.acc.api.entity.CommodityId;
 import com.druvu.acc.api.entity.Price;
@@ -20,9 +21,16 @@ import com.druvu.acc.gnucash.writer.GnucashFileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
 
@@ -35,7 +43,7 @@ import lombok.NonNull;
  * @author Deniss Larka <br>
  *     on 11 Jan 2026
  */
-public class GnucashAccStore implements WritableAccStore {
+public final class GnucashAccStore implements WritableAccStore {
 
     private static final String CD_TYPE_ACCOUNT = "account";
 
@@ -172,12 +180,56 @@ public class GnucashAccStore implements WritableAccStore {
     // ========== WritableAccStore Interface ==========
 
     @Override
+    public String newId() {
+        // GnuCash GUIDs are 32 lowercase hex characters - a UUID with the dashes stripped.
+        return UUID.randomUUID().toString().replace("-", "");
+    }
+
+    @Override
     public void addAccount(@NonNull Account account) {
         if (accountById(account.id()).isPresent()) {
             throw new IllegalArgumentException("Account already exists: " + account.id());
         }
-        book().getBookElements().add(AccountMapper.toGnc(account));
+        // A GnuCash book has exactly one ROOT and everything hangs off it. An account written with no
+        // <act:parent> becomes a second root, which GnuCash does not consider a valid tree - refuse it
+        // here rather than silently producing a book that will not open properly.
+        if (account.parentId().isEmpty()) {
+            if (account.type() != AccountType.ROOT) {
+                throw new IllegalArgumentException(
+                        "Account '" + account.name() + "' has no parent; only a ROOT account may be parentless");
+            }
+            if (!rootAccounts().isEmpty()) {
+                throw new IllegalArgumentException("Book already has a root account; a second one would make the "
+                        + "account tree ambiguous and GnuCash does not display it correctly: " + account.name());
+            }
+        }
+        book().getBookElements().add(AccountMapper.toGnc(account, scuFor(account)));
         adjustCount(CD_TYPE_ACCOUNT, 1);
+    }
+
+    /**
+     * The smallest currency unit to record on an account: the fraction its commodity is actually defined with in this
+     * book, falling back to the ISO fraction for a currency the book has not defined yet.
+     */
+    private int scuFor(Account account) {
+        Optional<CommodityId> commodityId = account.commodity();
+        if (commodityId.isEmpty()) {
+            return Commodity.CURRENCY_FRACTION;
+        }
+        CommodityId id = commodityId.get();
+        return bookElements(GncV2.GncBook.GncCommodity.class)
+                .map(CommodityMapper::map)
+                .filter(commodity -> commodity.id().equals(id))
+                .findFirst()
+                .map(Commodity::fraction)
+                // Not defined in this book: ISO can still answer for a real currency, but nothing can
+                // answer for a security, and inventing a precision for it would be a guess about money.
+                .orElseGet(() -> id.isCurrency() ? Commodity.currencyFraction(id.id()) : failUndefinedCommodity(id));
+    }
+
+    private static int failUndefinedCommodity(CommodityId id) {
+        throw new IllegalArgumentException("Commodity " + id + " is not defined in this book, so the account's "
+                + "precision is unknown - add it with addCommodity(...) first");
     }
 
     @Override
@@ -261,7 +313,69 @@ public class GnucashAccStore implements WritableAccStore {
 
     @Override
     public void save(Path path) throws IOException {
+        List<String> problems = validate();
+        if (!problems.isEmpty()) {
+            throw new IllegalStateException("Refusing to write a structurally invalid book:" + System.lineSeparator()
+                    + "  - " + String.join(System.lineSeparator() + "  - ", problems));
+        }
         new GnucashFileWriter().write(root, path);
+    }
+
+    @Override
+    public List<String> validate() {
+        final List<Account> accounts = accounts();
+        final List<String> problems = new ArrayList<>();
+        if (accounts.isEmpty()) {
+            return List.of();
+        }
+
+        final Map<String, Account> byId = new HashMap<>();
+        accounts.forEach(account -> byId.put(account.id(), account));
+
+        final List<Account> roots = accounts.stream()
+                .filter(account -> account.parentId().isEmpty())
+                .toList();
+        if (roots.isEmpty()) {
+            problems.add("No root account: every account declares a parent, so the tree has no top");
+        } else if (roots.size() > 1) {
+            // The GnuCash API tolerates this; its UI does not render such a book correctly.
+            problems.add("Several root accounts, only one is allowed: "
+                    + roots.stream().map(Account::name).collect(Collectors.joining(", ")));
+        }
+
+        for (Account account : accounts) {
+            if (account.type() != AccountType.ROOT && account.parentId().isEmpty()) {
+                problems.add("Account '" + account.name() + "' has no parent but is not a ROOT account");
+            }
+            account.parentId()
+                    .filter(parentId -> !byId.containsKey(parentId))
+                    .ifPresent(parentId -> problems.add("Account '" + account.name()
+                            + "' points at a parent that is not in the book: " + parentId));
+            findCycle(account, byId).ifPresent(problems::add);
+        }
+
+        for (Transaction transaction : transactions()) {
+            for (Split split : transaction.splits()) {
+                if (!byId.containsKey(split.accountId())) {
+                    problems.add("Transaction '" + transaction.description()
+                            + "' has a split on an account that is not in the book: " + split.accountId());
+                }
+            }
+        }
+
+        return List.copyOf(problems);
+    }
+
+    /** Walks an account's ancestry; a repeat visit means the parent chain loops back on itself. */
+    private Optional<String> findCycle(Account start, Map<String, Account> byId) {
+        final Set<String> seen = new HashSet<>();
+        Account current = start;
+        while (current != null && seen.add(current.id())) {
+            current = current.parentId().map(byId::get).orElse(null);
+        }
+        return current == null
+                ? Optional.empty()
+                : Optional.of("Account '" + start.name() + "' sits in a parent cycle through '" + current.name() + "'");
     }
 
     // ========== Helper Methods ==========

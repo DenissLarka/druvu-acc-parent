@@ -7,16 +7,15 @@ import com.druvu.acc.api.entity.AccountType;
 import com.druvu.acc.api.entity.Commodity;
 import com.druvu.acc.api.entity.CommodityId;
 import com.druvu.acc.api.entity.Price;
-import com.druvu.acc.api.entity.ReconcileState;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.entity.Transaction;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -28,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AccApiWriteExample {
 
-    static void main(String[] args) throws Exception {
+    static void main(String[] args) throws IOException {
         if (args.length < 1) {
             System.err.println("Usage: AccApiWriteExample <gnucash-file>");
             System.exit(1);
@@ -36,7 +35,7 @@ public class AccApiWriteExample {
         new AccApiWriteExample().run(Paths.get(args[0]));
     }
 
-    private void run(Path filePath) throws Exception {
+    private void run(Path filePath) throws IOException {
         log.info("Loading file: {}", filePath);
         WritableAccStore store = AccStore.loadWritable(filePath);
         log.info(
@@ -48,44 +47,25 @@ public class AccApiWriteExample {
         CommodityId eur = CommodityId.currency("EUR");
 
         // 1. Add a new expense account under the first root account.
-        String accountId = newGuid();
-        store.addAccount(new Account(
-                accountId,
-                "Coffee",
-                AccountType.EXPENSE,
-                Optional.empty(),
-                Optional.of("Created by AccApiWriteExample"),
-                Optional.of(eur),
-                Optional.of(rootId)));
+        String accountId = store.newId();
+        store.addAccount(Account.of(accountId, "Coffee", AccountType.EXPENSE)
+                .withDescription("Created by AccApiWriteExample")
+                .withCommodity(eur)
+                .withParent(rootId));
 
         // 2. Add a balanced transaction touching that account.
-        String txId = newGuid();
+        String txId = store.newId();
         LocalDate today = LocalDate.now();
+        BigDecimal price = new BigDecimal("4.50");
         List<Split> splits = List.of(
-                new Split(
-                        newGuid(),
-                        txId,
-                        accountId,
-                        today,
-                        ReconcileState.NOT_RECONCILED,
-                        Optional.empty(),
-                        new BigDecimal("4.50"),
-                        new BigDecimal("4.50")),
-                new Split(
-                        newGuid(),
-                        txId,
-                        rootId,
-                        today,
-                        ReconcileState.NOT_RECONCILED,
-                        Optional.empty(),
-                        new BigDecimal("-4.50"),
-                        new BigDecimal("-4.50")));
-        store.addTransaction(new Transaction(txId, eur, Optional.empty(), today, "Morning coffee", splits));
+                Split.of(store.newId(), txId, accountId, today, price),
+                Split.of(store.newId(), txId, rootId, today, price.negate()));
+        store.addTransaction(Transaction.of(txId, eur, today, "Morning coffee", splits));
 
         // 3. Add a security commodity and a price quote (investment use case).
         store.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
         store.addPrice(new Price(
-                newGuid(),
+                store.newId(),
                 new CommodityId("NASDAQ", "AAPL"),
                 CommodityId.currency("USD"),
                 today.atStartOfDay(),
@@ -112,14 +92,14 @@ public class AccApiWriteExample {
     }
 
     private static Path siblingOutput(Path input) {
-        String name = input.getFileName().toString();
+        Path fileName = input.getFileName();
+        if (fileName == null) {
+            throw new IllegalArgumentException("Not a file: " + input);
+        }
+        String name = fileName.toString();
         int dot = name.lastIndexOf('.');
         String modified = dot < 0 ? name + "-modified" : name.substring(0, dot) + "-modified" + name.substring(dot);
         Path parent = input.toAbsolutePath().getParent();
         return parent == null ? Paths.get(modified) : parent.resolve(modified);
-    }
-
-    private static String newGuid() {
-        return UUID.randomUUID().toString().replace("-", "");
     }
 }

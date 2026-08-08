@@ -25,7 +25,7 @@ import org.xml.sax.InputSource;
  *     on 10 Jan 2026
  */
 @Slf4j
-public class GnucashFileReader {
+public final class GnucashFileReader {
 
     private static final int GZIP_MAGIC_1 = 0x1f;
     private static final int GZIP_MAGIC_2 = 0x8b;

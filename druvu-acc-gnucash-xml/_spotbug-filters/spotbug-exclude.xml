@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+
+    <!-- JAXB-generated bindings. Regenerated from the GnuCash schema on every build, so a finding
+         here cannot be fixed in source - it would be overwritten. 182 EI_EXPOSE_REP/REP2 as of
+         2026-08-08, all of them the standard generated getter/setter shape. -->
+    <Match>
+        <Package name="~com\.druvu\.acc\.gnucash\.generated.*"/>
+    </Match>
+
+    <!-- Wrappers that must hold the object they were handed. A Writer cannot be defensively copied -
+         decorating it is the entire point - and GnucashAccStore exists to mutate the GncV2 model it
+         wraps. Everything else EI_EXPOSE_REP flagged was fixed in code (see Transaction). -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Or>
+            <Class name="com.druvu.acc.gnucash.impl.GnucashAccStore"/>
+            <Class name="com.druvu.acc.gnucash.writer.GnucashContentHandler"/>
+            <Class name="com.druvu.acc.gnucash.writer.NamespaceAddingWriter"/>
+        </Or>
+    </Match>
+
+</FindBugsFilter>

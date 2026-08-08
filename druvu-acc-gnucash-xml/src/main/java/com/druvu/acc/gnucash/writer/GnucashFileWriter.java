@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.zip.GZIPOutputStream;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  *     on 13 Jan 2026
  */
 @Slf4j
-public class GnucashFileWriter {
+public final class GnucashFileWriter {
 
     private final JAXBContext jaxbContext;
 
@@ -84,7 +85,13 @@ public class GnucashFileWriter {
     }
 
     private boolean shouldCompress(Path path) {
-        String fileName = path.getFileName().toString().toLowerCase();
+        // getFileName() is null for a root path, and toLowerCase() without a locale mangles
+        // ".GNUCASH" under a Turkish locale.
+        Path fileNamePath = path.getFileName();
+        if (fileNamePath == null) {
+            return false;
+        }
+        String fileName = fileNamePath.toString().toLowerCase(Locale.ROOT);
         return fileName.endsWith(".gz") || fileName.endsWith(".gnucash");
     }
 }
