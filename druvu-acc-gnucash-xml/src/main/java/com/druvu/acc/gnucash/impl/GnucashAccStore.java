@@ -356,9 +356,14 @@ public final class GnucashAccStore implements WritableAccStore {
 
         for (Transaction transaction : transactions()) {
             for (Split split : transaction.splits()) {
-                if (!byId.containsKey(split.accountId())) {
+                Account account = byId.get(split.accountId());
+                if (account == null) {
                     problems.add("Transaction '" + transaction.description()
                             + "' has a split on an account that is not in the book: " + split.accountId());
+                } else if (account.type() == AccountType.ROOT) {
+                    // The root is structural - it holds the tree, never money.
+                    problems.add("Transaction '" + transaction.description()
+                            + "' posts a split to the ROOT account; post to a real account instead");
                 }
             }
         }

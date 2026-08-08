@@ -57,9 +57,14 @@ public class AccApiWriteExample {
         String txId = store.newId();
         LocalDate today = LocalDate.now();
         BigDecimal price = new BigDecimal("4.50");
+        // Double entry: the expense is paid out of cash. The counterpart must be a real account -
+        // the root holds the tree, not money.
+        String cashId = store.newId();
+        store.addAccount(
+                Account.of(cashId, "Cash", AccountType.CASH).withCommodity(eur).withParent(rootId));
         List<Split> splits = List.of(
                 Split.of(store.newId(), txId, accountId, today, price),
-                Split.of(store.newId(), txId, rootId, today, price.negate()));
+                Split.of(store.newId(), txId, cashId, today, price.negate()));
         store.addTransaction(Transaction.of(txId, eur, today, "Morning coffee", splits));
 
         // 3. Add a security commodity and a price quote (investment use case).

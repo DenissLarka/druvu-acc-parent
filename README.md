@@ -92,188 +92,128 @@ Implementation for reading and writing GnuCash XML files (`.gnucash`). Supports 
 ### Reading a GnuCash File
 
 ```java
-import com.druvu.acc.api.AccStore;
-import com.druvu.acc.api.entity.Account;
-import com.druvu.acc.api.entity.Transaction;
+var store = AccStore.load(Path.of("myfile.gnucash"));   // format found via ServiceLoader
 
-import java.nio.file.Path;
-
-// Load the store (auto-discovers GnuCash implementation via ServiceLoader)
-AccStore store = AccStore.load(Path.of("myfile.gnucash"));
-
-// Access accounts
-for (Account account : store.accounts()) {
-    System.out.println(account.name() + " [" + account.type() + "]");
+for (var account : store.accounts()) {
+    System.out.printf("%-24s %s%n", account.name(), account.type());
 }
 
-// Access transactions
-for (Transaction tx : store.transactions()) {
-    System.out.println(tx.datePosted() + " - " + tx.description());
-    for (var split : tx.splits()) {
-        System.out.println("  " + split.quantity());
-    }
+for (var tx : store.transactions()) {
+    System.out.printf("%s  %s%n", tx.datePosted(), tx.description());
 }
 ```
 
-### Using AccountService for Balance Calculations
+### Balances
 
 ```java
-import com.druvu.acc.api.service.AccountService;
-import com.druvu.acc.api.entity.Account;
-import com.druvu.acc.api.entity.Amount;
-import com.druvu.acc.api.entity.MultiAmount;
+var service = AccountService.create(store, "Root Account");
+var revenue = service.accountByName("Revenue");
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
-// Create service with optional root account prefix
-AccountService service = AccountService.create(store, "Root Account");
-
-// Find account by name (relative to root)
-Account revenue = service.accountByName("Revenue");
-
-// Calculate balance
-Amount currentBalance = service.balance(revenue.id());   // e.g. "1500.00 CHF"
-
-// Calculate balance up to a specific date
-Amount historicBalance = service.balance(revenue.id(), LocalDate.of(2026, 1, 1));
+var balance = service.balance(revenue.id());                             // 1500.00 CHF
+var total = service.totalAmount(revenue.id());                           // incl. sub-accounts
+var atYearEnd = service.balance(revenue.id(), LocalDate.of(2026, 12, 31));
 ```
 
-#### Balance vs. total: rolling up sub-accounts
+Balances carry their commodity, so a figure can never be read as the wrong currency: `Amount` is a
+quantity plus its `CommodityId`, and it prints as `1500.00 CHF`.
 
-The two figures mirror the two columns of the GnuCash account tree:
+The two methods mirror the two columns of the GnuCash account tree:
 
 | Method | GnuCash column | Covers |
 |---|---|---|
 | `balance(accountId)` | **Balance** | the account's own splits only |
-| `totalAmount(accountId)` | **Total** | the account and every account beneath it, as one `Amount` |
-| `totalBalance(accountId)` | **Total** | the same, as a `MultiAmount` when the subtree mixes commodities |
+| `totalAmount(accountId)` | **Total** | the account and everything beneath it |
 
-An account subtree can mix commodities — a EUR savings account and a NASDAQ/AAPL stock account under
-the same parent — so `totalBalance` returns a `MultiAmount` carrying one figure per commodity rather
-than a single number. Nothing is converted and nothing is dropped: applying an exchange rate needs a
-rate source and a policy for missing quotes, which is the caller's decision, not the library's.
+#### When a subtree mixes commodities
+
+A subtree can hold more than one commodity — a EUR savings account and a NASDAQ/AAPL stock account
+under the same parent — and adding those into one number would be meaningless. Most books are
+single-currency, so `totalAmount` is the everyday call; it throws if that assumption breaks, naming
+the account and what it actually holds.
+
+For a book that genuinely mixes them, `totalBalance` returns a `MultiAmount` — one `Amount` per
+commodity, nothing converted and nothing dropped, because applying a rate needs a rate source and a
+policy for missing quotes, which is your decision and not the library's:
 
 ```java
-// Most books use one currency — totalAmount is the form you want, and it fails loudly
-// (naming the account and what it holds) if a subtree turns out to mix commodities.
-Amount total = service.totalAmount(assets.id());
+var assets = service.accountByName("Assets");
 
-// When a subtree genuinely mixes commodities:
-MultiAmount mixed = service.totalBalance(assets.id());
-
-// Several commodities — handle each, converting only if you want to
-for (Amount amount : mixed.amounts()) {
-    System.out.println(amount.commodity() + " " + amount.value());
+for (var amount : service.totalBalance(assets.id()).amounts()) {
+    System.out.println(amount);          // 1500.00 CHF, then 100 NASDAQ/AAPL
 }
-
-// Cut-off date works the same way as on balance()
-Amount atYearEnd = service.totalAmount(assets.id(), LocalDate.of(2026, 12, 31));
 ```
 
 Use `store.prices()` if you do want to collapse a mixed total into one currency.
 
-Both types are immutable values: `plus`/`minus`/`negate` return new instances, `isZero()` tells
-an all-zero holding from an empty one, and `MultiAmount.summing()` is a collector for aggregating a
-stream of them. Equality is by numeric quantity rather than `BigDecimal` scale, so a figure read
-from `1500/1` equals the same figure read from `150000/100`.
-
-For a single-currency book, `single()` returns empty when a subtree holds more than one commodity —
-use it to assert the assumption rather than silently reading one commodity and ignoring the rest.
-It hands back the quantity *and* its commodity together, so nothing has to be guessed:
-
-```java
-Amount amount = total.single()
-        .orElseThrow(() -> new IllegalStateException("mixed commodities: " + total));
-```
-
-`Amount` arithmetic refuses to mix commodities — `Amount.of("10", CHF).plus(Amount.of("1", USD))`
-throws rather than producing a meaningless 11.
-
-```java
-// Movement over a period
-MultiAmount movement = service.totalBalance(id, to).minus(service.totalBalance(id, from));
-
-// Aggregate several subtrees
-MultiAmount combined = accountIds.stream()
-        .map(service::totalBalance)
-        .collect(MultiAmount.summing());
-```
+Both types are immutable: `plus`/`minus`/`negate` return new instances, and `MultiAmount.summing()`
+is a collector for aggregating a stream of them. `Amount` arithmetic refuses to mix commodities, and
+equality is by numeric value rather than `BigDecimal` scale — a figure read from `1500/1` equals the
+same figure read from `150000/100`.
 
 ### Working with Commodities
 
+`CommodityId` refers to a commodity; `Commodity` defines one in the book's commodity table.
+
 ```java
-import com.druvu.acc.api.entity.CommodityId;
+var chf = CommodityId.CHF;                        // constants for USD, EUR, GBP, CHF, JPY
+var pln = CommodityId.currency("PLN");            // anything else by code
+var apple = CommodityId.security("NASDAQ", "AAPL");
 
-// Create a currency ID
-CommodityId eur = CommodityId.currency("EUR");
-CommodityId usd = new CommodityId("CURRENCY", "USD");
-
-// Create a stock ID
-CommodityId stock = new CommodityId("NASDAQ", "AAPL");
-
-// Check if commodity is a currency
-boolean isCurrency = eur.isCurrency(); // true
+var plnDef = Commodity.currency("PLN");           // definition; fraction read from ISO 4217
+var appleDef = Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000);
 ```
+
+Definitions go into a book with `addCommodity` on a writable store, below.
+
+`Commodity.currency` refuses codes ISO defines no fraction for — crypto, pseudo-currencies such as
+XAU — rather than guessing a precision; construct those directly with the fraction they use.
 
 ### Writing and Modifying
 
-Load a store as a `WritableAccStore` to add or remove accounts and transactions and
-save the result. Mutations are applied in place; call `save(Path)` to persist them.
-Entity IDs are caller-supplied — use 32-character hex GUIDs for GnuCash compatibility.
+Load a store as a `WritableAccStore` to mutate it in place, then `save(Path)`. Use `store.newId()`
+for entity IDs — it mints one in whatever format the backend expects, so you never hand-roll a GUID.
 
 ```java
-import com.druvu.acc.api.AccStore;
-import com.druvu.acc.api.WritableAccStore;
-import com.druvu.acc.api.entity.*;
+var store = AccStore.loadWritable(Path.of("myfile.gnucash"));
+var rootId = store.rootAccounts().getFirst().id();
+var eur = CommodityId.EUR;
 
-import java.math.BigDecimal;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-// Load as writable
-WritableAccStore store = AccStore.loadWritable(Path.of("myfile.gnucash"));
-
-String rootId = store.rootAccounts().getFirst().id();
-CommodityId eur = CommodityId.currency("EUR");
-
-// Add a new expense account under the root. store.newId() mints an ID in the
-// backend's own format, so callers never hand-roll one.
-String accountId = store.newId();
+// An expense account under the root
+var accountId = store.newId();
 store.addAccount(Account.of(accountId, "Coffee", AccountType.EXPENSE)
         .withDescription("Daily coffee")
         .withCommodity(eur)
         .withParent(rootId));
 
-// Add a balanced transaction (splits must sum to zero in the transaction currency)
-String txId = store.newId();
-LocalDate today = LocalDate.now();
-BigDecimal price = new BigDecimal("4.50");
-List<Split> splits = List.of(
+// The cash it is paid from
+var cashId = store.newId();
+store.addAccount(Account.of(cashId, "Cash", AccountType.CASH)
+        .withCommodity(eur)
+        .withParent(rootId));
+
+// A balanced transaction between the two. Both legs must be real accounts —
+// the root holds the tree, never money.
+var txId = store.newId();
+var today = LocalDate.now();
+var price = new BigDecimal("4.50");
+store.addTransaction(Transaction.of(txId, eur, today, "Morning coffee", List.of(
         Split.of(store.newId(), txId, accountId, today, price),
-        Split.of(store.newId(), txId, rootId, today, price.negate()));
-store.addTransaction(Transaction.of(txId, eur, today, "Morning coffee", splits));
+        Split.of(store.newId(), txId, cashId, today, price.negate()))));
 
-// Add a security commodity and a price quote (investments / multi-currency)
-// Commodity.currency("JPY") gets fraction 1, "KWD" gets 1000 — read from ISO 4217, not assumed.
+// A security and a price quote
 store.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
-store.addPrice(new Price(
-        store.newId(),
-        new CommodityId("NASDAQ", "AAPL"),
-        CommodityId.currency("USD"),
-        today.atStartOfDay(),
-        "user:price-editor",
-        Optional.of("last"),
-        new BigDecimal("212.50")));
+store.addPrice(new Price(store.newId(), CommodityId.security("NASDAQ", "AAPL"), CommodityId.USD,
+        today.atStartOfDay(), "user:price-editor", Optional.of("last"), new BigDecimal("212.50")));
 
-// Remove entities by ID
 store.removeTransaction(txId);
 store.removeAccount(accountId);
 
-// Persist (gzip-compressed when the path ends with .gnucash or .gz)
-store.save(Path.of("myfile-modified.gnucash"));
+store.save(Path.of("myfile-modified.gnucash"));   // gzipped for .gnucash and .gz
 ```
+
+`save` validates the book's structure first and writes nothing if it fails — a second root, a
+dangling parent, a split on an account that is not there or on the root itself. Reading stays tolerant so a damaged book
+can still be opened and repaired; call `store.validate()` yourself to see what is wrong with one.
 
 > **Note:** the library does not enforce accounting invariants (e.g. that a transaction's
 > splits balance, or that referenced accounts exist) — supply consistent data. `save` writes

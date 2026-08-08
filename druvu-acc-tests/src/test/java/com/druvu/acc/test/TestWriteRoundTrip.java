@@ -70,9 +70,11 @@ public class TestWriteRoundTrip {
     @Test
     public void addTransactionRoundTrips() throws IOException {
         WritableAccStore store = AccStore.loadWritable(source);
-        List<Account> accounts = store.accounts();
-        String accountA = accounts.get(0).id();
-        String accountB = accounts.get(1).id();
+        // Deliberately looked up by name: accounts.get(0) is the ROOT, which must never carry splits.
+        String accountA =
+                store.accountByName("Root Account:Actif").orElseThrow().id();
+        String accountB =
+                store.accountByName("Root Account:Revenus").orElseThrow().id();
         LocalDate date = LocalDate.of(2026, 6, 7);
         int before = store.transactions().size();
 
@@ -231,6 +233,34 @@ public class TestWriteRoundTrip {
         Path out = Paths.get(System.getProperty("java.io.tmpdir"), "should-not-be-written.gnucash");
         assertThrows(IllegalStateException.class, () -> store.save(out));
         assertFalse(Files.exists(out), "nothing should be written when validation fails");
+    }
+
+    @Test
+    public void saveRefusesASplitPostedToTheRoot() {
+        WritableAccStore store = AccStore.loadWritable(source);
+        String rootId = store.rootAccounts().get(0).id();
+        String realAccount =
+                store.accountByName("Root Account:Actif").orElseThrow().id();
+        String txId = store.newId();
+        LocalDate date = LocalDate.of(2026, 6, 1);
+
+        // The root holds the account tree, not money - an easy mistake when reaching for
+        // "some other account" to balance against.
+        store.addTransaction(Transaction.of(
+                txId,
+                CommodityId.CHF,
+                date,
+                "wrong leg",
+                List.of(
+                        Split.of(store.newId(), txId, realAccount, date, new BigDecimal("5.00")),
+                        Split.of(store.newId(), txId, rootId, date, new BigDecimal("-5.00")))));
+
+        assertTrue(
+                store.validate().stream().anyMatch(p -> p.contains("ROOT account")),
+                "a split on the root should be reported: " + store.validate());
+        assertThrows(
+                IllegalStateException.class,
+                () -> store.save(Paths.get(System.getProperty("java.io.tmpdir"), "never-written.gnucash")));
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
