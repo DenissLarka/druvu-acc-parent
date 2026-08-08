@@ -62,11 +62,12 @@ Core interfaces and entities for accounting data:
 - `Split` - Transaction split with value, quantity, and reconciliation state
 - `Price` - Price quote for commodities
 - `CommodityId` - Identifies currencies and securities (namespace + id)
+- `MultiAsset` - An amount held across one or more commodities, returned by subtree totals
 - `AccountType` - Enum for account types (ASSET, LIABILITY, INCOME, EXPENSE, EQUITY, etc.)
 - `ReconcileState` - Reconciliation state (NOT_RECONCILED, CLEARED, RECONCILED)
 
 **Services:**
-- `AccountService` - Business logic for account operations (balance calculations)
+- `AccountService` - Business logic for account operations (own balances and subtree totals)
 - `AccStore.load(Path)` / `AccStore.loadWritable(Path)` - static factory methods that load a store via ServiceLoader
 
 ### druvu-acc-gnucash-xml
@@ -111,6 +112,7 @@ for (Transaction tx : store.transactions()) {
 ```java
 import com.druvu.acc.api.service.AccountService;
 import com.druvu.acc.api.entity.Account;
+import com.druvu.acc.api.entity.MultiAsset;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -122,10 +124,56 @@ AccountService service = AccountService.create(store, "Root Account");
 Account revenue = service.accountByName("Revenue");
 
 // Calculate balance
-BigDecimal currentBalance = service.balance(revenue);
+BigDecimal currentBalance = service.balance(revenue.id());
 
 // Calculate balance up to a specific date
-BigDecimal historicBalance = service.balance(revenue, LocalDate.of(2026, 1, 1));
+BigDecimal historicBalance = service.balance(revenue.id(), LocalDate.of(2026, 1, 1));
+```
+
+#### Balance vs. total: rolling up sub-accounts
+
+The two figures mirror the two columns of the GnuCash account tree:
+
+| Method | GnuCash column | Covers |
+|---|---|---|
+| `balance(accountId)` | **Balance** | the account's own splits only |
+| `totalBalance(accountId)` | **Total** | the account and every account beneath it |
+
+An account subtree can mix commodities — a EUR savings account and a NASDAQ/AAPL stock account under
+the same parent — so `totalBalance` returns a `MultiAsset` carrying one figure per commodity rather
+than a single number. Nothing is converted and nothing is dropped: applying an exchange rate needs a
+rate source and a policy for missing quotes, which is the caller's decision, not the library's.
+
+```java
+MultiAsset total = service.totalBalance(assets.id());
+
+// One currency in the subtree — the common case
+total.singleAmount().ifPresent(amount -> System.out.println("Total: " + amount));
+
+// Several commodities — handle each, converting only if you want to
+for (CommodityId commodity : total.commodities()) {
+    System.out.println(commodity + " " + total.amount(commodity));
+}
+
+// Cut-off date works the same way as on balance()
+MultiAsset atYearEnd = service.totalBalance(assets.id(), LocalDate.of(2026, 12, 31));
+```
+
+Use `store.prices()` if you do want to collapse a mixed total into one currency.
+
+`MultiAsset` is an immutable value: `plus`/`minus` return new instances, `isZero()` tells an
+all-zero holding from an empty one, and `MultiAsset.summing()` is a collector for aggregating a
+stream of them. Equality is by numeric quantity rather than `BigDecimal` scale, so a figure read
+from `1500/1` equals the same figure read from `150000/100`.
+
+```java
+// Movement over a period
+MultiAsset movement = service.totalBalance(id, to).minus(service.totalBalance(id, from));
+
+// Aggregate several subtrees
+MultiAsset combined = accountIds.stream()
+        .map(service::totalBalance)
+        .collect(MultiAsset.summing());
 ```
 
 ### Working with Commodities

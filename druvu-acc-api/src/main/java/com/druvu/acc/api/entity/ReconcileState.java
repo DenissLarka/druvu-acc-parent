@@ -3,51 +3,41 @@ package com.druvu.acc.api.entity;
 /**
  * Reconciliation state of a transaction split.
  *
- * @author Deniss Larka
- * <br/>on 10 Jan 2026
+ * @author Deniss Larka <br>
+ *     on 10 Jan 2026
  */
 public enum ReconcileState {
-	/**
-	 * Not reconciled
-	 */
-	NOT_RECONCILED("n"),
+    /** Not reconciled */
+    NOT_RECONCILED("n"),
 
-	/**
-	 * Cleared (pending reconciliation)
-	 */
-	CLEARED("c"),
+    /** Cleared (pending reconciliation) */
+    CLEARED("c"),
 
-	/**
-	 * Reconciled
-	 */
-	RECONCILED("y"),
+    /** Reconciled */
+    RECONCILED("y"),
 
-	/**
-	 * Frozen into accounting period
-	 */
-	FROZEN("f"),
+    /** Frozen into accounting period */
+    FROZEN("f"),
 
-	/**
-	 * Voided
-	 */
-	VOIDED("v");
+    /** Voided */
+    VOIDED("v");
 
-	private final String code;
+    private final String code;
 
-	ReconcileState(String code) {
-		this.code = code;
-	}
+    ReconcileState(String code) {
+        this.code = code;
+    }
 
-	public String code() {
-		return code;
-	}
+    public String code() {
+        return code;
+    }
 
-	public static ReconcileState fromCode(String code) {
-		for (ReconcileState state : values()) {
-			if (state.code.equals(code)) {
-				return state;
-			}
-		}
-		return NOT_RECONCILED;
-	}
+    public static ReconcileState fromCode(String code) {
+        for (ReconcileState state : values()) {
+            if (state.code.equals(code)) {
+                return state;
+            }
+        }
+        return NOT_RECONCILED;
+    }
 }

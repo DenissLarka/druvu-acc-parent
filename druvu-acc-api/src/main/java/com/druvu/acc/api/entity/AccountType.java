@@ -3,82 +3,52 @@ package com.druvu.acc.api.entity;
 /**
  * Types of accounts in double-entry bookkeeping.
  *
- * @author Deniss Larka
- * <br/>on 10 Jan 2026
+ * @author Deniss Larka <br>
+ *     on 10 Jan 2026
  */
 public enum AccountType {
-	/**
-	 * Root account - top of hierarchy
-	 */
-	ROOT,
+    /** Root account - top of hierarchy */
+    ROOT,
 
-	/**
-	 * Bank account
-	 */
-	BANK,
+    /** Bank account */
+    BANK,
 
-	/**
-	 * Cash account
-	 */
-	CASH,
+    /** Cash account */
+    CASH,
 
-	/**
-	 * Credit card account
-	 */
-	CREDIT,
+    /** Credit card account */
+    CREDIT,
 
-	/**
-	 * Generic asset account
-	 */
-	ASSET,
+    /** Generic asset account */
+    ASSET,
 
-	/**
-	 * Liability account
-	 */
-	LIABILITY,
+    /** Liability account */
+    LIABILITY,
 
-	/**
-	 * Stock/shares account
-	 */
-	STOCK,
+    /** Stock/shares account */
+    STOCK,
 
-	/**
-	 * Mutual fund account
-	 */
-	MUTUAL,
+    /** Mutual fund account */
+    MUTUAL,
 
-	/**
-	 * Currency trading account
-	 */
-	CURRENCY,
+    /** Currency trading account */
+    CURRENCY,
 
-	/**
-	 * Income account
-	 */
-	INCOME,
+    /** Income account */
+    INCOME,
 
-	/**
-	 * Expense account
-	 */
-	EXPENSE,
+    /** Expense account */
+    EXPENSE,
 
-	/**
-	 * Equity account
-	 */
-	EQUITY,
+    /** Equity account */
+    EQUITY,
 
-	/**
-	 * Accounts receivable
-	 */
-	RECEIVABLE,
+    /** Accounts receivable */
+    RECEIVABLE,
 
-	/**
-	 * Accounts payable
-	 */
-	PAYABLE,
+    /** Accounts payable */
+    PAYABLE,
 
-	/**
-	 * Trading account for currency/commodity exchange
-	 */
-	TRADING
+    /** Trading account for currency/commodity exchange */
+    TRADING
 }

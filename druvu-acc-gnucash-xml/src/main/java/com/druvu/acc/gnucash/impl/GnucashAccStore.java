@@ -1,21 +1,12 @@
 package com.druvu.acc.gnucash.impl;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
+import com.druvu.acc.api.WritableAccStore;
 import com.druvu.acc.api.entity.Account;
 import com.druvu.acc.api.entity.Commodity;
+import com.druvu.acc.api.entity.CommodityId;
 import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.Split;
-import com.druvu.acc.api.AccStore;
-import com.druvu.acc.api.WritableAccStore;
 import com.druvu.acc.api.entity.Transaction;
-import com.druvu.acc.api.entity.CommodityId;
 import com.druvu.acc.gnucash.generated.GncAccount;
 import com.druvu.acc.gnucash.generated.GncCountData;
 import com.druvu.acc.gnucash.generated.GncPricedb;
@@ -26,308 +17,312 @@ import com.druvu.acc.gnucash.mapper.CommodityMapper;
 import com.druvu.acc.gnucash.mapper.PriceMapper;
 import com.druvu.acc.gnucash.mapper.TransactionMapper;
 import com.druvu.acc.gnucash.writer.GnucashFileWriter;
-
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import lombok.NonNull;
 
 /**
  * GnuCash XML implementation of AccStore.
- * <p>
- * Stores only the GncV2 root and computes all derived data on demand.
- * This allows for future mutation support and keeps a single source of truth.
  *
- * @author Deniss Larka
- * <br/>on 11 Jan 2026
+ * <p>Stores only the GncV2 root and computes all derived data on demand. This allows for future mutation support and
+ * keeps a single source of truth.
+ *
+ * @author Deniss Larka <br>
+ *     on 11 Jan 2026
  */
 public class GnucashAccStore implements WritableAccStore {
 
-	private static final String CD_TYPE_ACCOUNT = "account";
+    private static final String CD_TYPE_ACCOUNT = "account";
 
-	private static final String CD_TYPE_TRANSACTION = "transaction";
+    private static final String CD_TYPE_TRANSACTION = "transaction";
 
-	private static final String CD_TYPE_COMMODITY = "commodity";
+    private static final String CD_TYPE_COMMODITY = "commodity";
 
-	private static final String CD_TYPE_PRICE = "price";
+    private static final String CD_TYPE_PRICE = "price";
 
-	private static final int PRICEDB_VERSION = 1;
+    private static final int PRICEDB_VERSION = 1;
 
-	private final GncV2 root;
+    private final GncV2 root;
 
-	public GnucashAccStore(@NonNull GncV2 root) {
-		this.root = root;
-	}
+    public GnucashAccStore(@NonNull GncV2 root) {
+        this.root = root;
+    }
 
-	// ========== AccStore Interface ==========
+    // ========== AccStore Interface ==========
 
-	@Override
-	public String id() {
-		return book().getBookId().getValue();
-	}
+    @Override
+    public String id() {
+        return book().getBookId().getValue();
+    }
 
-	@Override
-	public List<CommodityId> commodities() {
-		return bookElements(GncV2.GncBook.GncCommodity.class)
-				.map(c -> new CommodityId(c.getCmdtySpace(), c.getCmdtyId()))
-				.toList();
-	}
+    @Override
+    public List<CommodityId> commodities() {
+        return bookElements(GncV2.GncBook.GncCommodity.class)
+                .map(c -> new CommodityId(c.getCmdtySpace(), c.getCmdtyId()))
+                .toList();
+    }
 
-	@Override
-	public List<Price> prices() {
-		return bookElements(GncPricedb.class)
-				.filter(pricedb -> pricedb.getPrice() != null)
-				.flatMap(pricedb -> pricedb.getPrice().stream())
-				.map(PriceMapper::map)
-				.toList();
-	}
+    @Override
+    public List<Price> prices() {
+        return bookElements(GncPricedb.class)
+                .filter(pricedb -> pricedb.getPrice() != null)
+                .flatMap(pricedb -> pricedb.getPrice().stream())
+                .map(PriceMapper::map)
+                .toList();
+    }
 
-	@Override
-	public List<Account> accounts() {
-		return bookElements(GncAccount.class)
-				.map(AccountMapper::map)
-				.toList();
-	}
+    @Override
+    public List<Account> accounts() {
+        return bookElements(GncAccount.class).map(AccountMapper::map).toList();
+    }
 
-	@Override
-	public List<Account> rootAccounts() {
-		return bookElements(GncAccount.class)
-				.filter(account -> account.getActParent() == null)
-				.map(AccountMapper::map)
-				.toList();
-	}
+    @Override
+    public List<Account> rootAccounts() {
+        return bookElements(GncAccount.class)
+                .filter(account -> account.getActParent() == null)
+                .map(AccountMapper::map)
+                .toList();
+    }
 
-	@Override
-	public Optional<Account> accountById(String id) {
-		return bookElements(GncAccount.class)
-				.filter(account -> account.getActId().getValue().equals(id))
-				.findFirst()
-				.map(AccountMapper::map);
-	}
+    @Override
+    public Optional<Account> accountById(String id) {
+        return bookElements(GncAccount.class)
+                .filter(account -> account.getActId().getValue().equals(id))
+                .findFirst()
+                .map(AccountMapper::map);
+    }
 
-	@Override
-	public Optional<Account> accountByName(String qualifiedName) {
-		String[] path = qualifiedName.split(":");
-		Optional<Account> current = Optional.empty();
-		String currentParentId = null;
+    @Override
+    public Optional<Account> accountByName(String qualifiedName) {
+        String[] path = qualifiedName.split(":");
+        Optional<Account> current = Optional.empty();
+        String currentParentId = null;
 
-		for (String name : path) {
-			current = accountByNameWithParent(name, currentParentId);
-			if (current.isEmpty()) {
-				return Optional.empty();
-			}
-			currentParentId = current.get().id();
-		}
+        for (String name : path) {
+            current = accountByNameWithParent(name, currentParentId);
+            if (current.isEmpty()) {
+                return Optional.empty();
+            }
+            currentParentId = current.get().id();
+        }
 
-		return current;
-	}
+        return current;
+    }
 
-	@Override
-	public List<String> fetchChildIds(String accountId) {
-		return bookElements(GncAccount.class)
-				.filter(account -> {
-					var parent = account.getActParent();
-					return parent != null && parent.getValue().equals(accountId);
-				})
-				.map(account -> account.getActId().getValue())
-				.toList();
-	}
+    @Override
+    public List<String> fetchChildIds(String accountId) {
+        return bookElements(GncAccount.class)
+                .filter(account -> {
+                    var parent = account.getActParent();
+                    return parent != null && parent.getValue().equals(accountId);
+                })
+                .map(account -> account.getActId().getValue())
+                .toList();
+    }
 
-	@Override
-	public List<Transaction> transactions() {
-		return bookElements(GncTransaction.class)
-				.map(TransactionMapper::map)
-				.sorted()
-				.toList();
-	}
+    @Override
+    public List<Transaction> transactions() {
+        return bookElements(GncTransaction.class)
+                .map(TransactionMapper::map)
+                .sorted()
+                .toList();
+    }
 
-	@Override
-	public Optional<Transaction> transactionById(String id) {
-		return bookElements(GncTransaction.class)
-				.filter(transaction -> transaction.getTrnId().getValue().equals(id))
-				.findFirst()
-				.map(TransactionMapper::map);
-	}
+    @Override
+    public Optional<Transaction> transactionById(String id) {
+        return bookElements(GncTransaction.class)
+                .filter(transaction -> transaction.getTrnId().getValue().equals(id))
+                .findFirst()
+                .map(TransactionMapper::map);
+    }
 
-	@Override
-	public List<Transaction> transactions(LocalDate from, LocalDate to) {
-		return bookElements(GncTransaction.class)
-				.map(TransactionMapper::map)
-				.filter(mapped -> {
-					LocalDate date = mapped.datePosted();
-					return !date.isBefore(from) && !date.isAfter(to);
-				})
-				.sorted()
-				.toList();
-	}
+    @Override
+    public List<Transaction> transactions(LocalDate from, LocalDate to) {
+        return bookElements(GncTransaction.class)
+                .map(TransactionMapper::map)
+                .filter(mapped -> {
+                    LocalDate date = mapped.datePosted();
+                    return !date.isBefore(from) && !date.isAfter(to);
+                })
+                .sorted()
+                .toList();
+    }
 
-	@Override
-	public List<Transaction> transactionsForAccount(String accountId) {
-		return transactions().stream()
-				.filter(transaction -> transaction.splits().stream()
-						.anyMatch(split -> split.accountId().equals(accountId)))
-				.toList();
-	}
+    @Override
+    public List<Transaction> transactionsForAccount(String accountId) {
+        return transactions().stream()
+                .filter(transaction -> transaction.splits().stream()
+                        .anyMatch(split -> split.accountId().equals(accountId)))
+                .toList();
+    }
 
-	@Override
-	public List<Split> splitsForAccount(String accountId) {
-		return transactions().stream()
-				.flatMap(transaction -> transaction.splits().stream())
-				.filter(split -> split.accountId().equals(accountId))
-				.toList();
-	}
+    @Override
+    public List<Split> splitsForAccount(String accountId) {
+        return transactions().stream()
+                .flatMap(transaction -> transaction.splits().stream())
+                .filter(split -> split.accountId().equals(accountId))
+                .toList();
+    }
 
-	// ========== WritableAccStore Interface ==========
+    // ========== WritableAccStore Interface ==========
 
-	@Override
-	public void addAccount(@NonNull Account account) {
-		if (accountById(account.id()).isPresent()) {
-			throw new IllegalArgumentException("Account already exists: " + account.id());
-		}
-		book().getBookElements().add(AccountMapper.toGnc(account));
-		adjustCount(CD_TYPE_ACCOUNT, 1);
-	}
+    @Override
+    public void addAccount(@NonNull Account account) {
+        if (accountById(account.id()).isPresent()) {
+            throw new IllegalArgumentException("Account already exists: " + account.id());
+        }
+        book().getBookElements().add(AccountMapper.toGnc(account));
+        adjustCount(CD_TYPE_ACCOUNT, 1);
+    }
 
-	@Override
-	public void addTransaction(@NonNull Transaction transaction) {
-		if (transactionById(transaction.id()).isPresent()) {
-			throw new IllegalArgumentException("Transaction already exists: " + transaction.id());
-		}
-		book().getBookElements().add(TransactionMapper.toGnc(transaction));
-		adjustCount(CD_TYPE_TRANSACTION, 1);
-	}
+    @Override
+    public void addTransaction(@NonNull Transaction transaction) {
+        if (transactionById(transaction.id()).isPresent()) {
+            throw new IllegalArgumentException("Transaction already exists: " + transaction.id());
+        }
+        book().getBookElements().add(TransactionMapper.toGnc(transaction));
+        adjustCount(CD_TYPE_TRANSACTION, 1);
+    }
 
-	@Override
-	public void removeAccount(String accountId) {
-		boolean removed = book().getBookElements().removeIf(
-				element -> element instanceof GncAccount account
-						&& account.getActId().getValue().equals(accountId));
-		if (!removed) {
-			throw new IllegalArgumentException("No account with ID: " + accountId);
-		}
-		adjustCount(CD_TYPE_ACCOUNT, -1);
-	}
+    @Override
+    public void removeAccount(String accountId) {
+        boolean removed = book().getBookElements()
+                .removeIf(element -> element instanceof GncAccount account
+                        && account.getActId().getValue().equals(accountId));
+        if (!removed) {
+            throw new IllegalArgumentException("No account with ID: " + accountId);
+        }
+        adjustCount(CD_TYPE_ACCOUNT, -1);
+    }
 
-	@Override
-	public void removeTransaction(String transactionId) {
-		boolean removed = book().getBookElements().removeIf(
-				element -> element instanceof GncTransaction transaction
-						&& transaction.getTrnId().getValue().equals(transactionId));
-		if (!removed) {
-			throw new IllegalArgumentException("No transaction with ID: " + transactionId);
-		}
-		adjustCount(CD_TYPE_TRANSACTION, -1);
-	}
+    @Override
+    public void removeTransaction(String transactionId) {
+        boolean removed = book().getBookElements()
+                .removeIf(element -> element instanceof GncTransaction transaction
+                        && transaction.getTrnId().getValue().equals(transactionId));
+        if (!removed) {
+            throw new IllegalArgumentException("No transaction with ID: " + transactionId);
+        }
+        adjustCount(CD_TYPE_TRANSACTION, -1);
+    }
 
-	@Override
-	public void addCommodity(@NonNull Commodity commodity) {
-		CommodityId id = commodity.id();
-		boolean exists = bookElements(GncV2.GncBook.GncCommodity.class)
-				.anyMatch(c -> id.namespace().equals(c.getCmdtySpace()) && id.id().equals(c.getCmdtyId()));
-		if (exists) {
-			throw new IllegalArgumentException("Commodity already exists: " + id);
-		}
-		book().getBookElements().add(CommodityMapper.toGnc(commodity));
-		adjustCount(CD_TYPE_COMMODITY, 1);
-	}
+    @Override
+    public void addCommodity(@NonNull Commodity commodity) {
+        CommodityId id = commodity.id();
+        boolean exists = bookElements(GncV2.GncBook.GncCommodity.class)
+                .anyMatch(
+                        c -> id.namespace().equals(c.getCmdtySpace()) && id.id().equals(c.getCmdtyId()));
+        if (exists) {
+            throw new IllegalArgumentException("Commodity already exists: " + id);
+        }
+        book().getBookElements().add(CommodityMapper.toGnc(commodity));
+        adjustCount(CD_TYPE_COMMODITY, 1);
+    }
 
-	@Override
-	public void removeCommodity(CommodityId commodityId) {
-		boolean removed = book().getBookElements().removeIf(
-				element -> element instanceof GncV2.GncBook.GncCommodity commodity
-						&& commodityId.namespace().equals(commodity.getCmdtySpace())
-						&& commodityId.id().equals(commodity.getCmdtyId()));
-		if (!removed) {
-			throw new IllegalArgumentException("No commodity: " + commodityId);
-		}
-		adjustCount(CD_TYPE_COMMODITY, -1);
-	}
+    @Override
+    public void removeCommodity(CommodityId commodityId) {
+        boolean removed = book().getBookElements()
+                .removeIf(element -> element instanceof GncV2.GncBook.GncCommodity commodity
+                        && commodityId.namespace().equals(commodity.getCmdtySpace())
+                        && commodityId.id().equals(commodity.getCmdtyId()));
+        if (!removed) {
+            throw new IllegalArgumentException("No commodity: " + commodityId);
+        }
+        adjustCount(CD_TYPE_COMMODITY, -1);
+    }
 
-	@Override
-	public void addPrice(@NonNull Price price) {
-		GncPricedb pricedb = priceDb();
-		boolean exists = pricedb.getPrice().stream()
-				.anyMatch(p -> p.getPriceId().getValue().equals(price.id()));
-		if (exists) {
-			throw new IllegalArgumentException("Price already exists: " + price.id());
-		}
-		pricedb.getPrice().add(PriceMapper.toGnc(price));
-		adjustCount(CD_TYPE_PRICE, 1);
-	}
+    @Override
+    public void addPrice(@NonNull Price price) {
+        GncPricedb pricedb = priceDb();
+        boolean exists = pricedb.getPrice().stream()
+                .anyMatch(p -> p.getPriceId().getValue().equals(price.id()));
+        if (exists) {
+            throw new IllegalArgumentException("Price already exists: " + price.id());
+        }
+        pricedb.getPrice().add(PriceMapper.toGnc(price));
+        adjustCount(CD_TYPE_PRICE, 1);
+    }
 
-	@Override
-	public void removePrice(String priceId) {
-		GncPricedb pricedb = bookElements(GncPricedb.class).findFirst().orElse(null);
-		boolean removed = pricedb != null
-				&& pricedb.getPrice().removeIf(p -> p.getPriceId().getValue().equals(priceId));
-		if (!removed) {
-			throw new IllegalArgumentException("No price with ID: " + priceId);
-		}
-		adjustCount(CD_TYPE_PRICE, -1);
-	}
+    @Override
+    public void removePrice(String priceId) {
+        GncPricedb pricedb = bookElements(GncPricedb.class).findFirst().orElse(null);
+        boolean removed = pricedb != null
+                && pricedb.getPrice().removeIf(p -> p.getPriceId().getValue().equals(priceId));
+        if (!removed) {
+            throw new IllegalArgumentException("No price with ID: " + priceId);
+        }
+        adjustCount(CD_TYPE_PRICE, -1);
+    }
 
-	@Override
-	public void save(Path path) throws IOException {
-		new GnucashFileWriter().write(root, path);
-	}
+    @Override
+    public void save(Path path) throws IOException {
+        new GnucashFileWriter().write(root, path);
+    }
 
-	// ========== Helper Methods ==========
+    // ========== Helper Methods ==========
 
-	private GncV2.GncBook book() {
-		return root.getGncBook();
-	}
+    private GncV2.GncBook book() {
+        return root.getGncBook();
+    }
 
-	/**
-	 * Returns the book's price database, creating and registering an empty one if absent.
-	 */
-	private GncPricedb priceDb() {
-		return bookElements(GncPricedb.class).findFirst().orElseGet(() -> {
-			GncPricedb pricedb = new GncPricedb();
-			pricedb.setVersion(PRICEDB_VERSION);
-			book().getBookElements().add(pricedb);
-			return pricedb;
-		});
-	}
+    /** Returns the book's price database, creating and registering an empty one if absent. */
+    private GncPricedb priceDb() {
+        return bookElements(GncPricedb.class).findFirst().orElseGet(() -> {
+            GncPricedb pricedb = new GncPricedb();
+            pricedb.setVersion(PRICEDB_VERSION);
+            book().getBookElements().add(pricedb);
+            return pricedb;
+        });
+    }
 
-	/**
-	 * Adjusts the {@code gnc:count-data} entry for the given type, keeping the file's
-	 * declared counts consistent with its contents. Creates the entry if absent.
-	 */
-	private void adjustCount(String cdType, int delta) {
-		for (GncCountData count : book().getGncCountData()) {
-			if (cdType.equals(count.getCdType())) {
-				count.setValue(count.getValue() + delta);
-				return;
-			}
-		}
-		if (delta > 0) {
-			GncCountData count = new GncCountData();
-			count.setCdType(cdType);
-			count.setValue(delta);
-			book().getGncCountData().add(count);
-		}
-	}
+    /**
+     * Adjusts the {@code gnc:count-data} entry for the given type, keeping the file's declared counts consistent with
+     * its contents. Creates the entry if absent.
+     */
+    private void adjustCount(String cdType, int delta) {
+        for (GncCountData count : book().getGncCountData()) {
+            if (cdType.equals(count.getCdType())) {
+                count.setValue(count.getValue() + delta);
+                return;
+            }
+        }
+        if (delta > 0) {
+            GncCountData count = new GncCountData();
+            count.setCdType(cdType);
+            count.setValue(delta);
+            book().getGncCountData().add(count);
+        }
+    }
 
-	private <T> Stream<T> bookElements(Class<T> type) {
-		return book().getBookElements().stream()
-				.filter(type::isInstance)
-				.map(type::cast);
-	}
+    private <T> Stream<T> bookElements(Class<T> type) {
+        return book().getBookElements().stream().filter(type::isInstance).map(type::cast);
+    }
 
-	private Optional<Account> accountByNameWithParent(String accountName, String parentId) {
-		Predicate<GncAccount> predicate = parentId == null
-				? account -> account.getActParent() == null
-				: account -> account.getActParent() != null && parentId.equals(account.getActParent().getValue());
-		final List<Account> list = bookElements(GncAccount.class)
-				.filter(predicate)
-				.filter(account -> accountName.equals(account.getActName()))
-				.map(AccountMapper::map)
-				.toList();
-		if (list.size() > 1) {
-			throw new IllegalStateException("Multiple accounts found with name: " + accountName);
-		}
-		return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
-	}
+    private Optional<Account> accountByNameWithParent(String accountName, String parentId) {
+        Predicate<GncAccount> predicate = parentId == null
+                ? account -> account.getActParent() == null
+                : account -> account.getActParent() != null
+                        && parentId.equals(account.getActParent().getValue());
+        final List<Account> list = bookElements(GncAccount.class)
+                .filter(predicate)
+                .filter(account -> accountName.equals(account.getActName()))
+                .map(AccountMapper::map)
+                .toList();
+        if (list.size() > 1) {
+            throw new IllegalStateException("Multiple accounts found with name: " + accountName);
+        }
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
+    }
 
-	@Override
-	public String toString() {
-		return String.format("GnucashAccStore[accounts=%d, transactions=%d]", accounts().size(), transactions().size());
-	}
+    @Override
+    public String toString() {
+        return String.format(
+                "GnucashAccStore[accounts=%d, transactions=%d]",
+                accounts().size(), transactions().size());
+    }
 }

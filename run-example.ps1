@@ -31,9 +31,18 @@ mvn -pl druvu-acc-tests dependency:build-classpath "-Dmdep.outputFile=$tempFile"
 $depClasspath = Get-Content $tempFile -Raw
 Remove-Item $tempFile
 
-# Build module path using JARs
+# Build module path using JARs. The jar is globbed rather than named: hard-coding the version here
+# leaves the script silently broken after every version bump.
+$testsJar = Get-ChildItem "druvu-acc-tests/target/druvu-acc-tests-*.jar" |
+		Where-Object { $_.Name -notmatch '-(sources|javadoc)\.jar$' } |
+		Select-Object -First 1
+if (-not $testsJar) {
+	Write-Host "Error: druvu-acc-tests jar not found in druvu-acc-tests/target" -ForegroundColor Red
+	exit 1
+}
+
 $modulePath = @(
-	"druvu-acc-tests/target/druvu-acc-tests-1.0.0-SNAPSHOT.jar"
+	$testsJar.FullName
 	$depClasspath.Trim()
 ) -join [System.IO.Path]::PathSeparator
 

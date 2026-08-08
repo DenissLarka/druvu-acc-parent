@@ -1,25 +1,23 @@
 package com.druvu.acc.gnucash.writer;
 
+import com.druvu.acc.gnucash.reader.NamespaceRemovingReader;
 import java.io.IOException;
 import java.io.Writer;
 
-import com.druvu.acc.gnucash.reader.NamespaceRemovingReader;
-
 /**
  * A Writer that replaces '_' in XML tag names and attribute names with ':'.
- * <p>
- * This is the opposite of {@link NamespaceRemovingReader} - it converts underscored
- * element names like {@code <gnc_book>} back to namespaced format like {@code <gnc:book>}
- * that GnuCash expects.
- * <p>
- * Also, injects the required xmlns declarations after the root element.
  *
- * @author Deniss Larka
- * <br/>on 13 Jan 2026
+ * <p>This is the opposite of {@link NamespaceRemovingReader} - it converts underscored element names like
+ * {@code <gnc_book>} back to namespaced format like {@code <gnc:book>} that GnuCash expects.
+ *
+ * <p>Also, injects the required xmlns declarations after the root element.
+ *
+ * @author Deniss Larka <br>
+ *     on 13 Jan 2026
  */
 public class NamespaceAddingWriter extends Writer {
 
-	private static final String XMLNS_DECLARATIONS = """
+    private static final String XMLNS_DECLARATIONS = """
 			
 			xmlns:gnc="http://www.gnucash.org/XML/gnc"
 			xmlns:act="http://www.gnucash.org/XML/act"
@@ -51,72 +49,72 @@ public class NamespaceAddingWriter extends Writer {
 			xmlns:entry="http://www.gnucash.org/XML/entry"
 			xmlns:vendor="http://www.gnucash.org/XML/vendor\"""";
 
-	// Tag names that legitimately contain underscores (not namespace separators)
-	private static final String[] UNDERSCORE_EXCEPTIONS = {
-			"fs:ui",            // fs:ui_type
-			"cmdty:get",        // cmdty:get_quotes
-			"cmdty:quote",      // cmdty:quote_source
-			"invoice:billing",  // invoice:billing_id
-			"recurrence:period" // recurrence:period_type
-	};
+    // Tag names that legitimately contain underscores (not namespace separators)
+    private static final String[] UNDERSCORE_EXCEPTIONS = {
+        "fs:ui", // fs:ui_type
+        "cmdty:get", // cmdty:get_quotes
+        "cmdty:quote", // cmdty:quote_source
+        "invoice:billing", // invoice:billing_id
+        "recurrence:period" // recurrence:period_type
+    };
 
-	private final Writer output;
-	private boolean isInTag = false;
-	private boolean isInQuotation = false;
+    private final Writer output;
+    private boolean isInTag = false;
+    private boolean isInQuotation = false;
 
-	public NamespaceAddingWriter(Writer output) {
-		this.output = output;
-	}
+    public NamespaceAddingWriter(Writer output) {
+        this.output = output;
+    }
 
-	@Override
-	public void write(char[] cbuf, int off, int len) throws IOException {
-		for (int i = off; i < off + len; i++) {
-			char c = cbuf[i];
+    @Override
+    public void write(char[] cbuf, int off, int len) throws IOException {
+        for (int i = off; i < off + len; i++) {
+            char c = cbuf[i];
 
-			if (isInTag && (c == '"' || c == '\'')) {
-				isInQuotation = !isInQuotation;
-			} else if (c == '<' && !isInQuotation) {
-				isInTag = true;
-			} else if (c == '>' && !isInQuotation) {
-				isInTag = false;
-			} else if (c == '_' && isInTag && !isInQuotation) {
-				// Replace '_' with ':' unless it's a legitimate underscore
-				if (!isUnderscoreException(cbuf, i)) {
-					cbuf[i] = ':';
-				}
-			}
-		}
+            if (isInTag && (c == '"' || c == '\'')) {
+                isInQuotation = !isInQuotation;
+            } else if (c == '<' && !isInQuotation) {
+                isInTag = true;
+            } else if (c == '>' && !isInQuotation) {
+                isInTag = false;
+            } else if (c == '_' && isInTag && !isInQuotation) {
+                // Replace '_' with ':' unless it's a legitimate underscore
+                if (!isUnderscoreException(cbuf, i)) {
+                    cbuf[i] = ':';
+                }
+            }
+        }
 
-		output.write(cbuf, off, len);
+        output.write(cbuf, off, len);
 
-		// Inject xmlns declarations after the root element start tag.
-		// The root is "gnc-v2" with a hyphen (not a namespace separator), so it is NOT
-		// transformed to a colon above — match the hyphenated form.
-		if (len == 7 && new String(cbuf, off, len).equals("<gnc-v2")) {
-			output.write(XMLNS_DECLARATIONS);
-		}
-	}
+        // Inject xmlns declarations after the root element start tag.
+        // The root is "gnc-v2" with a hyphen (not a namespace separator), so it is NOT
+        // transformed to a colon above — match the hyphenated form.
+        if (len == 7 && new String(cbuf, off, len).equals("<gnc-v2")) {
+            output.write(XMLNS_DECLARATIONS);
+        }
+    }
 
-	private boolean isUnderscoreException(char[] cbuf, int underscorePos) {
-		for (String exception : UNDERSCORE_EXCEPTIONS) {
-			int exLen = exception.length();
-			if (underscorePos >= exLen) {
-				String preceding = new String(cbuf, underscorePos - exLen, exLen);
-				if (preceding.equals(exception)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+    private boolean isUnderscoreException(char[] cbuf, int underscorePos) {
+        for (String exception : UNDERSCORE_EXCEPTIONS) {
+            int exLen = exception.length();
+            if (underscorePos >= exLen) {
+                String preceding = new String(cbuf, underscorePos - exLen, exLen);
+                if (preceding.equals(exception)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public void flush() throws IOException {
-		output.flush();
-	}
+    @Override
+    public void flush() throws IOException {
+        output.flush();
+    }
 
-	@Override
-	public void close() throws IOException {
-		output.close();
-	}
+    @Override
+    public void close() throws IOException {
+        output.close();
+    }
 }
