@@ -1,6 +1,5 @@
 package com.druvu.acc.gnucash.mapper;
 
-import com.druvu.acc.api.entity.ReconcileState;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.gnucash.generated.GncTransaction;
 import com.druvu.acc.gnucash.impl.DateTimeUtils;
@@ -31,14 +30,14 @@ public final class SplitMapper {
                 transactionId,
                 peer.getSplitAccount().getValue(),
                 datePosted,
-                ReconcileState.fromCode(peer.getSplitReconciledState()),
+                ReconcileStates.fromCode(peer.getSplitReconciledState()),
                 reconciledDate,
                 Fractions.parse(peer.getSplitValue()),
                 Fractions.parse(peer.getSplitQuantity()));
     }
 
     /**
-     * Maps a {@link Split} business object to a GnuCash XML {@code TrnSplit} element.
+     * Builds a fresh GnuCash element for a new split.
      *
      * @param split the split to map
      * @return the GnuCash XML representation
@@ -51,14 +50,29 @@ public final class SplitMapper {
         id.setValue(split.id());
         peer.setSplitId(id);
 
-        peer.setSplitReconciledState(split.reconcileState().code());
+        applyTo(peer, split);
+        return peer;
+    }
 
-        split.reconcileDate().ifPresent(date -> {
+    /**
+     * Writes a split's fields onto an existing element, leaving anything this library does not model - a memo, an
+     * action, a lot reference, unknown slots - exactly as it was.
+     *
+     * @param peer the element to update
+     * @param split the split whose fields to write
+     */
+    public static void applyTo(GncTransaction.TrnSplits.TrnSplit peer, Split split) {
+        peer.setSplitReconciledState(ReconcileStates.toCode(split.reconcileState()));
+
+        if (split.reconcileDate().isPresent()) {
             GncTransaction.TrnSplits.TrnSplit.SplitReconcileDate reconcileDate =
                     new GncTransaction.TrnSplits.TrnSplit.SplitReconcileDate();
-            reconcileDate.setTsDate(DateTimeUtils.formatTimestamp(date));
+            reconcileDate.setTsDate(
+                    DateTimeUtils.formatTimestamp(split.reconcileDate().orElseThrow()));
             peer.setSplitReconcileDate(reconcileDate);
-        });
+        } else {
+            peer.setSplitReconcileDate(null);
+        }
 
         peer.setSplitValue(Fractions.format(split.value()));
         peer.setSplitQuantity(Fractions.format(split.quantity()));
@@ -67,7 +81,5 @@ public final class SplitMapper {
         account.setType(GncConstants.GUID);
         account.setValue(split.accountId());
         peer.setSplitAccount(account);
-
-        return peer;
     }
 }

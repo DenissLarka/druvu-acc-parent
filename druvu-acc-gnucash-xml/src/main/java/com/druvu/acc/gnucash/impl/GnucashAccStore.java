@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -239,6 +240,49 @@ public final class GnucashAccStore implements WritableAccStore {
         }
         book().getBookElements().add(TransactionMapper.toGnc(transaction));
         adjustCount(CD_TYPE_TRANSACTION, 1);
+    }
+
+    /**
+     * An update writes the entity's fields onto the element already in the book instead of replacing it. That is what
+     * keeps an edit non-destructive: a GnuCash element carries a great deal this library does not model - unknown slot
+     * keys, an account's own smallest-currency-unit, a split's memo and lot - and rebuilding it from the record would
+     * discard every bit of it. The commodity's SCU is only recomputed when the caller actually changed the commodity,
+     * since a precision chosen for the old one says nothing about the new one.
+     */
+    @Override
+    public void updateAccount(@NonNull Account account) {
+        GncAccount peer = bookElements(GncAccount.class)
+                .filter(existing -> existing.getActId().getValue().equals(account.id()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No account with ID: " + account.id()));
+
+        boolean commodityChanged =
+                !sameCommodity(peer.getActCommodity(), account.commodity().orElse(null));
+
+        AccountMapper.applyTo(peer, account);
+
+        if (commodityChanged && account.commodity().isPresent()) {
+            peer.setActCommodityScu(scuFor(account));
+            peer.setActNonStandardScu(null);
+        }
+    }
+
+    private static boolean sameCommodity(GncAccount.ActCommodity before, CommodityId after) {
+        if (before == null || after == null) {
+            return before == null && after == null;
+        }
+        return Objects.equals(before.getCmdtySpace(), after.namespace())
+                && Objects.equals(before.getCmdtyId(), after.id());
+    }
+
+    @Override
+    public void updateTransaction(@NonNull Transaction transaction) {
+        GncTransaction peer = bookElements(GncTransaction.class)
+                .filter(existing -> existing.getTrnId().getValue().equals(transaction.id()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No transaction with ID: " + transaction.id()));
+
+        TransactionMapper.applyTo(peer, transaction);
     }
 
     @Override

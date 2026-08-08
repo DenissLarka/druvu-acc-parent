@@ -72,6 +72,7 @@
 						<xs:element name="cmdty_get_quotes" type="xs:string" minOccurs="0" maxOccurs="1"/>
 						<xs:element name="cmdty_quote_source" type="xs:string" minOccurs="0" maxOccurs="1"/>
 						<xs:element name="cmdty_quote_tz" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element type="slots_type" name="cmdty_slots" minOccurs="0" maxOccurs="1"/>
 						<!-- ===================== -->
 					</xs:sequence>
 					<xs:attribute name="version" type="xs:string" use="required"/>
@@ -98,7 +99,7 @@
 			</xs:element>
 			<xs:element name="gnc_schedxaction" minOccurs="0" maxOccurs="unbounded">
 				<xs:complexType>
-					<xs:all>
+					<xs:sequence>
 						<xs:element name="sx_id">
 							<xs:complexType>
 								<xs:simpleContent>
@@ -143,13 +144,8 @@
 								</xs:sequence>
 							</xs:complexType>
 						</xs:element>
-						<xs:element name="sx_end" minOccurs="0" maxOccurs="1">
-							<xs:complexType>
-								<xs:sequence>
-									<xs:element ref="gdate"/>
-								</xs:sequence>
-							</xs:complexType>
-						</xs:element>
+						<!-- Order follows gnc-schedxaction-xml-v2.cpp, which is what GnuCash actually writes:
+						     start, last, then either (num-occur, rem-occur) or end. -->
 						<xs:element name="sx_last" minOccurs="0" maxOccurs="1">
 							<xs:complexType>
 								<xs:sequence>
@@ -159,6 +155,13 @@
 						</xs:element>
 						<xs:element name="sx_num-occur" type="xs:int" minOccurs="0" maxOccurs="1"/>
 						<xs:element name="sx_rem-occur" type="xs:int" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="sx_end" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="gdate"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
 						<xs:element name="sx_templ-acct">
 							<xs:complexType>
 								<xs:simpleContent>
@@ -230,7 +233,71 @@
 								</xs:sequence>
 							</xs:complexType>
 						</xs:element>
-					</xs:all>
+						<!-- Instances the user postponed. Repeatable, which is why this content model is a
+						     sequence and not an xs:all - XSD 1.0 caps xs:all children at maxOccurs="1". -->
+						<xs:element name="sx_deferredInstance" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="sx_last" minOccurs="0" maxOccurs="1">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element ref="gdate"/>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="sx_rem-occur" type="xs:int"/>
+									<xs:element name="sx_instanceCount" type="xs:int"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element type="slots_type" name="sx_slots" minOccurs="0" maxOccurs="1"/>
+					</xs:sequence>
+					<xs:attribute name="version" type="xs:string" use="required"/>
+				</xs:complexType>
+			</xs:element>
+
+			<!-- ===================== orders ===================== -->
+
+			<xs:element name="gnc_GncOrder" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="order_guid">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="order_id" type="xs:string"/>
+						<xs:element name="order_owner">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="owner_type"/>
+									<xs:element ref="owner_id"/>
+								</xs:sequence>
+								<xs:attribute name="version" type="xs:string" use="required"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="order_opened">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="ts_date"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="order_closed" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="ts_date"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="order_notes" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="order_reference" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="order_active" type="xs:string"/>
+					</xs:sequence>
 					<xs:attribute name="version" type="xs:string" use="required"/>
 				</xs:complexType>
 			</xs:element>
@@ -258,6 +325,7 @@
 						</xs:element>
 						<xs:element name="vendor_id" type="xs:string"/>
 						<xs:element name="vendor_addr" type="address"/>
+						<xs:element name="vendor_notes" type="xs:string" minOccurs="0" maxOccurs="1"/>
 						<xs:element name="vendor_terms" minOccurs="0" maxOccurs="1">
 							<xs:complexType>
 								<xs:simpleContent>
@@ -299,6 +367,7 @@
 								</xs:simpleContent>
 							</xs:complexType>
 						</xs:element>
+						<xs:element type="slots_type" name="vendor_slots" minOccurs="0" maxOccurs="1"/>
 					</xs:sequence>
 					<xs:attribute name="version" type="xs:string" use="required"/>
 				</xs:complexType>
@@ -351,7 +420,7 @@
 									<xs:element name="bt-days_due-days" type="xs:int" minOccurs="0" maxOccurs="1"/>
 									<xs:element name="bt-days_disc-days" type="xs:int" minOccurs="0" maxOccurs="1"/>
 									<xs:element name="bt-days_discount" type="xs:string" minOccurs="0" maxOccurs="1"/>
-								</xs:sequence>
+					</xs:sequence>
 							</xs:complexType>
 						</xs:element>
 						<xs:element name="billterm_proximo" minOccurs="0" maxOccurs="1">
@@ -364,6 +433,7 @@
 								</xs:sequence>
 							</xs:complexType>
 						</xs:element>
+						<xs:element type="slots_type" name="billterm_slots" minOccurs="0" maxOccurs="1"/>
 					</xs:sequence>
 					<xs:attribute name="version" type="xs:string" use="required"/>
 				</xs:complexType>
@@ -464,6 +534,7 @@
 						<xs:element name="employee_id" type="xs:string"/>
 						<xs:element name="employee_addr" type="address"/>
 						<xs:element name="employee_language" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="employee_acl" type="xs:string" minOccurs="0" maxOccurs="1"/>
 						<xs:element name="employee_active" type="xs:int"/>
 						<xs:element name="employee_workday" type="xs:string"/>
 						<xs:element name="employee_rate" type="xs:string"/>
@@ -472,7 +543,7 @@
 								<xs:sequence>
 									<xs:element ref="cmdty_space"/>
 									<xs:element ref="cmdty_id"/>
-								</xs:sequence>
+					</xs:sequence>
 							</xs:complexType>
 						</xs:element>
 						<xs:element name="employee_ccard" minOccurs="0" maxOccurs="1">
@@ -490,7 +561,9 @@
 								</xs:simpleContent>
 							</xs:complexType>
 						</xs:element>
-						<xs:element type="slots_type" name="cust_slots" minOccurs="0" maxOccurs="1"/>
+						<!-- This said cust_slots - a copy-paste from the customer block, so employee:slots was
+						     dropped on save and a bogus cust_slots was accepted here instead. -->
+						<xs:element type="slots_type" name="employee_slots" minOccurs="0" maxOccurs="1"/>
 					</xs:sequence>
 					<xs:attribute name="version" type="xs:string" use="required"/>
 				</xs:complexType>
@@ -694,6 +767,8 @@
 								</xs:sequence>
 							</xs:complexType>
 						</xs:element>
+						<xs:element name="invoice_charge-amt" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element type="slots_type" name="invoice_slots" minOccurs="0" maxOccurs="1"/>
 					</xs:all>
 					<xs:attribute name="version" type="xs:string" use="required"/>
 				</xs:complexType>
@@ -807,6 +882,25 @@
 							</xs:complexType>
 						</xs:element>
 						<xs:element name="entry_slots" type="slots_type" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_notes" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="entry_billto" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element ref="owner_type"/>
+									<xs:element ref="owner_id"/>
+								</xs:sequence>
+								<xs:attribute name="version" type="xs:string" use="required"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="entry_order" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string" use="required"/>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
 					</xs:all>
 					<xs:attribute name="version" type="xs:string" use="required"/>
 				</xs:complexType>
@@ -854,19 +948,10 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="act_commodity-scu" minOccurs="0" maxOccurs="1"> <!-- root-account has no comodity -->
-					<xs:simpleType>
-						<xs:restriction base="xs:int">
-							<xs:enumeration value="1"/>
-							<xs:enumeration value="100"/>
-							<xs:enumeration value="1000"/>
-							<xs:enumeration value="10000"/>
-							<xs:enumeration value="100000"/>
-							<xs:enumeration value="1000000"/>
-							<xs:enumeration value="10000000"/>
-						</xs:restriction>
-					</xs:simpleType>
-				</xs:element>
+				<!-- The smallest unit the account records amounts in. This was an enumeration of powers of ten,
+				     which does not match reality: GnuCash lets the user set any value (10 is reachable straight
+				     from the account dialog) and it need not equal the commodity's own fraction. -->
+				<xs:element name="act_commodity-scu" type="xs:int" minOccurs="0" maxOccurs="1"/> <!-- root-account has no comodity -->
 				<xs:element name="act_non-standard-scu" minOccurs="0" maxOccurs="1">
 					<xs:complexType/>
 				</xs:element>
@@ -1048,11 +1133,14 @@
 			</xs:simpleContent>
 		</xs:complexType>
 	</xs:element>
+	<!-- All four owner kinds, per gnucash-v2.rnc; this previously listed only gncCustomer and gncJob. -->
 	<xs:element name="owner_type">
 		<xs:simpleType>
 			<xs:restriction base="xs:string">
 				<xs:enumeration value="gncCustomer"/>
 				<xs:enumeration value="gncJob"/>
+				<xs:enumeration value="gncVendor"/>
+				<xs:enumeration value="gncEmployee"/>
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:element>

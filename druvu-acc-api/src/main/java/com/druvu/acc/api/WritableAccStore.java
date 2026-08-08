@@ -49,6 +49,27 @@ public interface WritableAccStore extends AccStore {
     void addTransaction(Transaction transaction);
 
     /**
+     * Replaces an existing account with an edited copy of itself, in place - the account keeps its position in the
+     * book. This is how a change made with one of {@link Account}'s {@code with...} methods is stored:
+     *
+     * <p>{@snippet : store.updateAccount(store.accountById(id).orElseThrow().withPlaceholder(true)); }
+     *
+     * <p>The replacement must keep the original's ID, since that is what identifies the account being replaced.
+     *
+     * @param account the edited account
+     * @throws IllegalArgumentException if no account with that ID exists
+     */
+    void updateAccount(Account account);
+
+    /**
+     * Replaces an existing transaction, and all of its splits, with an edited copy of itself, in place.
+     *
+     * @param transaction the edited transaction
+     * @throws IllegalArgumentException if no transaction with that ID exists
+     */
+    void updateTransaction(Transaction transaction);
+
+    /**
      * Removes an account by ID. Splits referencing the account are not cascaded.
      *
      * @param accountId the ID of the account to remove

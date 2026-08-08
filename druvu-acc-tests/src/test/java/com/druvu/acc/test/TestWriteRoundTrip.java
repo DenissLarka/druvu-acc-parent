@@ -12,7 +12,6 @@ import com.druvu.acc.api.entity.AccountType;
 import com.druvu.acc.api.entity.Commodity;
 import com.druvu.acc.api.entity.CommodityId;
 import com.druvu.acc.api.entity.Price;
-import com.druvu.acc.api.entity.ReconcileState;
 import com.druvu.acc.api.entity.Split;
 import com.druvu.acc.api.entity.Transaction;
 import java.io.IOException;
@@ -46,14 +45,10 @@ public class TestWriteRoundTrip {
         String rootId = store.rootAccounts().get(0).id();
         String id = store.newId();
 
-        store.addAccount(new Account(
-                id,
-                "Round Trip Test",
-                AccountType.EXPENSE,
-                Optional.empty(),
-                Optional.of("created by test"),
-                Optional.of(CommodityId.currency("EUR")),
-                Optional.of(rootId)));
+        store.addAccount(Account.of(id, "Round Trip Test", AccountType.EXPENSE)
+                .withDescription("created by test")
+                .withCommodity(CommodityId.currency("EUR"))
+                .withParent(rootId));
 
         AccStore reloaded = saveAndReload(store);
 
@@ -80,27 +75,11 @@ public class TestWriteRoundTrip {
 
         String txId = store.newId();
         List<Split> splits = List.of(
-                new Split(
-                        store.newId(),
-                        txId,
-                        accountA,
-                        date,
-                        ReconcileState.NOT_RECONCILED,
-                        Optional.empty(),
-                        new BigDecimal("10.00"),
-                        new BigDecimal("10.00")),
-                new Split(
-                        store.newId(),
-                        txId,
-                        accountB,
-                        date,
-                        ReconcileState.NOT_RECONCILED,
-                        Optional.empty(),
-                        new BigDecimal("-10.00"),
-                        new BigDecimal("-10.00")));
+                Split.of(store.newId(), txId, accountA, date, new BigDecimal("10.00")),
+                Split.of(store.newId(), txId, accountB, date, new BigDecimal("-10.00")));
 
-        store.addTransaction(
-                new Transaction(txId, CommodityId.currency("EUR"), Optional.of("42"), date, "Round Trip Tx", splits));
+        store.addTransaction(Transaction.of(txId, CommodityId.currency("EUR"), date, "Round Trip Tx", splits)
+                .withNumber("42"));
 
         AccStore reloaded = saveAndReload(store);
 
@@ -132,14 +111,9 @@ public class TestWriteRoundTrip {
     public void removeAccountRoundTrips() throws IOException {
         WritableAccStore store = AccStore.loadWritable(source);
         String id = store.newId();
-        store.addAccount(new Account(
-                id,
-                "Temp",
-                AccountType.EXPENSE,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of(CommodityId.currency("EUR")),
-                Optional.of(store.rootAccounts().get(0).id())));
+        store.addAccount(Account.of(id, "Temp", AccountType.EXPENSE)
+                .withCommodity(CommodityId.currency("EUR"))
+                .withParent(store.rootAccounts().get(0).id()));
         int afterAdd = store.accounts().size();
 
         store.removeAccount(id);

@@ -18,12 +18,18 @@ today against the GnuCash XML v2 data model. The core double-entry entities and 
 investment/multi-currency entities are covered; the business (accounts-receivable/payable)
 and planning entities are not yet implemented.
 
+Editing an entity **preserves everything this library does not model**: an update writes only the
+fields it understands onto the record already in the file, so GnuCash's own extensions — including
+custom key-value "slots" and the entities in the *not yet* rows — survive a load-modify-save
+unchanged.
+
 | Entity | In GnuCash | druvu-acc |
 |---|:---:|---|
 | Accounts | ✓ | **read + write** |
 | Transactions & splits | ✓ | **read + write** |
 | Commodities (currencies & securities) | ✓ | **read + write** |
 | Prices (price database) | ✓ | **read + write** |
+| Account flags (placeholder, hidden, notes, colour) | ✓ | **read + write** |
 | Scheduled (recurring) transactions | ✓ | — *not yet* |
 | Budgets | ✓ | — *not yet* |
 | Customers | ✓ | — *not yet* |
@@ -68,6 +74,14 @@ Core interfaces and entities for accounting data:
 - `MultiAmount` - A quantity held across one or more commodities, returned by subtree totals
 - `AccountType` - Enum for account types (ASSET, LIABILITY, INCOME, EXPENSE, EQUITY, etc.)
 - `ReconcileState` - Reconciliation state (NOT_RECONCILED, CLEARED, RECONCILED)
+
+**Account flags:**
+- `placeholder()` - a grouping account that transactions may not be posted to
+- `hidden()`, `taxRelated()`, `notes()`, `color()` - and their `with...` counterparts
+
+  GnuCash stores these in its key-value "slots" extension, with quirks of its own (there is no boolean
+  slot type; `false` is stored by deleting the key). None of that reaches the API: they are ordinary
+  typed properties here, and how any given format records them is the backend's business.
 
 **Validation:**
 - `AccStore.validate()` - reports structural problems (a second root, a dangling parent, a split on a
@@ -205,6 +219,11 @@ store.addCommodity(Commodity.security("NASDAQ", "AAPL", "Apple Inc.", 10000));
 store.addPrice(new Price(store.newId(), CommodityId.security("NASDAQ", "AAPL"), CommodityId.USD,
         today.atStartOfDay(), "user:price-editor", Optional.of("last"), new BigDecimal("212.50")));
 
+// Editing an existing entity: change a copy, then put it back.
+store.updateAccount(store.accountById(accountId).orElseThrow()
+        .withPlaceholder(true)
+        .withNotes("groups the drink accounts"));
+
 store.removeTransaction(txId);
 store.removeAccount(accountId);
 
@@ -218,6 +237,17 @@ can still be opened and repaired; call `store.validate()` yourself to see what i
 > **Note:** the library does not enforce accounting invariants (e.g. that a transaction's
 > splits balance, or that referenced accounts exist) — supply consistent data. `save` writes
 > the GnuCash XML and keeps the file's `count-data` headers in sync with its contents.
+
+> ⚠️ **On preserving the whole file.** `save` rewrites the book from this library's own model of the
+> GnuCash format, so anything that model does not cover is **not** carried over. Entities the library
+> does not yet support (see the table above) *are* preserved, as are slot keys it does not model —
+> that is covered by tests against books written by GnuCash itself, including the business entities.
+> But **full fidelity for every possible GnuCash file is not guaranteed**: a construct from a version
+> newer than this library knows about can be dropped without warning.
+>
+> **Keep a backup of any book you write to**, and if you find something lost in a save, please
+> [open an issue](https://github.com/DenissLarka/druvu-acc-parent/issues) with the element name — that
+> is a bug worth fixing, and it is usually a one-line schema addition.
 
 ### Running the Example
 

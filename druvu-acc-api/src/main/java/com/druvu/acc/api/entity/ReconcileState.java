@@ -3,41 +3,25 @@ package com.druvu.acc.api.entity;
 /**
  * Reconciliation state of a transaction split.
  *
+ * <p>How each state is encoded on disk is a property of the storage format, not of accounting, so the wire values live
+ * in the backend that writes them rather than here.
+ *
  * @author Deniss Larka <br>
  *     on 10 Jan 2026
  */
 public enum ReconcileState {
     /** Not reconciled */
-    NOT_RECONCILED("n"),
+    NOT_RECONCILED,
 
     /** Cleared (pending reconciliation) */
-    CLEARED("c"),
+    CLEARED,
 
     /** Reconciled */
-    RECONCILED("y"),
+    RECONCILED,
 
     /** Frozen into accounting period */
-    FROZEN("f"),
+    FROZEN,
 
     /** Voided */
-    VOIDED("v");
-
-    private final String code;
-
-    ReconcileState(String code) {
-        this.code = code;
-    }
-
-    public String code() {
-        return code;
-    }
-
-    public static ReconcileState fromCode(String code) {
-        for (ReconcileState state : values()) {
-            if (state.code.equals(code)) {
-                return state;
-            }
-        }
-        return NOT_RECONCILED;
-    }
+    VOIDED
 }

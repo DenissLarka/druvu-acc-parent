@@ -53,8 +53,14 @@ public final class Fractions {
      * Formats a BigDecimal as a GnuCash fraction string ({@code "numerator/denominator"}), the inverse of
      * {@link #parse(String)}.
      *
-     * <p>The denominator is the smallest power of ten that represents the value exactly (e.g. {@code 123.45} -&gt;
-     * {@code "12345/100"}, {@code 100} -&gt; {@code "100/1"}).
+     * <p>The denominator is the power of ten matching the value's own scale, e.g. {@code 123.45} -&gt;
+     * {@code "12345/100"} and {@code 100.00} -&gt; {@code "10000/100"}.
+     *
+     * <p>The scale is deliberately <em>not</em> minimised. In a GnuCash file the denominator states the precision the
+     * amount is recorded at - normally the account's smallest currency unit - so reducing {@code "10000/100"} to
+     * {@code "100/1"} would keep the same number while claiming the account cannot hold cents. Since
+     * {@link #parse(String)} takes the value's scale from the denominator it read, preserving it here makes a
+     * load-modify-save round trip byte-identical for every amount the caller did not touch.
      *
      * @param value the value to format
      * @return the GnuCash fraction representation
@@ -64,14 +70,14 @@ public final class Fractions {
             throw new NumberFormatException("Value cannot be null");
         }
 
-        BigDecimal stripped = value.stripTrailingZeros();
-        int scale = stripped.scale();
+        BigDecimal scaled = value;
+        int scale = scaled.scale();
         if (scale < 0) {
-            stripped = stripped.setScale(0, RoundingMode.UNNECESSARY);
+            scaled = scaled.setScale(0, RoundingMode.UNNECESSARY);
             scale = 0;
         }
 
-        BigInteger numerator = stripped.unscaledValue();
+        BigInteger numerator = scaled.unscaledValue();
         BigInteger denominator = BigInteger.TEN.pow(scale);
         return numerator + "/" + denominator;
     }
