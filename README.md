@@ -1,7 +1,7 @@
 # Accounting Library
 
 [![CI](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/ci.yml)
-[![Maven GitHub Publish](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/maven-github-publish.yml/badge.svg)](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/maven-github-publish.yml)
+[![Release](https://img.shields.io/github/v/release/DenissLarka/druvu-acc-parent?label=GitHub%20Packages&color=blue)](https://github.com/DenissLarka/druvu-acc-parent/packages)
 ![Java](https://img.shields.io/badge/Java-25-blue)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
