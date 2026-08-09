@@ -47,9 +47,20 @@ unchanged.
 | Tax tables | ✓ | — *not yet* |
 | Lots | ✓ | — *not yet* |
 
-> **Which entity should come next?** If you need one of the *not yet* rows, please
-> [open an issue](https://github.com/DenissLarka/druvu-acc-parent/issues) (or vote on an
-> existing one) describing your use case. Prioritisation follows real demand.
+## Which direction next?
+
+The service reads and writes the core of a GnuCash book, and several roads lead on from here.
+What gets built next is decided the honest way: by whoever turns up and asks. So, what do you
+want? [Open an issue](https://github.com/DenissLarka/druvu-acc-parent/issues) (or 👍 an existing
+one) and say what you'd use it for:
+
+- **More GnuCash entities** — the *not yet* rows above: business documents (customers, vendors,
+  invoices & bills, payments), planning (scheduled transactions, budgets), investment lots.
+- **A desktop UI** — a lightweight companion for browsing and editing books.
+- **Reports** — balance sheet, income statement, PDF/HTML export.
+- **A database backend** — the API is storage-agnostic by design; a SQL store (or reading
+  GnuCash's own SQLite format) would be a natural second implementation.
+- **Something that isn't on this list** — often the best kind.
 
 ## Modules
 
