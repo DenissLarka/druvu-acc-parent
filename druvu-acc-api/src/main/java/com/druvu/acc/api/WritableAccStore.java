@@ -52,7 +52,7 @@ public interface WritableAccStore extends AccStore {
      * Replaces an existing account with an edited copy of itself, in place - the account keeps its position in the
      * book. This is how a change made with one of {@link Account}'s {@code with...} methods is stored:
      *
-     * <p>{@snippet : store.updateAccount(store.accountById(id).orElseThrow().withPlaceholder(true)); }
+     * <p>{@code store.updateAccount(store.accountById(id).orElseThrow().withPlaceholder(true));}
      *
      * <p>The replacement must keep the original's ID, since that is what identifies the account being replaced.
      *
