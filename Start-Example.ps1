@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
 # Run AccApiReadExample with proper Java module environment
-# Usage: ./run-example.ps1 <gnucash-file>
+# Usage: ./Start-Example.ps1 <gnucash-file>
 
 param(
 	[Parameter(Mandatory = $true, Position = 0)]

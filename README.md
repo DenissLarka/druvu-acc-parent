@@ -270,7 +270,7 @@ can still be opened and repaired; call `store.validate()` yourself to see what i
 Run `AccApiReadExample` to print account balances and transactions from a GnuCash file:
 
 ```powershell
-./run-example.ps1 path/to/myfile.gnucash
+./Start-Example.ps1 path/to/myfile.gnucash
 ```
 
 ## Installation
