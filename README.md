@@ -1,5 +1,10 @@
 # Accounting Library
 
+[![CI](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/ci.yml)
+[![Maven GitHub Publish](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/maven-github-publish.yml/badge.svg)](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/maven-github-publish.yml)
+![Java](https://img.shields.io/badge/Java-25-blue)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+
 A modular Java library for reading and writing accounting data. The library provides a clean API for working with double-entry bookkeeping data including accounts, transactions, commodities, and prices.
 
 Project page: [druvu.com/projects/druvu-acc](https://druvu.com/projects/druvu-acc.html)
@@ -294,14 +299,14 @@ Go to [GitHub Settings > Developer settings > Personal access tokens](https://gi
 <dependency>
     <groupId>com.druvu</groupId>
     <artifactId>druvu-acc-api</artifactId>
-    <version>1.1.0</version>
+    <version>2.0.0</version>
 </dependency>
 
 <!-- GnuCash XML support (optional) -->
 <dependency>
     <groupId>com.druvu</groupId>
     <artifactId>druvu-acc-gnucash-xml</artifactId>
-    <version>1.1.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
