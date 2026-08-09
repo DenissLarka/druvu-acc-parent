@@ -279,7 +279,14 @@ This library is published to **GitHub Packages**. To use it, you need to configu
 
 **1. Generate a GitHub Personal Access Token:**
 
-Go to [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens) and create a token with the `read:packages` scope.
+Create a **classic** token with the single `read:packages` scope — nothing more is needed to
+consume a public package.
+[This link](https://github.com/settings/tokens/new?scopes=read:packages&description=maven-read-packages)
+opens the form with the right type and scope pre-selected.
+
+> Note: it must be a *classic* token. GitHub's token page defaults to the newer fine-grained
+> tokens, which the GitHub Packages Maven registry does not accept — the symptom is an
+> unexplained `401 Unauthorized` from `maven.pkg.github.com`.
 
 **2. Add the server to `~/.m2/settings.xml`:**
 
