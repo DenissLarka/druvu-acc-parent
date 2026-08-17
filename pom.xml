@@ -43,7 +43,7 @@
 		<maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
 		<maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
 		<maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
-		<spotless-maven-plugin.version>3.9.0</spotless-maven-plugin.version>
+		<spotless-maven-plugin.version>3.10.0</spotless-maven-plugin.version>
 		<palantir-java-format.version>2.90.0</palantir-java-format.version>
 	</properties>
 
