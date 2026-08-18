@@ -45,6 +45,9 @@ public class TestWriteRoundTrip {
         String rootId = store.rootAccounts().get(0).id();
         String id = store.newId();
 
+        // The book is CHF-only: an account denominated in a commodity the book never declares is a
+        // dangling reference, and GnuCash loads such an account with no commodity at all.
+        store.addCommodity(Commodity.currency("EUR"));
         store.addAccount(Account.of(id, "Round Trip Test", AccountType.EXPENSE)
                 .withDescription("created by test")
                 .withCommodity(CommodityId.currency("EUR"))
@@ -78,6 +81,7 @@ public class TestWriteRoundTrip {
                 Split.of(store.newId(), txId, accountA, date, new BigDecimal("10.00")),
                 Split.of(store.newId(), txId, accountB, date, new BigDecimal("-10.00")));
 
+        store.addCommodity(Commodity.currency("EUR"));
         store.addTransaction(Transaction.of(txId, CommodityId.currency("EUR"), date, "Round Trip Tx", splits)
                 .withNumber("42"));
 
@@ -235,6 +239,54 @@ public class TestWriteRoundTrip {
         assertThrows(
                 IllegalStateException.class,
                 () -> store.save(Paths.get(System.getProperty("java.io.tmpdir"), "never-written.gnucash")));
+    }
+
+    @Test
+    public void saveRefusesAnAccountInAnUndefinedCommodity() {
+        WritableAccStore store = AccStore.loadWritable(source);
+        String rootId = store.rootAccounts().get(0).id();
+        // A currency gets past addAccount because ISO can answer for its precision, but the book still
+        // never declares it - GnuCash resolves act:commodity through the book's own table and loads
+        // such an account with no commodity at all.
+        store.addAccount(Account.of(store.newId(), "Undeclared", AccountType.EXPENSE)
+                .withCommodity(CommodityId.JPY)
+                .withParent(rootId));
+
+        assertUndefinedCommodityRefused(store);
+    }
+
+    @Test
+    public void saveRefusesATransactionInAnUndefinedCommodity() {
+        WritableAccStore store = AccStore.loadWritable(source);
+        String accountA =
+                store.accountByName("Root Account:Actif").orElseThrow().id();
+        String accountB =
+                store.accountByName("Root Account:Revenus").orElseThrow().id();
+        LocalDate date = LocalDate.of(2026, 6, 7);
+        String txId = store.newId();
+
+        store.addTransaction(Transaction.of(
+                txId,
+                CommodityId.JPY,
+                date,
+                "undeclared currency",
+                List.of(
+                        Split.of(store.newId(), txId, accountA, date, new BigDecimal("10.00")),
+                        Split.of(store.newId(), txId, accountB, date, new BigDecimal("-10.00")))));
+
+        assertUndefinedCommodityRefused(store);
+    }
+
+    /** The book is reported as broken and nothing is written. */
+    private static void assertUndefinedCommodityRefused(WritableAccStore store) {
+        List<String> problems = store.validate();
+        assertTrue(
+                problems.stream().anyMatch(p -> p.contains("commodity the book does not define")),
+                "expected an undefined-commodity problem, got: " + problems);
+
+        Path out = Paths.get(System.getProperty("java.io.tmpdir"), "undefined-commodity.gnucash");
+        assertThrows(IllegalStateException.class, () -> store.save(out));
+        assertFalse(Files.exists(out), "nothing should be written when validation fails");
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)

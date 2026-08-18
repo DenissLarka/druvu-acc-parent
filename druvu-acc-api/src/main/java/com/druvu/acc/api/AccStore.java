@@ -1,10 +1,19 @@
 package com.druvu.acc.api;
 
 import com.druvu.acc.api.entity.Account;
+import com.druvu.acc.api.entity.BillTerm;
 import com.druvu.acc.api.entity.CommodityId;
+import com.druvu.acc.api.entity.Customer;
+import com.druvu.acc.api.entity.Employee;
+import com.druvu.acc.api.entity.Entry;
+import com.druvu.acc.api.entity.Invoice;
+import com.druvu.acc.api.entity.Job;
+import com.druvu.acc.api.entity.Order;
 import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.Split;
+import com.druvu.acc.api.entity.TaxTable;
 import com.druvu.acc.api.entity.Transaction;
+import com.druvu.acc.api.entity.Vendor;
 import com.druvu.lib.loader.ComponentLoader;
 import com.druvu.lib.loader.Dependencies;
 import java.nio.file.Path;
@@ -66,6 +75,148 @@ public interface AccStore {
     /** @return all price quotes in this store */
     List<Price> prices();
 
+    // ========== Business parties ==========
+
+    /** @return all customers */
+    List<Customer> customers();
+
+    /**
+     * Finds a customer by its ID.
+     *
+     * @param id the customer ID
+     * @return the customer, if present
+     */
+    Optional<Customer> customerById(String id);
+
+    /** @return all vendors */
+    List<Vendor> vendors();
+
+    /**
+     * Finds a vendor by its ID.
+     *
+     * @param id the vendor ID
+     * @return the vendor, if present
+     */
+    Optional<Vendor> vendorById(String id);
+
+    /** @return all employees */
+    List<Employee> employees();
+
+    /**
+     * Finds an employee by its ID.
+     *
+     * @param id the employee ID
+     * @return the employee, if present
+     */
+    Optional<Employee> employeeById(String id);
+
+    /**
+     * All tax tables, including the invisible frozen versions GnuCash keeps so old documents retain their rates - a
+     * document may reference one of those by ID.
+     *
+     * @return all tax tables
+     */
+    List<TaxTable> taxTables();
+
+    /**
+     * Finds a tax table by its ID.
+     *
+     * @param id the tax table ID
+     * @return the tax table, if present
+     */
+    Optional<TaxTable> taxTableById(String id);
+
+    /** @return all billing terms */
+    List<BillTerm> billTerms();
+
+    /**
+     * Finds a billing term by its ID.
+     *
+     * @param id the billing term ID
+     * @return the billing term, if present
+     */
+    Optional<BillTerm> billTermById(String id);
+
+    /** @return all jobs */
+    List<Job> jobs();
+
+    /**
+     * Finds a job by its ID.
+     *
+     * @param id the job ID
+     * @return the job, if present
+     */
+    Optional<Job> jobById(String id);
+
+    /** @return all orders */
+    List<Order> orders();
+
+    /**
+     * Finds an order by its ID.
+     *
+     * @param id the order ID
+     * @return the order, if present
+     */
+    Optional<Order> orderById(String id);
+
+    /** @return all invoice-family documents: customer invoices, vendor bills, employee expense vouchers */
+    List<Invoice> invoices();
+
+    /**
+     * Finds an invoice-family document by its ID.
+     *
+     * @param id the document ID
+     * @return the document, if present
+     */
+    Optional<Invoice> invoiceById(String id);
+
+    /** @return all document lines */
+    List<Entry> entries();
+
+    /**
+     * Finds an entry by its ID.
+     *
+     * @param id the entry ID
+     * @return the entry, if present
+     */
+    Optional<Entry> entryById(String id);
+
+    /**
+     * The lines of one document, whichever side of the entry points at it.
+     *
+     * @param invoiceId the document ID - an invoice, bill or voucher
+     * @return its entries
+     */
+    List<Entry> entriesForInvoice(String invoiceId);
+
+    /**
+     * The document a ledger transaction came from - the reverse of GnuCash's posting.
+     *
+     * <p>Covers posting transactions only: payments belong to lots, which this library does not model yet.
+     *
+     * @param transactionId the transaction ID
+     * @return the document whose posting created that transaction, if any
+     */
+    Optional<Invoice> invoiceForTransaction(String transactionId);
+
+    /**
+     * The customer behind a document, following the job indirection: an invoice owned by a job resolves through the job
+     * to its customer. Empty for vendor bills and employee vouchers.
+     *
+     * @param invoiceId the document ID
+     * @return the customer the document ultimately bills, if it bills one
+     */
+    Optional<Customer> customerForInvoice(String invoiceId);
+
+    /**
+     * The customer behind a ledger transaction: {@link #invoiceForTransaction(String)} chained with
+     * {@link #customerForInvoice(String)} - who a posted invoice transaction bills.
+     *
+     * @param transactionId the transaction ID
+     * @return the customer, when the transaction posted a customer invoice
+     */
+    Optional<Customer> customerForTransaction(String transactionId);
+
     // ========== Validation ==========
 
     /**
@@ -75,8 +226,9 @@ public interface AccStore {
      * legitimate reason to reach for this library. This method is how a caller asks the question explicitly. Writing is
      * strict by contrast: {@link WritableAccStore#save} refuses to emit a book that fails these checks.
      *
-     * <p>Structural problems only - a dangling parent, a second root, a split pointing at an account that is not there.
-     * Accounting rules are not checked: whether a transaction's splits sum to zero is the caller's business.
+     * <p>Structural problems only - a dangling parent, a second root, a split pointing at an account that is not there,
+     * a commodity the book never declares. Accounting rules are not checked: whether a transaction's splits sum to zero
+     * is the caller's business.
      *
      * @return one description per problem found, empty if the book is structurally sound
      */

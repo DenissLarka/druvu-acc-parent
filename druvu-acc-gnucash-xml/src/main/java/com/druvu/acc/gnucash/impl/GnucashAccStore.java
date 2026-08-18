@@ -3,20 +3,41 @@ package com.druvu.acc.gnucash.impl;
 import com.druvu.acc.api.WritableAccStore;
 import com.druvu.acc.api.entity.Account;
 import com.druvu.acc.api.entity.AccountType;
+import com.druvu.acc.api.entity.BillTerm;
 import com.druvu.acc.api.entity.Commodity;
 import com.druvu.acc.api.entity.CommodityId;
+import com.druvu.acc.api.entity.Customer;
+import com.druvu.acc.api.entity.Employee;
+import com.druvu.acc.api.entity.Entry;
+import com.druvu.acc.api.entity.Invoice;
+import com.druvu.acc.api.entity.Job;
+import com.druvu.acc.api.entity.Order;
+import com.druvu.acc.api.entity.Owner;
+import com.druvu.acc.api.entity.OwnerType;
 import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.Split;
+import com.druvu.acc.api.entity.TaxTable;
+import com.druvu.acc.api.entity.TaxTablePolicy;
 import com.druvu.acc.api.entity.Transaction;
+import com.druvu.acc.api.entity.Vendor;
 import com.druvu.acc.gnucash.generated.GncAccount;
 import com.druvu.acc.gnucash.generated.GncCountData;
 import com.druvu.acc.gnucash.generated.GncPricedb;
 import com.druvu.acc.gnucash.generated.GncTransaction;
 import com.druvu.acc.gnucash.generated.GncV2;
 import com.druvu.acc.gnucash.mapper.AccountMapper;
+import com.druvu.acc.gnucash.mapper.BillTermMapper;
 import com.druvu.acc.gnucash.mapper.CommodityMapper;
+import com.druvu.acc.gnucash.mapper.CustomerMapper;
+import com.druvu.acc.gnucash.mapper.EmployeeMapper;
+import com.druvu.acc.gnucash.mapper.EntryMapper;
+import com.druvu.acc.gnucash.mapper.InvoiceMapper;
+import com.druvu.acc.gnucash.mapper.JobMapper;
+import com.druvu.acc.gnucash.mapper.OrderMapper;
 import com.druvu.acc.gnucash.mapper.PriceMapper;
+import com.druvu.acc.gnucash.mapper.TaxTableMapper;
 import com.druvu.acc.gnucash.mapper.TransactionMapper;
+import com.druvu.acc.gnucash.mapper.VendorMapper;
 import com.druvu.acc.gnucash.writer.GnucashFileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -54,6 +75,24 @@ public final class GnucashAccStore implements WritableAccStore {
 
     private static final String CD_TYPE_PRICE = "price";
 
+    private static final String CD_TYPE_CUSTOMER = "gnc:GncCustomer";
+
+    private static final String CD_TYPE_VENDOR = "gnc:GncVendor";
+
+    private static final String CD_TYPE_EMPLOYEE = "gnc:GncEmployee";
+
+    private static final String CD_TYPE_TAX_TABLE = "gnc:GncTaxTable";
+
+    private static final String CD_TYPE_BILL_TERM = "gnc:GncBillTerm";
+
+    private static final String CD_TYPE_JOB = "gnc:GncJob";
+
+    private static final String CD_TYPE_ORDER = "gnc:GncOrder";
+
+    private static final String CD_TYPE_INVOICE = "gnc:GncInvoice";
+
+    private static final String CD_TYPE_ENTRY = "gnc:GncEntry";
+
     private static final int PRICEDB_VERSION = 1;
 
     private final GncV2 root;
@@ -83,6 +122,157 @@ public final class GnucashAccStore implements WritableAccStore {
                 .flatMap(pricedb -> pricedb.getPrice().stream())
                 .map(PriceMapper::map)
                 .toList();
+    }
+
+    @Override
+    public List<Customer> customers() {
+        return bookElements(GncV2.GncBook.GncGncCustomer.class)
+                .map(CustomerMapper::map)
+                .toList();
+    }
+
+    @Override
+    public Optional<Customer> customerById(String id) {
+        return customerPeer(id).map(CustomerMapper::map);
+    }
+
+    @Override
+    public List<Vendor> vendors() {
+        return bookElements(GncV2.GncBook.GncGncVendor.class)
+                .map(VendorMapper::map)
+                .toList();
+    }
+
+    @Override
+    public Optional<Vendor> vendorById(String id) {
+        return vendorPeer(id).map(VendorMapper::map);
+    }
+
+    @Override
+    public List<Employee> employees() {
+        return bookElements(GncV2.GncBook.GncGncEmployee.class)
+                .map(EmployeeMapper::map)
+                .toList();
+    }
+
+    @Override
+    public Optional<Employee> employeeById(String id) {
+        return employeePeer(id).map(EmployeeMapper::map);
+    }
+
+    @Override
+    public List<TaxTable> taxTables() {
+        return bookElements(GncV2.GncBook.GncGncTaxTable.class)
+                .map(TaxTableMapper::map)
+                .toList();
+    }
+
+    @Override
+    public Optional<TaxTable> taxTableById(String id) {
+        return taxTablePeer(id).map(TaxTableMapper::map);
+    }
+
+    @Override
+    public List<BillTerm> billTerms() {
+        return bookElements(GncV2.GncBook.GncGncBillTerm.class)
+                .map(BillTermMapper::map)
+                .toList();
+    }
+
+    @Override
+    public Optional<BillTerm> billTermById(String id) {
+        return billTermPeer(id).map(BillTermMapper::map);
+    }
+
+    @Override
+    public List<Job> jobs() {
+        return bookElements(GncV2.GncBook.GncGncJob.class).map(JobMapper::map).toList();
+    }
+
+    @Override
+    public Optional<Job> jobById(String id) {
+        return jobPeer(id).map(JobMapper::map);
+    }
+
+    @Override
+    public List<Order> orders() {
+        return bookElements(GncV2.GncBook.GncGncOrder.class)
+                .map(OrderMapper::map)
+                .toList();
+    }
+
+    @Override
+    public Optional<Order> orderById(String id) {
+        return orderPeer(id).map(OrderMapper::map);
+    }
+
+    @Override
+    public List<Invoice> invoices() {
+        return bookElements(GncV2.GncBook.GncGncInvoice.class)
+                .map(InvoiceMapper::map)
+                .toList();
+    }
+
+    @Override
+    public Optional<Invoice> invoiceById(String id) {
+        return invoicePeer(id).map(InvoiceMapper::map);
+    }
+
+    @Override
+    public List<Entry> entries() {
+        return bookElements(GncV2.GncBook.GncGncEntry.class)
+                .map(EntryMapper::map)
+                .toList();
+    }
+
+    @Override
+    public Optional<Entry> entryById(String id) {
+        return entryPeer(id).map(EntryMapper::map);
+    }
+
+    @Override
+    public List<Entry> entriesForInvoice(String invoiceId) {
+        return bookElements(GncV2.GncBook.GncGncEntry.class)
+                .map(EntryMapper::map)
+                .filter(entry -> entry.invoiceLine()
+                                .map(line -> line.invoiceId().equals(invoiceId))
+                                .orElse(false)
+                        || entry.billLine()
+                                .map(line -> line.billId().equals(invoiceId))
+                                .orElse(false))
+                .toList();
+    }
+
+    @Override
+    public Optional<Invoice> invoiceForTransaction(String transactionId) {
+        return bookElements(GncV2.GncBook.GncGncInvoice.class)
+                .filter(peer -> peer.getInvoicePosttxn() != null
+                        && peer.getInvoicePosttxn().getValue().equals(transactionId))
+                .findFirst()
+                .map(InvoiceMapper::map);
+    }
+
+    @Override
+    public Optional<Customer> customerForInvoice(String invoiceId) {
+        return invoiceById(invoiceId).flatMap(invoice -> resolveCustomer(invoice.owner()));
+    }
+
+    @Override
+    public Optional<Customer> customerForTransaction(String transactionId) {
+        return invoiceForTransaction(transactionId).flatMap(invoice -> resolveCustomer(invoice.owner()));
+    }
+
+    /** Follows the job indirection to the customer behind an owner reference; empty for vendors and employees. */
+    private Optional<Customer> resolveCustomer(Owner owner) {
+        return switch (owner.type()) {
+            case CUSTOMER -> customerById(owner.id());
+            case JOB ->
+                jobById(owner.id())
+                        .map(Job::owner)
+                        .filter(jobOwner -> jobOwner.type() == OwnerType.CUSTOMER)
+                        .flatMap(jobOwner -> customerById(jobOwner.id()));
+            case VENDOR, EMPLOYEE -> Optional.empty();
+        };
     }
 
     @Override
@@ -355,6 +545,578 @@ public final class GnucashAccStore implements WritableAccStore {
         adjustCount(CD_TYPE_PRICE, -1);
     }
 
+    // ========== Business parties ==========
+
+    @Override
+    public void addCustomer(@NonNull Customer customer) {
+        if (customerPeer(customer.id()).isPresent()) {
+            throw new IllegalArgumentException("Customer already exists: " + customer.id());
+        }
+        requireBillTerm(customer.termsId());
+        requireTaxTable(customer.taxTable());
+        book().getBookElements().add(CustomerMapper.toGnc(customer));
+        adjustBillTermRefcount(customer.termsId(), +1);
+        adjustTaxTableRefcount(taxTableIdOf(customer.taxTable()), +1);
+        adjustCount(CD_TYPE_CUSTOMER, 1);
+    }
+
+    @Override
+    public void updateCustomer(@NonNull Customer customer) {
+        GncV2.GncBook.GncGncCustomer peer = customerPeer(customer.id())
+                .orElseThrow(() -> new IllegalArgumentException("No customer with ID: " + customer.id()));
+        requireBillTerm(customer.termsId());
+        requireTaxTable(customer.taxTable());
+
+        Optional<String> termsBefore =
+                Optional.ofNullable(peer.getCustTerms()).map(GncV2.GncBook.GncGncCustomer.CustTerms::getValue);
+        Optional<String> tableBefore =
+                Optional.ofNullable(peer.getCustTaxtable()).map(GncV2.GncBook.GncGncCustomer.CustTaxtable::getValue);
+
+        CustomerMapper.applyTo(peer, customer);
+
+        Optional<String> termsAfter =
+                Optional.ofNullable(peer.getCustTerms()).map(GncV2.GncBook.GncGncCustomer.CustTerms::getValue);
+        Optional<String> tableAfter =
+                Optional.ofNullable(peer.getCustTaxtable()).map(GncV2.GncBook.GncGncCustomer.CustTaxtable::getValue);
+        adjustBillTermRefcountDiff(termsBefore, termsAfter);
+        adjustTaxTableRefcountDiff(tableBefore, tableAfter);
+    }
+
+    @Override
+    public void removeCustomer(@NonNull String customerId) {
+        GncV2.GncBook.GncGncCustomer peer = customerPeer(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("No customer with ID: " + customerId));
+        refuseWhileOwnerReferenced("Customer", customerId);
+        book().getBookElements().remove(peer);
+        adjustBillTermRefcount(
+                Optional.ofNullable(peer.getCustTerms()).map(GncV2.GncBook.GncGncCustomer.CustTerms::getValue), -1);
+        adjustTaxTableRefcount(
+                Optional.ofNullable(peer.getCustTaxtable()).map(GncV2.GncBook.GncGncCustomer.CustTaxtable::getValue),
+                -1);
+        adjustCount(CD_TYPE_CUSTOMER, -1);
+    }
+
+    @Override
+    public void addVendor(@NonNull Vendor vendor) {
+        if (vendorPeer(vendor.id()).isPresent()) {
+            throw new IllegalArgumentException("Vendor already exists: " + vendor.id());
+        }
+        requireBillTerm(vendor.termsId());
+        requireTaxTable(vendor.taxTable());
+        book().getBookElements().add(VendorMapper.toGnc(vendor));
+        adjustBillTermRefcount(vendor.termsId(), +1);
+        adjustTaxTableRefcount(taxTableIdOf(vendor.taxTable()), +1);
+        adjustCount(CD_TYPE_VENDOR, 1);
+    }
+
+    @Override
+    public void updateVendor(@NonNull Vendor vendor) {
+        GncV2.GncBook.GncGncVendor peer = vendorPeer(vendor.id())
+                .orElseThrow(() -> new IllegalArgumentException("No vendor with ID: " + vendor.id()));
+        requireBillTerm(vendor.termsId());
+        requireTaxTable(vendor.taxTable());
+
+        Optional<String> termsBefore =
+                Optional.ofNullable(peer.getVendorTerms()).map(GncV2.GncBook.GncGncVendor.VendorTerms::getValue);
+        Optional<String> tableBefore =
+                Optional.ofNullable(peer.getVendorTaxtable()).map(GncV2.GncBook.GncGncVendor.VendorTaxtable::getValue);
+
+        VendorMapper.applyTo(peer, vendor);
+
+        Optional<String> termsAfter =
+                Optional.ofNullable(peer.getVendorTerms()).map(GncV2.GncBook.GncGncVendor.VendorTerms::getValue);
+        Optional<String> tableAfter =
+                Optional.ofNullable(peer.getVendorTaxtable()).map(GncV2.GncBook.GncGncVendor.VendorTaxtable::getValue);
+        adjustBillTermRefcountDiff(termsBefore, termsAfter);
+        adjustTaxTableRefcountDiff(tableBefore, tableAfter);
+    }
+
+    @Override
+    public void removeVendor(@NonNull String vendorId) {
+        GncV2.GncBook.GncGncVendor peer =
+                vendorPeer(vendorId).orElseThrow(() -> new IllegalArgumentException("No vendor with ID: " + vendorId));
+        refuseWhileOwnerReferenced("Vendor", vendorId);
+        book().getBookElements().remove(peer);
+        adjustBillTermRefcount(
+                Optional.ofNullable(peer.getVendorTerms()).map(GncV2.GncBook.GncGncVendor.VendorTerms::getValue), -1);
+        adjustTaxTableRefcount(
+                Optional.ofNullable(peer.getVendorTaxtable()).map(GncV2.GncBook.GncGncVendor.VendorTaxtable::getValue),
+                -1);
+        adjustCount(CD_TYPE_VENDOR, -1);
+    }
+
+    @Override
+    public void addEmployee(@NonNull Employee employee) {
+        if (employeePeer(employee.id()).isPresent()) {
+            throw new IllegalArgumentException("Employee already exists: " + employee.id());
+        }
+        book().getBookElements().add(EmployeeMapper.toGnc(employee));
+        adjustCount(CD_TYPE_EMPLOYEE, 1);
+    }
+
+    @Override
+    public void updateEmployee(@NonNull Employee employee) {
+        GncV2.GncBook.GncGncEmployee peer = employeePeer(employee.id())
+                .orElseThrow(() -> new IllegalArgumentException("No employee with ID: " + employee.id()));
+        EmployeeMapper.applyTo(peer, employee);
+    }
+
+    @Override
+    public void removeEmployee(@NonNull String employeeId) {
+        refuseWhileOwnerReferenced("Employee", employeeId);
+        boolean removed = book().getBookElements()
+                .removeIf(element -> element instanceof GncV2.GncBook.GncGncEmployee employee
+                        && employee.getEmployeeGuid().getValue().equals(employeeId));
+        if (!removed) {
+            throw new IllegalArgumentException("No employee with ID: " + employeeId);
+        }
+        adjustCount(CD_TYPE_EMPLOYEE, -1);
+    }
+
+    @Override
+    public void addTaxTable(@NonNull TaxTable taxTable) {
+        if (taxTablePeer(taxTable.id()).isPresent()) {
+            throw new IllegalArgumentException("Tax table already exists: " + taxTable.id());
+        }
+        taxTable.entries().stream()
+                .filter(entry -> accountById(entry.accountId()).isEmpty())
+                .findFirst()
+                .ifPresent(entry -> {
+                    throw new IllegalArgumentException(
+                            "Tax table entry posts to an account that is not in the book: " + entry.accountId());
+                });
+        book().getBookElements().add(TaxTableMapper.toGnc(taxTable));
+        adjustCount(CD_TYPE_TAX_TABLE, 1);
+    }
+
+    @Override
+    public void removeTaxTable(@NonNull String taxTableId) {
+        GncV2.GncBook.GncGncTaxTable peer = taxTablePeer(taxTableId)
+                .orElseThrow(() -> new IllegalArgumentException("No tax table with ID: " + taxTableId));
+        List<String> holders = taxTableHolders(taxTableId);
+        if (!holders.isEmpty()) {
+            throw new IllegalStateException(
+                    "Tax table " + taxTableId + " is still referenced by: " + String.join(", ", holders));
+        }
+        book().getBookElements().remove(peer);
+        adjustCount(CD_TYPE_TAX_TABLE, -1);
+    }
+
+    @Override
+    public void addBillTerm(@NonNull BillTerm term) {
+        if (billTermPeer(term.id()).isPresent()) {
+            throw new IllegalArgumentException("Billing term already exists: " + term.id());
+        }
+        book().getBookElements().add(BillTermMapper.toGnc(term));
+        adjustCount(CD_TYPE_BILL_TERM, 1);
+    }
+
+    @Override
+    public void removeBillTerm(@NonNull String termId) {
+        GncV2.GncBook.GncGncBillTerm peer = billTermPeer(termId)
+                .orElseThrow(() -> new IllegalArgumentException("No billing term with ID: " + termId));
+        List<String> holders = billTermHolders(termId);
+        if (!holders.isEmpty()) {
+            throw new IllegalStateException(
+                    "Billing term " + termId + " is still referenced by: " + String.join(", ", holders));
+        }
+        book().getBookElements().remove(peer);
+        adjustCount(CD_TYPE_BILL_TERM, -1);
+    }
+
+    @Override
+    public void addJob(@NonNull Job job) {
+        if (jobPeer(job.id()).isPresent()) {
+            throw new IllegalArgumentException("Job already exists: " + job.id());
+        }
+        requireJobOwner(job.owner());
+        book().getBookElements().add(JobMapper.toGnc(job));
+        adjustCount(CD_TYPE_JOB, 1);
+    }
+
+    @Override
+    public void updateJob(@NonNull Job job) {
+        GncV2.GncBook.GncGncJob peer =
+                jobPeer(job.id()).orElseThrow(() -> new IllegalArgumentException("No job with ID: " + job.id()));
+        requireJobOwner(job.owner());
+        JobMapper.applyTo(peer, job);
+    }
+
+    @Override
+    public void removeJob(@NonNull String jobId) {
+        GncV2.GncBook.GncGncJob peer =
+                jobPeer(jobId).orElseThrow(() -> new IllegalArgumentException("No job with ID: " + jobId));
+        refuseWhileOwnerReferenced("Job", jobId);
+        book().getBookElements().remove(peer);
+        adjustCount(CD_TYPE_JOB, -1);
+    }
+
+    @Override
+    public void addOrder(@NonNull Order order) {
+        if (orderPeer(order.id()).isPresent()) {
+            throw new IllegalArgumentException("Order already exists: " + order.id());
+        }
+        requireOwner(order.owner());
+        book().getBookElements().add(OrderMapper.toGnc(order));
+        adjustCount(CD_TYPE_ORDER, 1);
+    }
+
+    @Override
+    public void updateOrder(@NonNull Order order) {
+        GncV2.GncBook.GncGncOrder peer = orderPeer(order.id())
+                .orElseThrow(() -> new IllegalArgumentException("No order with ID: " + order.id()));
+        requireOwner(order.owner());
+        OrderMapper.applyTo(peer, order);
+    }
+
+    @Override
+    public void removeOrder(@NonNull String orderId) {
+        GncV2.GncBook.GncGncOrder peer =
+                orderPeer(orderId).orElseThrow(() -> new IllegalArgumentException("No order with ID: " + orderId));
+        List<String> holders = bookElements(GncV2.GncBook.GncGncEntry.class)
+                .filter(entry -> entry.getEntryOrder() != null
+                        && orderId.equals(entry.getEntryOrder().getValue()))
+                .map(entry -> "entry " + entry.getEntryGuid().getValue())
+                .toList();
+        if (!holders.isEmpty()) {
+            throw new IllegalStateException(
+                    "Order " + orderId + " is still referenced by: " + String.join(", ", holders));
+        }
+        book().getBookElements().remove(peer);
+        adjustCount(CD_TYPE_ORDER, -1);
+    }
+
+    @Override
+    public void addInvoice(@NonNull Invoice invoice) {
+        if (invoicePeer(invoice.id()).isPresent()) {
+            throw new IllegalArgumentException("Invoice already exists: " + invoice.id());
+        }
+        requireOwner(invoice.owner());
+        invoice.billTo().ifPresent(this::requireOwner);
+        requireBillTerm(invoice.termsId());
+        book().getBookElements().add(InvoiceMapper.toGnc(invoice));
+        adjustBillTermRefcount(invoice.termsId(), +1);
+        adjustCount(CD_TYPE_INVOICE, 1);
+    }
+
+    @Override
+    public void updateInvoice(@NonNull Invoice invoice) {
+        GncV2.GncBook.GncGncInvoice peer = invoicePeer(invoice.id())
+                .orElseThrow(() -> new IllegalArgumentException("No invoice with ID: " + invoice.id()));
+        requireOwner(invoice.owner());
+        invoice.billTo().ifPresent(this::requireOwner);
+        requireBillTerm(invoice.termsId());
+
+        Optional<String> termsBefore =
+                Optional.ofNullable(peer.getInvoiceTerms()).map(GncV2.GncBook.GncGncInvoice.InvoiceTerms::getValue);
+        InvoiceMapper.applyTo(peer, invoice);
+        Optional<String> termsAfter =
+                Optional.ofNullable(peer.getInvoiceTerms()).map(GncV2.GncBook.GncGncInvoice.InvoiceTerms::getValue);
+        adjustBillTermRefcountDiff(termsBefore, termsAfter);
+    }
+
+    @Override
+    public void removeInvoice(@NonNull String invoiceId) {
+        GncV2.GncBook.GncGncInvoice peer = invoicePeer(invoiceId)
+                .orElseThrow(() -> new IllegalArgumentException("No invoice with ID: " + invoiceId));
+        if (peer.getInvoicePosted() != null) {
+            // The posting's ledger transaction and lot are not this library's to unwind.
+            throw new IllegalStateException(
+                    "Invoice " + invoiceId + " is posted; unpost it in GnuCash before removing it");
+        }
+        List<String> lines = bookElements(GncV2.GncBook.GncGncEntry.class)
+                .filter(entry -> entry.getEntryInvoice() != null
+                                && invoiceId.equals(entry.getEntryInvoice().getValue())
+                        || entry.getEntryBill() != null
+                                && invoiceId.equals(entry.getEntryBill().getValue()))
+                .map(entry -> "entry " + entry.getEntryGuid().getValue())
+                .toList();
+        if (!lines.isEmpty()) {
+            throw new IllegalStateException(
+                    "Invoice " + invoiceId + " is still referenced by: " + String.join(", ", lines));
+        }
+        book().getBookElements().remove(peer);
+        adjustBillTermRefcount(
+                Optional.ofNullable(peer.getInvoiceTerms()).map(GncV2.GncBook.GncGncInvoice.InvoiceTerms::getValue),
+                -1);
+        adjustCount(CD_TYPE_INVOICE, -1);
+    }
+
+    @Override
+    public void addEntry(@NonNull Entry entry) {
+        if (entryPeer(entry.id()).isPresent()) {
+            throw new IllegalArgumentException("Entry already exists: " + entry.id());
+        }
+        requireEntryReferences(entry);
+        book().getBookElements().add(EntryMapper.toGnc(entry));
+        // Entry tax-table references deliberately do not touch stored refcounts: a real GnuCash book
+        // carries an entry pointing at a frozen table whose refcount is 0.
+        adjustCount(CD_TYPE_ENTRY, 1);
+    }
+
+    @Override
+    public void updateEntry(@NonNull Entry entry) {
+        GncV2.GncBook.GncGncEntry peer = entryPeer(entry.id())
+                .orElseThrow(() -> new IllegalArgumentException("No entry with ID: " + entry.id()));
+        requireEntryReferences(entry);
+        EntryMapper.applyTo(peer, entry);
+    }
+
+    @Override
+    public void removeEntry(@NonNull String entryId) {
+        boolean removed = book().getBookElements()
+                .removeIf(element -> element instanceof GncV2.GncBook.GncGncEntry entry
+                        && entry.getEntryGuid().getValue().equals(entryId));
+        if (!removed) {
+            throw new IllegalArgumentException("No entry with ID: " + entryId);
+        }
+        adjustCount(CD_TYPE_ENTRY, -1);
+    }
+
+    // ---------- document helpers ----------
+
+    private Optional<GncV2.GncBook.GncGncJob> jobPeer(String id) {
+        return bookElements(GncV2.GncBook.GncGncJob.class)
+                .filter(peer -> peer.getJobGuid().getValue().equals(id))
+                .findFirst();
+    }
+
+    private Optional<GncV2.GncBook.GncGncOrder> orderPeer(String id) {
+        return bookElements(GncV2.GncBook.GncGncOrder.class)
+                .filter(peer -> peer.getOrderGuid().getValue().equals(id))
+                .findFirst();
+    }
+
+    private Optional<GncV2.GncBook.GncGncInvoice> invoicePeer(String id) {
+        return bookElements(GncV2.GncBook.GncGncInvoice.class)
+                .filter(peer -> peer.getInvoiceGuid().getValue().equals(id))
+                .findFirst();
+    }
+
+    private Optional<GncV2.GncBook.GncGncEntry> entryPeer(String id) {
+        return bookElements(GncV2.GncBook.GncGncEntry.class)
+                .filter(peer -> peer.getEntryGuid().getValue().equals(id))
+                .findFirst();
+    }
+
+    /** An owner reference must point at a party that is actually in the book. */
+    private void requireOwner(Owner owner) {
+        boolean present =
+                switch (owner.type()) {
+                    case CUSTOMER -> customerPeer(owner.id()).isPresent();
+                    case VENDOR -> vendorPeer(owner.id()).isPresent();
+                    case EMPLOYEE -> employeePeer(owner.id()).isPresent();
+                    case JOB -> jobPeer(owner.id()).isPresent();
+                };
+        if (!present) {
+            throw new IllegalArgumentException(
+                    "Owner " + owner.type() + " " + owner.id() + " is not in the book - add it first");
+        }
+    }
+
+    /** GnuCash jobs belong to a customer or a vendor; a job cannot own a job. */
+    private void requireJobOwner(Owner owner) {
+        if (owner.type() != OwnerType.CUSTOMER && owner.type() != OwnerType.VENDOR) {
+            throw new IllegalArgumentException("A job's owner must be a customer or a vendor, not " + owner.type());
+        }
+        requireOwner(owner);
+    }
+
+    private void requireEntryReferences(Entry entry) {
+        entry.invoiceLine().ifPresent(line -> {
+            requireInvoice(line.invoiceId());
+            line.accountId().ifPresent(this::requireAccount);
+            line.tax().taxTableId().ifPresent(this::requireTaxTableExists);
+        });
+        entry.billLine().ifPresent(line -> {
+            requireInvoice(line.billId());
+            line.accountId().ifPresent(this::requireAccount);
+            line.tax().taxTableId().ifPresent(this::requireTaxTableExists);
+            line.billTo().ifPresent(this::requireOwner);
+        });
+        entry.orderId().ifPresent(orderId -> {
+            if (orderPeer(orderId).isEmpty()) {
+                throw new IllegalArgumentException("Order is not in the book: " + orderId + " - add it first");
+            }
+        });
+    }
+
+    private void requireInvoice(String invoiceId) {
+        if (invoicePeer(invoiceId).isEmpty()) {
+            throw new IllegalArgumentException("Invoice is not in the book: " + invoiceId + " - add it first");
+        }
+    }
+
+    private void requireAccount(String accountId) {
+        if (accountById(accountId).isEmpty()) {
+            throw new IllegalArgumentException("Account is not in the book: " + accountId + " - add it first");
+        }
+    }
+
+    private void requireTaxTableExists(String taxTableId) {
+        if (taxTablePeer(taxTableId).isEmpty()) {
+            throw new IllegalArgumentException("Tax table is not in the book: " + taxTableId + " - add it first");
+        }
+    }
+
+    /** Refuses removing a party while a job, order, document or chargeback still names it as owner. */
+    private void refuseWhileOwnerReferenced(String kind, String ownerId) {
+        List<String> holders = ownerHolders(ownerId);
+        if (!holders.isEmpty()) {
+            throw new IllegalStateException(
+                    kind + " " + ownerId + " is still referenced by: " + String.join(", ", holders));
+        }
+    }
+
+    /** Everything naming the given party as its owner, for the refusal message. */
+    private List<String> ownerHolders(String ownerId) {
+        List<String> holders = new ArrayList<>();
+        bookElements(GncV2.GncBook.GncGncJob.class)
+                .filter(peer -> ownerId.equals(peer.getJobOwner().getOwnerId().getValue()))
+                .forEach(peer -> holders.add("job '" + peer.getJobName() + "'"));
+        bookElements(GncV2.GncBook.GncGncOrder.class)
+                .filter(peer -> ownerId.equals(peer.getOrderOwner().getOwnerId().getValue()))
+                .forEach(peer -> holders.add("order " + peer.getOrderId()));
+        bookElements(GncV2.GncBook.GncGncInvoice.class)
+                .filter(peer -> ownerId.equals(
+                                peer.getInvoiceOwner().getOwnerId().getValue())
+                        || peer.getInvoiceBillto() != null
+                                && ownerId.equals(
+                                        peer.getInvoiceBillto().getOwnerId().getValue()))
+                .forEach(peer -> holders.add("invoice " + peer.getInvoiceId()));
+        bookElements(GncV2.GncBook.GncGncEntry.class)
+                .filter(peer -> peer.getEntryBillto() != null
+                        && ownerId.equals(peer.getEntryBillto().getOwnerId().getValue()))
+                .forEach(peer -> holders.add("entry " + peer.getEntryGuid().getValue()));
+        return holders;
+    }
+
+    // ---------- business helpers ----------
+
+    private Optional<GncV2.GncBook.GncGncCustomer> customerPeer(String id) {
+        return bookElements(GncV2.GncBook.GncGncCustomer.class)
+                .filter(peer -> peer.getCustGuid().getValue().equals(id))
+                .findFirst();
+    }
+
+    private Optional<GncV2.GncBook.GncGncVendor> vendorPeer(String id) {
+        return bookElements(GncV2.GncBook.GncGncVendor.class)
+                .filter(peer -> peer.getVendorGuid().getValue().equals(id))
+                .findFirst();
+    }
+
+    private Optional<GncV2.GncBook.GncGncEmployee> employeePeer(String id) {
+        return bookElements(GncV2.GncBook.GncGncEmployee.class)
+                .filter(peer -> peer.getEmployeeGuid().getValue().equals(id))
+                .findFirst();
+    }
+
+    private Optional<GncV2.GncBook.GncGncTaxTable> taxTablePeer(String id) {
+        return bookElements(GncV2.GncBook.GncGncTaxTable.class)
+                .filter(peer -> peer.getTaxtableGuid().getValue().equals(id))
+                .findFirst();
+    }
+
+    private Optional<GncV2.GncBook.GncGncBillTerm> billTermPeer(String id) {
+        return bookElements(GncV2.GncBook.GncGncBillTerm.class)
+                .filter(peer -> peer.getBilltermGuid().getValue().equals(id))
+                .findFirst();
+    }
+
+    /** The table a policy references, if it references one. */
+    private static Optional<String> taxTableIdOf(TaxTablePolicy policy) {
+        return policy instanceof TaxTablePolicy.Table(String taxTableId) ? Optional.of(taxTableId) : Optional.empty();
+    }
+
+    private void requireBillTerm(Optional<String> termsId) {
+        termsId.filter(id -> billTermPeer(id).isEmpty()).ifPresent(id -> {
+            throw new IllegalArgumentException("Billing term is not in the book: " + id + " - add it first");
+        });
+    }
+
+    private void requireTaxTable(TaxTablePolicy policy) {
+        taxTableIdOf(policy).filter(id -> taxTablePeer(id).isEmpty()).ifPresent(id -> {
+            throw new IllegalArgumentException("Tax table is not in the book: " + id + " - add it first");
+        });
+    }
+
+    /**
+     * GnuCash counts how many objects reference a term or table and stores that count in the file; the store keeps it
+     * in step so GnuCash's own can-this-be-deleted logic stays truthful.
+     */
+    private void adjustBillTermRefcount(Optional<String> termId, int delta) {
+        termId.flatMap(this::billTermPeer)
+                .ifPresent(peer -> peer.setBilltermRefcount(peer.getBilltermRefcount() + delta));
+    }
+
+    private void adjustTaxTableRefcount(Optional<String> tableId, int delta) {
+        tableId.flatMap(this::taxTablePeer)
+                .ifPresent(peer -> peer.setTaxtableRefcount(peer.getTaxtableRefcount() + delta));
+    }
+
+    private void adjustBillTermRefcountDiff(Optional<String> before, Optional<String> after) {
+        if (!before.equals(after)) {
+            adjustBillTermRefcount(before, -1);
+            adjustBillTermRefcount(after, +1);
+        }
+    }
+
+    private void adjustTaxTableRefcountDiff(Optional<String> before, Optional<String> after) {
+        if (!before.equals(after)) {
+            adjustTaxTableRefcount(before, -1);
+            adjustTaxTableRefcount(after, +1);
+        }
+    }
+
+    /** Everything still referencing a tax table, for the refusal message. */
+    private List<String> taxTableHolders(String taxTableId) {
+        List<String> holders = new ArrayList<>();
+        bookElements(GncV2.GncBook.GncGncCustomer.class)
+                .filter(peer -> peer.getCustTaxtable() != null
+                        && taxTableId.equals(peer.getCustTaxtable().getValue()))
+                .forEach(peer -> holders.add("customer '" + peer.getCustName() + "'"));
+        bookElements(GncV2.GncBook.GncGncVendor.class)
+                .filter(peer -> peer.getVendorTaxtable() != null
+                        && taxTableId.equals(peer.getVendorTaxtable().getValue()))
+                .forEach(peer -> holders.add("vendor '" + peer.getVendorName() + "'"));
+        bookElements(GncV2.GncBook.GncGncEntry.class)
+                .filter(peer -> peer.getEntryITaxtable() != null
+                                && taxTableId.equals(peer.getEntryITaxtable().getValue())
+                        || peer.getEntryBTaxtable() != null
+                                && taxTableId.equals(peer.getEntryBTaxtable().getValue()))
+                .forEach(peer -> holders.add("entry " + peer.getEntryGuid().getValue()));
+        bookElements(GncV2.GncBook.GncGncTaxTable.class)
+                .filter(peer -> peer.getTaxtableParent() != null
+                                && taxTableId.equals(peer.getTaxtableParent().getValue())
+                        || peer.getTaxtableChild() != null
+                                && taxTableId.equals(peer.getTaxtableChild().getValue()))
+                .forEach(peer -> holders.add("tax table version '" + peer.getTaxtableName() + "'"));
+        return holders;
+    }
+
+    /** Everything still referencing a billing term, for the refusal message. */
+    private List<String> billTermHolders(String termId) {
+        List<String> holders = new ArrayList<>();
+        bookElements(GncV2.GncBook.GncGncCustomer.class)
+                .filter(peer -> peer.getCustTerms() != null
+                        && termId.equals(peer.getCustTerms().getValue()))
+                .forEach(peer -> holders.add("customer '" + peer.getCustName() + "'"));
+        bookElements(GncV2.GncBook.GncGncVendor.class)
+                .filter(peer -> peer.getVendorTerms() != null
+                        && termId.equals(peer.getVendorTerms().getValue()))
+                .forEach(peer -> holders.add("vendor '" + peer.getVendorName() + "'"));
+        bookElements(GncV2.GncBook.GncGncInvoice.class)
+                .filter(peer -> peer.getInvoiceTerms() != null
+                        && termId.equals(peer.getInvoiceTerms().getValue()))
+                .forEach(peer -> holders.add("invoice " + peer.getInvoiceId()));
+        bookElements(GncV2.GncBook.GncGncBillTerm.class)
+                .filter(peer -> peer.getBilltermParent() != null
+                                && termId.equals(peer.getBilltermParent().getValue())
+                        || peer.getBilltermChild().stream().anyMatch(child -> termId.equals(child.getValue())))
+                .forEach(peer -> holders.add("billing term version '" + peer.getBilltermName() + "'"));
+        return holders;
+    }
+
     @Override
     public void save(Path path) throws IOException {
         List<String> problems = validate();
@@ -387,6 +1149,10 @@ public final class GnucashAccStore implements WritableAccStore {
                     + roots.stream().map(Account::name).collect(Collectors.joining(", ")));
         }
 
+        // A commodity the book never defines is a dangling reference, the same class of problem as a
+        // missing parent: nothing in the book can say what the figures are denominated in.
+        final Set<CommodityId> defined = Set.copyOf(commodities());
+
         for (Account account : accounts) {
             if (account.type() != AccountType.ROOT && account.parentId().isEmpty()) {
                 problems.add("Account '" + account.name() + "' has no parent but is not a ROOT account");
@@ -395,10 +1161,18 @@ public final class GnucashAccStore implements WritableAccStore {
                     .filter(parentId -> !byId.containsKey(parentId))
                     .ifPresent(parentId -> problems.add("Account '" + account.name()
                             + "' points at a parent that is not in the book: " + parentId));
+            account.commodity()
+                    .filter(commodity -> !defined.contains(commodity))
+                    .ifPresent(commodity -> problems.add("Account '" + account.name()
+                            + "' is denominated in a commodity the book does not define: " + commodity));
             findCycle(account, byId).ifPresent(problems::add);
         }
 
         for (Transaction transaction : transactions()) {
+            if (!defined.contains(transaction.currency())) {
+                problems.add("Transaction '" + transaction.description()
+                        + "' is denominated in a commodity the book does not define: " + transaction.currency());
+            }
             for (Split split : transaction.splits()) {
                 Account account = byId.get(split.accountId());
                 if (account == null) {
@@ -410,6 +1184,41 @@ public final class GnucashAccStore implements WritableAccStore {
                             + "' posts a split to the ROOT account; post to a real account instead");
                 }
             }
+        }
+
+        for (Customer customer : customers()) {
+            if (!defined.contains(customer.currency())) {
+                problems.add("Customer '" + customer.name()
+                        + "' is denominated in a commodity the book does not define: " + customer.currency());
+            }
+        }
+        for (Vendor vendor : vendors()) {
+            if (!defined.contains(vendor.currency())) {
+                problems.add("Vendor '" + vendor.name() + "' is denominated in a commodity the book does not define: "
+                        + vendor.currency());
+            }
+        }
+        for (Employee employee : employees()) {
+            if (!defined.contains(employee.currency())) {
+                problems.add("Employee '" + employee.username()
+                        + "' is denominated in a commodity the book does not define: " + employee.currency());
+            }
+        }
+        for (Invoice invoice : invoices()) {
+            if (!defined.contains(invoice.currency())) {
+                problems.add("Invoice " + invoice.number() + " is denominated in a commodity the book does not define: "
+                        + invoice.currency());
+            }
+            invoice.posting().ifPresent(posting -> {
+                posting.transactionId()
+                        .filter(transactionId -> transactionById(transactionId).isEmpty())
+                        .ifPresent(transactionId -> problems.add("Invoice " + invoice.number()
+                                + " claims a posting transaction that is not in the book: " + transactionId));
+                posting.accountId()
+                        .filter(accountId -> accountById(accountId).isEmpty())
+                        .ifPresent(accountId -> problems.add("Invoice " + invoice.number()
+                                + " claims a posting account that is not in the book: " + accountId));
+            });
         }
 
         return List.copyOf(problems);

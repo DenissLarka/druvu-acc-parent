@@ -744,27 +744,14 @@
 							</xs:complexType>
 						</xs:element>
 
-						<!-- invoices may have an associated customer -->
+						<!-- a bill's chargeback owner: full OwnerContent per the RNC, customer or job -->
 						<xs:element name="invoice_billto" minOccurs="0" maxOccurs="1">
 							<xs:complexType>
 								<xs:sequence>
-									<xs:element name="owner_type">
-										<xs:simpleType>
-											<xs:restriction base="xs:string">
-												<xs:enumeration value="gncCustomer"/>
-											</xs:restriction>
-										</xs:simpleType>
-									</xs:element>
-									<xs:element name="owner_id">
-										<xs:complexType>
-											<xs:simpleContent>
-												<xs:extension base="xs:string">
-													<xs:attribute name="type" type="xs:string" use="required"/>
-												</xs:extension>
-											</xs:simpleContent>
-										</xs:complexType>
-									</xs:element>
+									<xs:element ref="owner_type"/>
+									<xs:element ref="owner_id"/>
 								</xs:sequence>
+								<xs:attribute name="version" type="xs:string" use="required"/>
 							</xs:complexType>
 						</xs:element>
 						<xs:element name="invoice_charge-amt" type="xs:string" minOccurs="0" maxOccurs="1"/>

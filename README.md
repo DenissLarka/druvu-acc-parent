@@ -19,9 +19,9 @@ Project page: [druvu.com/projects/druvu-acc](https://druvu.com/projects/druvu-ac
 ## Supported entities
 
 GnuCash files can hold many entity types. The table below tracks what this library supports
-today against the GnuCash XML v2 data model. The core double-entry entities and the
-investment/multi-currency entities are covered; the business (accounts-receivable/payable)
-and planning entities are not yet implemented.
+today against the GnuCash XML v2 data model. The core double-entry entities, the
+investment/multi-currency entities and the business (accounts-receivable/payable) entities are
+covered; the planning entities are not yet implemented.
 
 Editing an entity **preserves everything this library does not model**: an update writes only the
 fields it understands onto the record already in the file, so GnuCash's own extensions — including
@@ -37,14 +37,14 @@ unchanged.
 | Account flags (placeholder, hidden, notes, colour) | ✓ | **read + write** |
 | Scheduled (recurring) transactions | ✓ | — *not yet* |
 | Budgets | ✓ | — *not yet* |
-| Customers | ✓ | — *not yet* |
-| Vendors | ✓ | — *not yet* |
-| Employees | ✓ | — *not yet* |
-| Invoices & bills (+ line entries) | ✓ | — *not yet* |
-| Jobs | ✓ | — *not yet* |
-| Orders | ✓ | — *not yet* |
-| Billing terms | ✓ | — *not yet* |
-| Tax tables | ✓ | — *not yet* |
+| Customers | ✓ | **read + write** |
+| Vendors | ✓ | **read + write** |
+| Employees | ✓ | **read + write** |
+| Invoices & bills (+ line entries) | ✓ | **read + write** |
+| Jobs | ✓ | **read + write** |
+| Orders | ✓ | **read + write** |
+| Billing terms | ✓ | **read + write** |
+| Tax tables | ✓ | **read + write** |
 | Lots | ✓ | — *not yet* |
 
 ## Which direction next?
@@ -54,8 +54,8 @@ What gets built next is decided the honest way: by whoever turns up and asks. So
 want? [Open an issue](https://github.com/DenissLarka/druvu-acc-parent/issues) (or 👍 an existing
 one) and say what you'd use it for:
 
-- **More GnuCash entities** — the *not yet* rows above: business documents (customers, vendors,
-  invoices & bills, payments), planning (scheduled transactions, budgets), investment lots.
+- **More GnuCash entities** — the *not yet* rows above: planning (scheduled transactions,
+  budgets), investment lots, payments.
 - **A desktop UI** — a lightweight companion for browsing and editing books.
 - **Reports** — balance sheet, income statement, PDF/HTML export.
 - **A database backend** — the API is storage-agnostic by design; a SQL store (or reading
@@ -264,6 +264,48 @@ can still be opened and repaired; call `store.validate()` yourself to see what i
 > **Keep a backup of any book you write to**, and if you find something lost in a save, please
 > [open an issue](https://github.com/DenissLarka/druvu-acc-parent/issues) with the element name — that
 > is a bug worth fixing, and it is usually a one-line schema addition.
+
+### Business documents
+
+The business entities cover GnuCash's accounts-receivable/payable side. Parties are built with
+factories and refined with `with...` methods; an address attaches fluently:
+
+```java
+WritableAccStore store = AccStore.loadWritable(Path.of("business.gnucash"));
+
+String termId = store.newId();
+store.addBillTerm(BillTerm.netDays(termId, "Net 30", 30));
+
+store.addCustomer(Customer.of(store.newId(), "C-100", "ACME AG", CommodityId.CHF)
+        .withAddress(Address.of("Bahnhofstrasse 1", "8001 Zurich").withEmail("billing@acme.example"))
+        .withTerms(termId)
+        .withCreditLimit(new BigDecimal("5000")));
+```
+
+Documents follow the same shape - an invoice belongs to an owner (a customer, or a job that
+resolves to one), and its lines are entries:
+
+```java
+String invoiceId = store.newId();
+store.addInvoice(Invoice.of(invoiceId, "INV-100", Owner.customer(customerId),
+        LocalDateTime.now(), CommodityId.CHF).withTerms(termId));
+
+store.addEntry(Entry.of(store.newId(), LocalDateTime.now(), "Consulting", new BigDecimal("3"))
+        .withAction("Hours")
+        .withInvoiceLine(InvoiceLine.of(invoiceId, incomeAccountId, new BigDecimal("150"))));
+```
+
+And the question that prompted the feature - *which customer is behind this ledger transaction?* -
+is one call, following GnuCash's posting link and the job indirection:
+
+```java
+Optional<Customer> customer = store.customerForTransaction(transactionId);
+```
+
+GnuCash's own posting mechanics (the ledger transaction, the receivable lot) belong to GnuCash:
+this library reads a posted document's trace but does not post. Tax tables and billing terms have
+no in-place update, deliberately - GnuCash freezes an invisible copy of a table that is in use so
+posted documents keep their rates, and an in-place edit would falsify them.
 
 ### Running the Example
 
