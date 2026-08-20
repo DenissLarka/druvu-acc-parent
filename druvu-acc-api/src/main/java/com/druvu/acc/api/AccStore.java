@@ -52,7 +52,27 @@ public interface AccStore {
      * @throws UnsupportedOperationException if the discovered implementation does not support writing
      */
     static WritableAccStore loadWritable(Path path) {
-        AccStore store = load(path);
+        return asWritable(load(path));
+    }
+
+    /**
+     * Creates a new, empty book: one root account, the given currency, and nothing else. No existing file is needed -
+     * this is the starting point for a book built entirely in code.
+     *
+     * <p>The currency is required rather than defaulted because a book without one is a trap: every account and
+     * transaction must be denominated in a commodity the book defines. Further currencies can be added with
+     * {@link WritableAccStore#addCommodity}.
+     *
+     * @param bookCurrency the book's currency, e.g. {@link com.druvu.acc.api.entity.CommodityId#CHF}
+     * @return a writable store holding the empty book; call {@link WritableAccStore#save} to persist it
+     * @throws IllegalArgumentException if the commodity is not a currency, or is a currency ISO 4217 defines no
+     *     fraction for
+     */
+    static WritableAccStore newBook(CommodityId bookCurrency) {
+        return asWritable(ComponentLoader.load(AccStore.class, Dependencies.of(CommodityId.class, bookCurrency)));
+    }
+
+    private static WritableAccStore asWritable(AccStore store) {
         if (store instanceof WritableAccStore writable) {
             return writable;
         }

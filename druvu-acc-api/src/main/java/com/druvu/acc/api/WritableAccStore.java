@@ -52,8 +52,13 @@ public interface WritableAccStore extends AccStore {
     /**
      * Adds a new transaction (with its splits) to the store.
      *
+     * <p>The transaction must balance: its splits' {@link com.druvu.acc.api.entity.Split#value() values} - all
+     * denominated in the transaction's currency - must sum to zero. Quantities are not checked; a share purchase
+     * legitimately moves an unequal share count against money.
+     *
      * @param transaction the transaction to add
-     * @throws IllegalArgumentException if a transaction with the same ID already exists
+     * @throws IllegalArgumentException if a transaction with the same ID already exists, or if the splits do not sum to
+     *     zero
      */
     void addTransaction(Transaction transaction);
 
@@ -73,8 +78,11 @@ public interface WritableAccStore extends AccStore {
     /**
      * Replaces an existing transaction, and all of its splits, with an edited copy of itself, in place.
      *
+     * <p>The edited transaction must balance, under the same rule as {@link #addTransaction(Transaction)} - an edit
+     * must not unbalance the books any more than an addition may.
+     *
      * @param transaction the edited transaction
-     * @throws IllegalArgumentException if no transaction with that ID exists
+     * @throws IllegalArgumentException if no transaction with that ID exists, or if the splits do not sum to zero
      */
     void updateTransaction(Transaction transaction);
 

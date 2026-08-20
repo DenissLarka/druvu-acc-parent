@@ -9,6 +9,10 @@ A modular Java library for reading and writing accounting data. The library prov
 
 Project page: [druvu.com/projects/druvu-acc](https://druvu.com/projects/druvu-acc.html)
 
+> 📖 **New to the library? [Read how to use it](docs/README.md)** — three small accounting
+> stories, each solved by a complete runnable program: a household's books, a contractor's
+> invoice with VAT, and finding the customer behind a ledger transaction.
+
 ## Features
 
 - **Modular JPMS Design** - Full Java Platform Module System support
@@ -125,11 +129,11 @@ Implementation for reading and writing GnuCash XML files (`.gnucash`). Supports 
 var store = AccStore.load(Path.of("myfile.gnucash"));   // format found via ServiceLoader
 
 for (var account : store.accounts()) {
-    System.out.printf("%-24s %s%n", account.name(), account.type());
+    IO.println("%-24s %s".formatted(account.name(), account.type()));
 }
 
 for (var tx : store.transactions()) {
-    System.out.printf("%s  %s%n", tx.datePosted(), tx.description());
+    IO.println("%s  %s".formatted(tx.datePosted(), tx.description()));
 }
 ```
 
@@ -169,7 +173,7 @@ policy for missing quotes, which is your decision and not the library's:
 var assets = service.accountByName("Assets");
 
 for (var amount : service.totalBalance(assets.id()).amounts()) {
-    System.out.println(amount);          // 1500.00 CHF, then 100 NASDAQ/AAPL
+    IO.println(amount);                  // 1500.00 CHF, then 100 NASDAQ/AAPL
 }
 ```
 
@@ -202,6 +206,15 @@ XAU — rather than guessing a precision; construct those directly with the frac
 
 Load a store as a `WritableAccStore` to mutate it in place, then `save(Path)`. Use `store.newId()`
 for entity IDs — it mints one in whatever format the backend expects, so you never hand-roll a GUID.
+
+A book can also start from nothing — no file, no GnuCash involved:
+
+```java
+var store = AccStore.newBook(CommodityId.CHF);   // one root account, the currency, nothing else
+```
+
+The currency is required rather than defaulted (every account must be denominated in a commodity
+the book defines); further currencies are added with `addCommodity`.
 
 ```java
 var store = AccStore.loadWritable(Path.of("myfile.gnucash"));
@@ -250,9 +263,11 @@ store.save(Path.of("myfile-modified.gnucash"));   // gzipped for .gnucash and .g
 dangling parent, a split on an account that is not there or on the root itself. Reading stays tolerant so a damaged book
 can still be opened and repaired; call `store.validate()` yourself to see what is wrong with one.
 
-> **Note:** the library does not enforce accounting invariants (e.g. that a transaction's
-> splits balance, or that referenced accounts exist) — supply consistent data. `save` writes
-> the GnuCash XML and keeps the file's `count-data` headers in sync with its contents.
+> **Note:** `addTransaction` and `updateTransaction` enforce double entry's core invariant — the
+> splits' *values* must sum to zero (quantities are exempt: a share purchase legitimately moves an
+> unequal share count against money). Other accounting invariants are checked at `save`/`validate`
+> time, structural ones on the spot. `save` writes the GnuCash XML and keeps the file's
+> `count-data` headers in sync with its contents.
 
 > ⚠️ **On preserving the whole file.** `save` rewrites the book from this library's own model of the
 > GnuCash format, so anything that model does not cover is **not** carried over. Entities the library
@@ -359,14 +374,14 @@ opens the form with the right type and scope pre-selected.
 <dependency>
     <groupId>com.druvu</groupId>
     <artifactId>druvu-acc-api</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 
 <!-- GnuCash XML support (optional) -->
 <dependency>
     <groupId>com.druvu</groupId>
     <artifactId>druvu-acc-gnucash-xml</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 

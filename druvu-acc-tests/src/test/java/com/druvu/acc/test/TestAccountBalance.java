@@ -207,21 +207,22 @@ public class TestAccountBalance {
 
     /**
      * Posts a two-split transaction whose counterpart lands on {@code Revenus} - outside the {@code Actif} subtree the
-     * tests assert on. The counterpart quantity is passed separately because a share purchase moves a share count on
-     * one side and money on the other.
+     * tests assert on. The quantity is passed separately from the counterpart's amount because a share purchase moves a
+     * share count on one side and money on the other; the primary split's <em>value</em> mirrors the counterpart's, so
+     * the transaction balances the way the store now requires.
      */
     private static void addTransaction(
             WritableAccStore store,
             CommodityId currency,
             LocalDate date,
             String accountId,
-            BigDecimal amount,
+            BigDecimal quantity,
             BigDecimal counterpartAmount) {
         String txId = store.newId();
         String counterpartId =
                 store.accountByName("Root Account:Revenus").orElseThrow().id();
         List<Split> splits = List.of(
-                Split.of(store.newId(), txId, accountId, date, amount),
+                Split.of(store.newId(), txId, accountId, date, counterpartAmount.negate(), quantity),
                 Split.of(store.newId(), txId, counterpartId, date, counterpartAmount));
         store.addTransaction(Transaction.of(txId, currency, date, "balance test", splits));
     }

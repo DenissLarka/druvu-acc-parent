@@ -40,6 +40,7 @@ import com.druvu.acc.gnucash.mapper.TransactionMapper;
 import com.druvu.acc.gnucash.mapper.VendorMapper;
 import com.druvu.acc.gnucash.writer.GnucashFileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -99,6 +100,40 @@ public final class GnucashAccStore implements WritableAccStore {
 
     public GnucashAccStore(@NonNull GncV2 root) {
         this.root = root;
+    }
+
+    /**
+     * A brand-new empty book built from the given template (one root account, nothing else): the template's currency is
+     * replaced by the requested one, and the book and root-account GUIDs are re-minted so no two books ever share an
+     * ID.
+     *
+     * @param template the parsed empty-book template
+     * @param bookCurrency the currency the new book is kept in
+     * @return a writable store holding the empty book
+     * @throws IllegalArgumentException if the commodity is not a currency, or ISO 4217 defines no fraction for it
+     */
+    public static GnucashAccStore newBook(@NonNull GncV2 template, @NonNull CommodityId bookCurrency) {
+        if (!bookCurrency.isCurrency()) {
+            throw new IllegalArgumentException("A book's currency must be a CURRENCY commodity, not " + bookCurrency);
+        }
+        // Refuses codes ISO defines no fraction for, rather than guessing a precision.
+        int fraction = Commodity.currencyFraction(bookCurrency.id());
+
+        GnucashAccStore store = new GnucashAccStore(template);
+        store.book().getBookId().setValue(store.newId());
+        store.bookElements(GncV2.GncBook.GncCommodity.class)
+                .filter(commodity -> CommodityId.NAMESPACE_CURRENCY.equals(commodity.getCmdtySpace()))
+                .forEach(commodity -> commodity.setCmdtyId(bookCurrency.id()));
+
+        GncAccount rootAccount = store.bookElements(GncAccount.class)
+                .filter(account -> "ROOT".equals(account.getActType()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("The empty-book template has no ROOT account"));
+        rootAccount.getActId().setValue(store.newId());
+        rootAccount.getActCommodity().setCmdtySpace(bookCurrency.namespace());
+        rootAccount.getActCommodity().setCmdtyId(bookCurrency.id());
+        rootAccount.setActCommodityScu(fraction);
+        return store;
     }
 
     // ========== AccStore Interface ==========
@@ -428,8 +463,28 @@ public final class GnucashAccStore implements WritableAccStore {
         if (transactionById(transaction.id()).isPresent()) {
             throw new IllegalArgumentException("Transaction already exists: " + transaction.id());
         }
+        requireBalanced(transaction);
         book().getBookElements().add(TransactionMapper.toGnc(transaction));
         adjustCount(CD_TYPE_TRANSACTION, 1);
+    }
+
+    /** Sum of the splits' values, all in the transaction's own currency; zero for a balanced transaction. */
+    private static BigDecimal imbalance(Transaction transaction) {
+        return transaction.splits().stream().map(Split::value).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /**
+     * Double entry's core invariant: the split values cancel out. Quantities are exempt - a share purchase moves an
+     * unequal share count against money - but the values are all in the transaction's currency and must sum to zero;
+     * GnuCash itself books any difference loudly to an Imbalance account.
+     */
+    private static void requireBalanced(Transaction transaction) {
+        BigDecimal imbalance = imbalance(transaction);
+        if (imbalance.signum() != 0) {
+            throw new IllegalArgumentException("Transaction '" + transaction.description()
+                    + "' does not balance: its split values sum to " + imbalance.toPlainString() + " "
+                    + transaction.currency() + " instead of zero");
+        }
     }
 
     /**
@@ -472,6 +527,7 @@ public final class GnucashAccStore implements WritableAccStore {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No transaction with ID: " + transaction.id()));
 
+        requireBalanced(transaction);
         TransactionMapper.applyTo(peer, transaction);
     }
 
@@ -1172,6 +1228,13 @@ public final class GnucashAccStore implements WritableAccStore {
             if (!defined.contains(transaction.currency())) {
                 problems.add("Transaction '" + transaction.description()
                         + "' is denominated in a commodity the book does not define: " + transaction.currency());
+            }
+            // The API refuses to add or update an unbalanced transaction, so this fires only for books
+            // that arrived from disk that way - reading stays tolerant, and this is where it is reported.
+            BigDecimal imbalance = imbalance(transaction);
+            if (imbalance.signum() != 0) {
+                problems.add("Transaction '" + transaction.description() + "' does not balance: its split values sum "
+                        + "to " + imbalance.toPlainString() + " " + transaction.currency() + " instead of zero");
             }
             for (Split split : transaction.splits()) {
                 Account account = byId.get(split.accountId());

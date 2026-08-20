@@ -277,6 +277,101 @@ public class TestWriteRoundTrip {
         assertUndefinedCommodityRefused(store);
     }
 
+    @Test
+    public void addTransactionRefusesUnbalancedSplits() {
+        WritableAccStore store = AccStore.loadWritable(source);
+        String accountA =
+                store.accountByName("Root Account:Actif").orElseThrow().id();
+        String accountB =
+                store.accountByName("Root Account:Revenus").orElseThrow().id();
+        LocalDate date = LocalDate.of(2026, 8, 20);
+        String txId = store.newId();
+
+        IllegalArgumentException refusal = org.testng.Assert.expectThrows(
+                IllegalArgumentException.class,
+                () -> store.addTransaction(Transaction.of(
+                        txId,
+                        CommodityId.CHF,
+                        date,
+                        "does not balance",
+                        List.of(
+                                Split.of(store.newId(), txId, accountA, date, new BigDecimal("100.00")),
+                                Split.of(store.newId(), txId, accountB, date, new BigDecimal("-99.99"))))));
+        assertTrue(refusal.getMessage().contains("0.01"), refusal.getMessage());
+    }
+
+    @Test
+    public void updateTransactionRefusesUnbalancedSplits() {
+        WritableAccStore store = AccStore.loadWritable(source);
+        String accountA =
+                store.accountByName("Root Account:Actif").orElseThrow().id();
+        String accountB =
+                store.accountByName("Root Account:Revenus").orElseThrow().id();
+        LocalDate date = LocalDate.of(2026, 8, 20);
+        String txId = store.newId();
+
+        store.addTransaction(Transaction.of(
+                txId,
+                CommodityId.CHF,
+                date,
+                "balanced",
+                List.of(
+                        Split.of(store.newId(), txId, accountA, date, new BigDecimal("100.00")),
+                        Split.of(store.newId(), txId, accountB, date, new BigDecimal("-100.00")))));
+
+        // The edit drops one leg entirely - the classic way to unbalance an existing transaction.
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> store.updateTransaction(Transaction.of(
+                        txId,
+                        CommodityId.CHF,
+                        date,
+                        "unbalanced edit",
+                        List.of(Split.of(store.newId(), txId, accountA, date, new BigDecimal("100.00"))))));
+    }
+
+    /**
+     * The API refuses to create an unbalanced transaction, so a book can only arrive unbalanced from disk - reading
+     * stays tolerant, and {@code validate()} is where the damage is reported.
+     */
+    @Test
+    public void validateReportsAnUnbalancedTransactionLoadedFromDisk() throws IOException {
+        WritableAccStore store = AccStore.loadWritable(source);
+        String accountA =
+                store.accountByName("Root Account:Actif").orElseThrow().id();
+        String accountB =
+                store.accountByName("Root Account:Revenus").orElseThrow().id();
+        LocalDate date = LocalDate.of(2026, 8, 20);
+        String txId = store.newId();
+        store.addTransaction(Transaction.of(
+                txId,
+                CommodityId.CHF,
+                date,
+                "to be damaged",
+                List.of(
+                        Split.of(store.newId(), txId, accountA, date, new BigDecimal("123.45")),
+                        Split.of(store.newId(), txId, accountB, date, new BigDecimal("-123.45")))));
+
+        Path out = Files.createTempFile("acc-unbalanced", ".xml");
+        try {
+            store.save(out);
+            // Corrupt one split's value on disk, the way a broken writer or a hand edit would.
+            Files.writeString(
+                    out,
+                    Files.readString(out)
+                            .replace("<split:value>12345/100</split:value>", "<split:value>12346/100</split:value>"));
+
+            WritableAccStore damaged = AccStore.loadWritable(out);
+            List<String> problems = damaged.validate();
+            assertTrue(
+                    problems.stream().anyMatch(p -> p.contains("does not balance")),
+                    "expected an unbalanced-transaction problem, got: " + problems);
+            assertThrows(IllegalStateException.class, () -> damaged.save(out));
+        } finally {
+            Files.deleteIfExists(out);
+        }
+    }
+
     /** The book is reported as broken and nothing is written. */
     private static void assertUndefinedCommodityRefused(WritableAccStore store) {
         List<String> problems = store.validate();
