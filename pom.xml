@@ -26,7 +26,7 @@
 
 		<!-- Dependency versions -->
 		<lombok.version>1.18.46</lombok.version>
-		<slf4j.version>2.0.18</slf4j.version>
+		<slf4j.version>2.0.19</slf4j.version>
 		<testng.version>7.12.0</testng.version>
 		<jaxb-api.version>4.0.5</jaxb-api.version>
 		<jaxb-runtime.version>4.0.9</jaxb-runtime.version>
