@@ -9,6 +9,7 @@ import com.druvu.acc.api.entity.Employee;
 import com.druvu.acc.api.entity.Entry;
 import com.druvu.acc.api.entity.Invoice;
 import com.druvu.acc.api.entity.Job;
+import com.druvu.acc.api.entity.Lot;
 import com.druvu.acc.api.entity.Order;
 import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.TaxTable;
@@ -359,6 +360,54 @@ public interface WritableAccStore extends AccStore {
      * @throws IllegalArgumentException if no price with the given ID exists
      */
     void removePrice(String priceId);
+
+    // ========== Lots ==========
+
+    /**
+     * Adds a lot to its account. Membership is declared per split afterwards with {@link #assignSplitToLot}.
+     *
+     * @param lot the lot to add
+     * @throws IllegalArgumentException if a lot with the same ID already exists, if the account is not in the book, or
+     *     if the lot has neither a title nor notes - the file format cannot express an entirely blank lot
+     */
+    void addLot(Lot lot);
+
+    /**
+     * Updates a lot's title and notes in place. Anything else the backend keeps on the lot - the document or owner
+     * GnuCash attached to it - is left untouched.
+     *
+     * @param lot the lot with its new values
+     * @throws IllegalArgumentException if no lot with that ID exists, if the update would move it to another account,
+     *     or if it would leave the lot with neither a title nor notes
+     */
+    void updateLot(Lot lot);
+
+    /**
+     * Removes a lot. Its splits are not touched, so a lot that still has members is refused - detach them first.
+     *
+     * @param lotId the lot ID
+     * @throws IllegalArgumentException if no lot with that ID exists
+     * @throws IllegalStateException if splits still belong to it
+     */
+    void removeLot(String lotId);
+
+    /**
+     * Puts a split into a lot, replacing any lot it was in before. A split can only join a lot of its own account, the
+     * rule GnuCash itself enforces.
+     *
+     * @param splitId the split ID
+     * @param lotId the lot ID
+     * @throws IllegalArgumentException if either does not exist, or if the split is on a different account than the lot
+     */
+    void assignSplitToLot(String splitId, String lotId);
+
+    /**
+     * Takes a split out of whatever lot it is in. Nothing happens if it is in none.
+     *
+     * @param splitId the split ID
+     * @throws IllegalArgumentException if no split with that ID exists
+     */
+    void detachSplitFromLot(String splitId);
 
     /**
      * Persists the current state of the store to the given path.

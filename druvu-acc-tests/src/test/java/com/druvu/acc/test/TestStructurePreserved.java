@@ -41,6 +41,8 @@ public class TestStructurePreserved {
             // A book written by GnuCash carrying customers, vendors, jobs, invoices, entries, billing terms
             // and tax tables - the entities this library does not model, which must survive regardless.
             {"/business.gnucash"},
+            // Invoices settled by payments: receivable lots with two member splits each, a paid vendor bill.
+            {"/payments.gnucash"},
             // Accounts with placeholder flags, a balance-limit frame, an empty frame and a non-standard SCU.
             {"/slots.gnucash"},
             {"/common.gnucash"},

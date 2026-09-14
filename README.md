@@ -20,51 +20,16 @@ Project page: [druvu.com/projects/druvu-acc](https://druvu.com/projects/druvu-ac
 - **Record-based Entities** - Immutable data entities using Java records
 - **GnuCash Support** - Read *and write* GnuCash XML files (plain and gzip-compressed)
 
-## Supported entities
+## What it covers, and what decides the rest
 
-GnuCash files can hold many entity types. The table below tracks what this library supports
-today against the GnuCash XML v2 data model. The core double-entry entities, the
-investment/multi-currency entities and the business (accounts-receivable/payable) entities are
-covered; the planning entities are not yet implemented.
+The whole of a GnuCash book except its planning side: accounts, transactions, commodities and
+prices; customers, vendors, employees, jobs, orders, invoices and bills, billing terms, tax tables,
+lots. Scheduled transactions and budgets are the open gap. Whatever the library does not model
+survives a load-modify-save untouched - an update writes only the fields it understands.
 
-Editing an entity **preserves everything this library does not model**: an update writes only the
-fields it understands onto the record already in the file, so GnuCash's own extensions — including
-custom key-value "slots" and the entities in the *not yet* rows — survive a load-modify-save
-unchanged.
-
-| Entity | In GnuCash | druvu-acc |
-|---|:---:|---|
-| Accounts | ✓ | **read + write** |
-| Transactions & splits | ✓ | **read + write** |
-| Commodities (currencies & securities) | ✓ | **read + write** |
-| Prices (price database) | ✓ | **read + write** |
-| Account flags (placeholder, hidden, notes, colour) | ✓ | **read + write** |
-| Scheduled (recurring) transactions | ✓ | — *not yet* |
-| Budgets | ✓ | — *not yet* |
-| Customers | ✓ | **read + write** |
-| Vendors | ✓ | **read + write** |
-| Employees | ✓ | **read + write** |
-| Invoices & bills (+ line entries) | ✓ | **read + write** |
-| Jobs | ✓ | **read + write** |
-| Orders | ✓ | **read + write** |
-| Billing terms | ✓ | **read + write** |
-| Tax tables | ✓ | **read + write** |
-| Lots | ✓ | — *not yet* |
-
-## Which direction next?
-
-The service reads and writes the core of a GnuCash book, and several roads lead on from here.
-What gets built next is decided the honest way: by whoever turns up and asks. So, what do you
-want? [Open an issue](https://github.com/DenissLarka/druvu-acc-parent/issues) (or 👍 an existing
-one) and say what you'd use it for:
-
-- **More GnuCash entities** — the *not yet* rows above: planning (scheduled transactions,
-  budgets), investment lots, payments.
-- **A desktop UI** — a lightweight companion for browsing and editing books.
-- **Reports** — balance sheet, income statement, PDF/HTML export.
-- **A database backend** — the API is storage-agnostic by design; a SQL store (or reading
-  GnuCash's own SQLite format) would be a natural second implementation.
-- **Something that isn't on this list** — often the best kind.
+What gets built next is decided by whoever turns up and asks. If you use this, or tried to and
+could not, [open an issue](https://github.com/DenissLarka/druvu-acc-parent/issues) and say what
+you were after. The business entities and the lots both started as somebody's question.
 
 ## Modules
 
@@ -271,8 +236,8 @@ can still be opened and repaired; call `store.validate()` yourself to see what i
 
 > ⚠️ **On preserving the whole file.** `save` rewrites the book from this library's own model of the
 > GnuCash format, so anything that model does not cover is **not** carried over. Entities the library
-> does not yet support (see the table above) *are* preserved, as are slot keys it does not model —
-> that is covered by tests against books written by GnuCash itself, including the business entities.
+> does not yet support (scheduled transactions, budgets) *are* preserved, as are slot keys it does
+> not model — that is covered by tests against books written by GnuCash itself.
 > But **full fidelity for every possible GnuCash file is not guaranteed**: a construct from a version
 > newer than this library knows about can be dropped without warning.
 >
@@ -311,14 +276,33 @@ store.addEntry(Entry.of(store.newId(), LocalDateTime.now(), "Consulting", new Bi
 ```
 
 And the question that prompted the feature - *which customer is behind this ledger transaction?* -
-is one call, following GnuCash's posting link and the job indirection:
+is one call, for a posted invoice and for the payment that settles it alike. It follows GnuCash's
+posting link, the receivable lot behind a payment, and the job indirection:
 
 ```java
 Optional<Customer> customer = store.customerForTransaction(transactionId);
 ```
 
-GnuCash's own posting mechanics (the ledger transaction, the receivable lot) belong to GnuCash:
-this library reads a posted document's trace but does not post. Tax tables and billing terms have
+The lots themselves are readable and writable. A lot groups splits of one account: GnuCash pairs a
+posted document with its payments in one, and ties a purchase of shares to the sales that consume
+it in another. Whether a lot is settled is not stored anywhere - it is the sum of its splits:
+
+```java
+// Is the posted invoice paid? GnuCash keeps no flag: a lot is settled when its splits sum to zero.
+String lotId = invoice.posting().flatMap(Invoice.Posting::lotId).orElseThrow();
+BigDecimal open = store.splitsInLot(lotId).stream()
+        .map(Split::value)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+boolean paid = open.signum() == 0;
+
+// A lot of your own - only splits of the lot's account can join it, the rule GnuCash enforces.
+String purchaseLot = store.newId();
+store.addLot(Lot.of(purchaseLot, brokerageAccountId, "ACME bought 2026-03-02"));
+store.assignSplitToLot(purchaseSplitId, purchaseLot);
+```
+
+GnuCash's own posting mechanics belong to GnuCash: this library reads a posted document's trace and
+the lots it leaves behind, but neither posts nor applies payments. Tax tables and billing terms have
 no in-place update, deliberately - GnuCash freezes an invisible copy of a table that is in use so
 posted documents keep their rates, and an in-place edit would falsify them.
 

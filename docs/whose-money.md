@@ -16,6 +16,11 @@ The call walks the whole chain for you — including the job indirection, and in
 owned by a customer directly — and comes back empty for transactions that have no customer behind
 them (the rent does not belong to anybody).
 
+It answers for the *payment* too. When the customer's money lands on the bank account, GnuCash
+files the receivable side of that transaction in the invoice's **lot** — its private ledger of
+what was billed and what came in — and the call follows it there. Posting and payment resolve to
+the same name.
+
 If the library is missing *your* question, [say
 so](https://github.com/DenissLarka/druvu-acc-parent/issues) — what gets built next is decided by
 whoever turns up and asks.
@@ -53,7 +58,11 @@ is posted and a few household movements are in, it prints something like:
 2026-08-12  Electricity July             -
 2026-08-20  Kitchen renovation           Familie Keller
 2026-08-25  Salary August                -
+2026-09-03  Familie Keller               Familie Keller
 ```
+
+The last line is the payment: GnuCash names the transaction after the customer, and the library
+finds the customer behind it the same way it did for the invoice.
 
 `AccStore.load` (without `Writable`) cannot modify anything — the right tool when you only want
 answers, and the polite way to open a book somebody else maintains.
@@ -65,6 +74,11 @@ sum the amounts, and you have per-customer income for the year — the report Gn
 offer, built from your own book in a dozen lines. The building blocks are all on `AccStore`:
 `invoiceForTransaction`, `customerForInvoice`, `entriesForInvoice` give you each hop of the chain
 individually when you need something the one-call version does not cover.
+
+The lot is reachable too — `lotForSplit`, `splitsInLot` — and it answers the other question the
+year-end brings: *is this invoice paid?* GnuCash keeps no flag for it. A lot is settled when its
+splits sum to zero, so the posting and the payments cancel out; anything left is what is still
+owed.
 
 That is the arc of these three stories: your own money, money others owe you, and finally the
 books answering questions — which is, after all, what they are kept for.

@@ -3,6 +3,7 @@ package com.druvu.acc.gnucash.mapper;
 import com.druvu.acc.api.entity.Owner;
 import com.druvu.acc.api.entity.OwnerType;
 import com.druvu.acc.gnucash.generated.OwnerId;
+import java.util.Optional;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -24,6 +25,22 @@ final class OwnerCodes {
                     default -> throw new IllegalArgumentException("Unknown GnuCash owner type: " + wireType);
                 };
         return new Owner(type, id.getValue());
+    }
+
+    /**
+     * The owner type as GnuCash stores it on a lot: the ordinal of its {@code GncOwnerType} enum ({@code NONE},
+     * {@code UNDEFINED}, {@code CUSTOMER}, {@code JOB}, {@code VENDOR}, {@code EMPLOYEE}), written as an integer slot.
+     *
+     * @return the owner type, or empty for the two values that name no owner
+     */
+    static Optional<OwnerType> fromLotCode(long code) {
+        return switch ((int) code) {
+            case 2 -> Optional.of(OwnerType.CUSTOMER);
+            case 3 -> Optional.of(OwnerType.JOB);
+            case 4 -> Optional.of(OwnerType.VENDOR);
+            case 5 -> Optional.of(OwnerType.EMPLOYEE);
+            default -> Optional.empty();
+        };
     }
 
     static String wireType(Owner owner) {

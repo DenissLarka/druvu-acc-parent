@@ -23,6 +23,7 @@ public final class SlotMapper {
 
     private static final String TYPE_STRING = "string";
     private static final String TYPE_INTEGER = "integer";
+    private static final String TYPE_FRAME = "frame";
     private static final String TRUE = "true";
 
     /**
@@ -62,6 +63,28 @@ public final class SlotMapper {
                     return TRUE.equals(text);
                 })
                 .orElse(false);
+    }
+
+    /**
+     * Reads one value out of a frame - a slot whose value is itself a list of slots, which is how GnuCash nests
+     * structured data such as the document or owner a lot belongs to.
+     *
+     * @param slots the slot container, which may be {@code null}
+     * @param frameKey the key of the frame slot
+     * @param key the key of the slot inside the frame
+     * @return the text of that inner slot whatever its declared type - a GUID, an integer, a string - or empty
+     */
+    public static Optional<String> frameString(SlotsType slots, String frameKey, String key) {
+        return find(slots, frameKey)
+                .map(Slot::getSlotValue)
+                .filter(value -> TYPE_FRAME.equals(value.getType()))
+                .flatMap(value -> value.getContent().stream()
+                        .filter(Slot.class::isInstance)
+                        .map(Slot.class::cast)
+                        .filter(inner -> key.equals(inner.getSlotKey()))
+                        .findFirst())
+                .map(inner -> text(inner).trim())
+                .filter(text -> !text.isEmpty());
     }
 
     /**

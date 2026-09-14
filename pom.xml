@@ -28,6 +28,7 @@
 		<lombok.version>1.18.48</lombok.version>
 		<slf4j.version>2.0.19</slf4j.version>
 		<testng.version>7.12.0</testng.version>
+		<assertj.version>3.27.7</assertj.version>
 		<jaxb-api.version>4.0.5</jaxb-api.version>
 		<jaxb-runtime.version>4.0.9</jaxb-runtime.version>
 		<jaxb-maven-plugin.version>4.0.16</jaxb-maven-plugin.version>
@@ -96,6 +97,12 @@
 				<groupId>org.testng</groupId>
 				<artifactId>testng</artifactId>
 				<version>${testng.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.assertj</groupId>
+				<artifactId>assertj-core</artifactId>
+				<version>${assertj.version}</version>
 				<scope>test</scope>
 			</dependency>
 

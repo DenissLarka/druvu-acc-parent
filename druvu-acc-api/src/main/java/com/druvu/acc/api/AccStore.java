@@ -8,6 +8,7 @@ import com.druvu.acc.api.entity.Employee;
 import com.druvu.acc.api.entity.Entry;
 import com.druvu.acc.api.entity.Invoice;
 import com.druvu.acc.api.entity.Job;
+import com.druvu.acc.api.entity.Lot;
 import com.druvu.acc.api.entity.Order;
 import com.druvu.acc.api.entity.Price;
 import com.druvu.acc.api.entity.Split;
@@ -212,7 +213,9 @@ public interface AccStore {
     /**
      * The document a ledger transaction came from - the reverse of GnuCash's posting.
      *
-     * <p>Covers posting transactions only: payments belong to lots, which this library does not model yet.
+     * <p>Posting transactions only, by design: a payment did not come from a document, and one payment can settle
+     * several. To see what a payment settled, follow its receivable split to its lot with {@link #lotForSplit} and
+     * match the lot against {@link Invoice.Posting#lotId()}.
      *
      * @param transactionId the transaction ID
      * @return the document whose posting created that transaction, if any
@@ -229,11 +232,15 @@ public interface AccStore {
     Optional<Customer> customerForInvoice(String invoiceId);
 
     /**
-     * The customer behind a ledger transaction: {@link #invoiceForTransaction(String)} chained with
-     * {@link #customerForInvoice(String)} - who a posted invoice transaction bills.
+     * The customer behind a ledger transaction - a posted invoice or a payment.
+     *
+     * <p>For a posting transaction this is {@link #invoiceForTransaction(String)} chained with
+     * {@link #customerForInvoice(String)}. For a payment it follows GnuCash's own rule: the payment's receivable split
+     * belongs to a lot, and the lot names either the invoice it settles or, for a payment applied to no invoice yet,
+     * the customer directly. The job indirection is followed in both cases.
      *
      * @param transactionId the transaction ID
-     * @return the customer, when the transaction posted a customer invoice
+     * @return the customer, when the transaction posted a customer invoice or paid one
      */
     Optional<Customer> customerForTransaction(String transactionId);
 
@@ -325,4 +332,41 @@ public interface AccStore {
      * @return splits affecting the account
      */
     List<Split> splitsForAccount(String accountId);
+
+    // ========== Lots ==========
+
+    /**
+     * The lots of an account - the named groups its splits are sorted into. On a receivable or payable account a lot
+     * pairs a document's posting with the payments that settle it; on a securities account it ties a purchase to the
+     * sales that consume it.
+     *
+     * @param accountId the account ID
+     * @return the account's lots, empty when it has none (or does not exist)
+     */
+    List<Lot> lots(String accountId);
+
+    /**
+     * Finds a lot by its ID - for instance the one a posted document names in {@link Invoice.Posting#lotId()}.
+     *
+     * @param lotId the lot ID
+     * @return the lot, if present
+     */
+    Optional<Lot> lotById(String lotId);
+
+    /**
+     * The lot a split belongs to.
+     *
+     * @param splitId the split ID
+     * @return the lot, when the split is in one
+     */
+    Optional<Lot> lotForSplit(String splitId);
+
+    /**
+     * The splits that belong to a lot. Their values sum to zero exactly when the lot is settled - a paid invoice, a
+     * fully sold purchase - which is the only record GnuCash keeps of that.
+     *
+     * @param lotId the lot ID
+     * @return the member splits, empty when the lot has none (or does not exist)
+     */
+    List<Split> splitsInLot(String lotId);
 }

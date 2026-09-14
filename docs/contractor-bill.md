@@ -120,7 +120,8 @@ transaction (the Kellers now owe you 4172.66, which is an *asset* — Accounts R
 recording their payment later clears it.
 
 This division is deliberate. The library builds and reads the paperwork; the posting mechanics —
-receivable lots, payment matching — belong to GnuCash and stay there.
+creating the receivable lot, applying payments to it — belong to GnuCash and stay there. What they
+leave behind is readable, as the next story shows.
 
 **Next story:** once invoices are posted, the ledger fills with transactions — and someone will
 ask [whose money each one is](whose-money.md).

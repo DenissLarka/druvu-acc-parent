@@ -1,0 +1,1889 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<gnc-v2
+     xmlns:gnc="http://www.gnucash.org/XML/gnc"
+     xmlns:act="http://www.gnucash.org/XML/act"
+     xmlns:book="http://www.gnucash.org/XML/book"
+     xmlns:cd="http://www.gnucash.org/XML/cd"
+     xmlns:cmdty="http://www.gnucash.org/XML/cmdty"
+     xmlns:price="http://www.gnucash.org/XML/price"
+     xmlns:slot="http://www.gnucash.org/XML/slot"
+     xmlns:split="http://www.gnucash.org/XML/split"
+     xmlns:sx="http://www.gnucash.org/XML/sx"
+     xmlns:trn="http://www.gnucash.org/XML/trn"
+     xmlns:ts="http://www.gnucash.org/XML/ts"
+     xmlns:fs="http://www.gnucash.org/XML/fs"
+     xmlns:bgt="http://www.gnucash.org/XML/bgt"
+     xmlns:recurrence="http://www.gnucash.org/XML/recurrence"
+     xmlns:lot="http://www.gnucash.org/XML/lot"
+     xmlns:addr="http://www.gnucash.org/XML/addr"
+     xmlns:billterm="http://www.gnucash.org/XML/billterm"
+     xmlns:bt-days="http://www.gnucash.org/XML/bt-days"
+     xmlns:bt-prox="http://www.gnucash.org/XML/bt-prox"
+     xmlns:cust="http://www.gnucash.org/XML/cust"
+     xmlns:employee="http://www.gnucash.org/XML/employee"
+     xmlns:entry="http://www.gnucash.org/XML/entry"
+     xmlns:invoice="http://www.gnucash.org/XML/invoice"
+     xmlns:job="http://www.gnucash.org/XML/job"
+     xmlns:order="http://www.gnucash.org/XML/order"
+     xmlns:owner="http://www.gnucash.org/XML/owner"
+     xmlns:taxtable="http://www.gnucash.org/XML/taxtable"
+     xmlns:tte="http://www.gnucash.org/XML/tte"
+     xmlns:vendor="http://www.gnucash.org/XML/vendor">
+<gnc:count-data cd:type="book">1</gnc:count-data>
+<gnc:book version="2.0.0">
+<book:id type="guid">4730eb80863d4e5699b8329814924e7e</book:id>
+<book:slots>
+  <slot>
+    <slot:key>counter_formats</slot:key>
+    <slot:value type="frame">
+      <slot>
+        <slot:key>gncBill</slot:key>
+        <slot:value type="string"></slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncCustomer</slot:key>
+        <slot:value type="string"></slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncEmployee</slot:key>
+        <slot:value type="string"></slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncExpVoucher</slot:key>
+        <slot:value type="string"></slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncInvoice</slot:key>
+        <slot:value type="string"></slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncJob</slot:key>
+        <slot:value type="string"></slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncOrder</slot:key>
+        <slot:value type="string"></slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncVendor</slot:key>
+        <slot:value type="string"></slot:value>
+      </slot>
+    </slot:value>
+  </slot>
+  <slot>
+    <slot:key>counters</slot:key>
+    <slot:value type="frame">
+      <slot>
+        <slot:key>gncBill</slot:key>
+        <slot:value type="integer">1</slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncCustomer</slot:key>
+        <slot:value type="integer">2</slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncEmployee</slot:key>
+        <slot:value type="integer">0</slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncExpVoucher</slot:key>
+        <slot:value type="integer">0</slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncInvoice</slot:key>
+        <slot:value type="integer">6</slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncJob</slot:key>
+        <slot:value type="integer">0</slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncOrder</slot:key>
+        <slot:value type="integer">0</slot:value>
+      </slot>
+      <slot>
+        <slot:key>gncVendor</slot:key>
+        <slot:value type="integer">1</slot:value>
+      </slot>
+    </slot:value>
+  </slot>
+  <slot>
+    <slot:key>features</slot:key>
+    <slot:value type="frame">
+      <slot>
+        <slot:key>Register sort and filter settings stored in .gcm file</slot:key>
+        <slot:value type="string">Store the register sort and filter settings in .gcm metadata file (requires at least GnuCash 3.3)</slot:value>
+      </slot>
+      <slot>
+        <slot:key>Use a dedicated opening balance account identified by an 'equity-type' slot</slot:key>
+        <slot:value type="string">Use a dedicated opening balance account identified by an 'equity-type' slot (requires at least Gnucash 4.3)</slot:value>
+      </slot>
+    </slot:value>
+  </slot>
+  <slot>
+    <slot:key>options</slot:key>
+    <slot:value type="frame">
+      <slot>
+        <slot:key>Accounts</slot:key>
+        <slot:value type="frame">
+          <slot>
+            <slot:key>Day Threshold for Read-Only Transactions (red line)</slot:key>
+            <slot:value type="double">0</slot:value>
+          </slot>
+          <slot>
+            <slot:key>Use Split Action Field for Number</slot:key>
+            <slot:value type="string">f</slot:value>
+          </slot>
+          <slot>
+            <slot:key>Use Trading Accounts</slot:key>
+            <slot:value type="string">f</slot:value>
+          </slot>
+        </slot:value>
+      </slot>
+      <slot>
+        <slot:key>Business</slot:key>
+        <slot:value type="frame">
+          <slot>
+            <slot:key>Company Address</slot:key>
+            <slot:value type="string"></slot:value>
+          </slot>
+          <slot>
+            <slot:key>Company Contact Person</slot:key>
+            <slot:value type="string"></slot:value>
+          </slot>
+          <slot>
+            <slot:key>Company Email Address</slot:key>
+            <slot:value type="string"></slot:value>
+          </slot>
+          <slot>
+            <slot:key>Company Fax Number</slot:key>
+            <slot:value type="string"></slot:value>
+          </slot>
+          <slot>
+            <slot:key>Company ID</slot:key>
+            <slot:value type="string"></slot:value>
+          </slot>
+          <slot>
+            <slot:key>Company Name</slot:key>
+            <slot:value type="string"></slot:value>
+          </slot>
+          <slot>
+            <slot:key>Company Phone Number</slot:key>
+            <slot:value type="string"></slot:value>
+          </slot>
+          <slot>
+            <slot:key>Company Website URL</slot:key>
+            <slot:value type="string"></slot:value>
+          </slot>
+          <slot>
+            <slot:key>Default Invoice Report</slot:key>
+            <slot:value type="string">5123a759ceb9483abf2182d01c140e8d/Printable Invoice</slot:value>
+          </slot>
+          <slot>
+            <slot:key>Default Invoice Report Timeout</slot:key>
+            <slot:value type="double">0</slot:value>
+          </slot>
+        </slot:value>
+      </slot>
+      <slot>
+        <slot:key>Tax</slot:key>
+        <slot:value type="frame">
+          <slot>
+            <slot:key>Tax Number</slot:key>
+            <slot:value type="string"></slot:value>
+          </slot>
+        </slot:value>
+      </slot>
+    </slot:value>
+  </slot>
+  <slot>
+    <slot:key>remove-color-not-set-slots</slot:key>
+    <slot:value type="string">true</slot:value>
+  </slot>
+</book:slots>
+<gnc:count-data cd:type="commodity">1</gnc:count-data>
+<gnc:count-data cd:type="account">23</gnc:count-data>
+<gnc:count-data cd:type="transaction">13</gnc:count-data>
+<gnc:count-data cd:type="gnc:GncCustomer">2</gnc:count-data>
+<gnc:count-data cd:type="gnc:GncEntry">11</gnc:count-data>
+<gnc:count-data cd:type="gnc:GncInvoice">7</gnc:count-data>
+<gnc:count-data cd:type="gnc:GncVendor">1</gnc:count-data>
+<gnc:commodity version="2.0.0">
+  <cmdty:space>CURRENCY</cmdty:space>
+  <cmdty:id>USD</cmdty:id>
+  <cmdty:get_quotes/>
+  <cmdty:quote_source>currency</cmdty:quote_source>
+  <cmdty:quote_tz/>
+</gnc:commodity>
+<gnc:commodity version="2.0.0">
+  <cmdty:space>template</cmdty:space>
+  <cmdty:id>template</cmdty:id>
+  <cmdty:name>template</cmdty:name>
+  <cmdty:xcode>template</cmdty:xcode>
+  <cmdty:fraction>1</cmdty:fraction>
+</gnc:commodity>
+<gnc:account version="2.0.0">
+  <act:name>Root Account</act:name>
+  <act:id type="guid">39554e07a5234d2987e07148800d2eb3</act:id>
+  <act:type>ROOT</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Assets</act:name>
+  <act:id type="guid">bfa65480e5d24310980c6c3c71accd31</act:id>
+  <act:type>ASSET</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>Assets</act:description>
+  <act:slots>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">39554e07a5234d2987e07148800d2eb3</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Wells Fargo</act:name>
+  <act:id type="guid">7467002200d943978c106213a12c72dc</act:id>
+  <act:type>BANK</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">bfa65480e5d24310980c6c3c71accd31</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Principal Invested</act:name>
+  <act:id type="guid">34b2dd6cf269469badc7d08622c8f936</act:id>
+  <act:type>ASSET</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">bfa65480e5d24310980c6c3c71accd31</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Property 1</act:name>
+  <act:id type="guid">ee72f9ec46da4deea160f7ce58a076c3</act:id>
+  <act:type>ASSET</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">34b2dd6cf269469badc7d08622c8f936</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Property 2</act:name>
+  <act:id type="guid">0cf36cbc05764de4a0b2817e964b04fb</act:id>
+  <act:type>ASSET</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">34b2dd6cf269469badc7d08622c8f936</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Income</act:name>
+  <act:id type="guid">626f9d9798584b2198092756d0a03896</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>Income</act:description>
+  <act:parent type="guid">39554e07a5234d2987e07148800d2eb3</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Interest Income</act:name>
+  <act:id type="guid">09651747af42455dac6de3a4118b7348</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">626f9d9798584b2198092756d0a03896</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Late Fees</act:name>
+  <act:id type="guid">d6a724a6d9bc42d8b2a34647fc10e70f</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">626f9d9798584b2198092756d0a03896</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Reimbursed Legal Fees</act:name>
+  <act:id type="guid">23809993597543e6ab1e8234fb6eea54</act:id>
+  <act:type>INCOME</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">626f9d9798584b2198092756d0a03896</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Expenses</act:name>
+  <act:id type="guid">3c74de70f0914f96a16e6c67cc39f608</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>Expenses</act:description>
+  <act:parent type="guid">39554e07a5234d2987e07148800d2eb3</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Bank Charges</act:name>
+  <act:id type="guid">03fa0cb3f5544ad2a4d084da165d8d5f</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">3c74de70f0914f96a16e6c67cc39f608</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Legal Fees</act:name>
+  <act:id type="guid">da4a35d9c91b4a5098310411cbf4f8dd</act:id>
+  <act:type>EXPENSE</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">3c74de70f0914f96a16e6c67cc39f608</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Equity</act:name>
+  <act:id type="guid">f7ae7c36409247e59d36a68446a9f45f</act:id>
+  <act:type>EQUITY</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>Equity</act:description>
+  <act:slots>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">39554e07a5234d2987e07148800d2eb3</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Opening Balances</act:name>
+  <act:id type="guid">eda369ffcc724c4188fe1615b488ef6b</act:id>
+  <act:type>EQUITY</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:description>Opening Balances</act:description>
+  <act:slots>
+    <slot>
+      <slot:key>equity-type</slot:key>
+      <slot:value type="string">opening-balance</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">f7ae7c36409247e59d36a68446a9f45f</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Liabilities</act:name>
+  <act:id type="guid">f361f1449f3a4cc7901276e98e205f26</act:id>
+  <act:type>LIABILITY</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">39554e07a5234d2987e07148800d2eb3</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Escrow</act:name>
+  <act:id type="guid">7129f2638a49447e8b5d362f9c6b7779</act:id>
+  <act:type>LIABILITY</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">f361f1449f3a4cc7901276e98e205f26</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Property 1</act:name>
+  <act:id type="guid">38a32b9056b94421be494f68b3d13f2a</act:id>
+  <act:type>LIABILITY</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">7129f2638a49447e8b5d362f9c6b7779</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Collections</act:name>
+  <act:id type="guid">84f9dc325daf43abb07a8fab14758cdc</act:id>
+  <act:type>LIABILITY</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">38a32b9056b94421be494f68b3d13f2a</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Property 2</act:name>
+  <act:id type="guid">b8b63e5204db473080ef6c56f1f76f77</act:id>
+  <act:type>LIABILITY</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+    <slot>
+      <slot:key>placeholder</slot:key>
+      <slot:value type="string">true</slot:value>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">7129f2638a49447e8b5d362f9c6b7779</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Collections</act:name>
+  <act:id type="guid">d54a928e27274ecd97336196060777d6</act:id>
+  <act:type>LIABILITY</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">b8b63e5204db473080ef6c56f1f76f77</act:parent>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Accounts Receivable</act:name>
+  <act:id type="guid">65f8b60c4bdb480f9a98ac84247ad490</act:id>
+  <act:type>RECEIVABLE</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">39554e07a5234d2987e07148800d2eb3</act:parent>
+  <act:lots>
+    <gnc:lot version="2.0.0">
+      <lot:id type="guid">82d2eb7f44d44553a0fc7399aa082717</lot:id>
+      <lot:slots>
+        <slot>
+          <slot:key>gncInvoice</slot:key>
+          <slot:value type="frame">
+            <slot>
+              <slot:key>invoice-guid</slot:key>
+              <slot:value type="guid">61848de22167417986c9d681e619eaa0</slot:value>
+            </slot>
+          </slot:value>
+        </slot>
+        <slot>
+          <slot:key>title</slot:key>
+          <slot:value type="string">Invoice 000006</slot:value>
+        </slot>
+      </lot:slots>
+    </gnc:lot>
+    <gnc:lot version="2.0.0">
+      <lot:id type="guid">d11931bd811244cc88ef79f0411bfc1a</lot:id>
+      <lot:slots>
+        <slot>
+          <slot:key>gncInvoice</slot:key>
+          <slot:value type="frame">
+            <slot>
+              <slot:key>invoice-guid</slot:key>
+              <slot:value type="guid">66a6d04b0bfd4c669bc09b7c6efaf19e</slot:value>
+            </slot>
+          </slot:value>
+        </slot>
+        <slot>
+          <slot:key>title</slot:key>
+          <slot:value type="string">Invoice 000001</slot:value>
+        </slot>
+      </lot:slots>
+    </gnc:lot>
+    <gnc:lot version="2.0.0">
+      <lot:id type="guid">ddacdd9ebddb49e5a68594fbfa70c31b</lot:id>
+      <lot:slots>
+        <slot>
+          <slot:key>gncInvoice</slot:key>
+          <slot:value type="frame">
+            <slot>
+              <slot:key>invoice-guid</slot:key>
+              <slot:value type="guid">8c7aaf8243484155bfef40e334bb3107</slot:value>
+            </slot>
+          </slot:value>
+        </slot>
+        <slot>
+          <slot:key>title</slot:key>
+          <slot:value type="string">Invoice 000002</slot:value>
+        </slot>
+      </lot:slots>
+    </gnc:lot>
+    <gnc:lot version="2.0.0">
+      <lot:id type="guid">eeea1cfdb5a54beeba835bd75cfc43e0</lot:id>
+      <lot:slots>
+        <slot>
+          <slot:key>gncInvoice</slot:key>
+          <slot:value type="frame">
+            <slot>
+              <slot:key>invoice-guid</slot:key>
+              <slot:value type="guid">37e4654795994abca77c9d8e3758a03d</slot:value>
+            </slot>
+          </slot:value>
+        </slot>
+        <slot>
+          <slot:key>title</slot:key>
+          <slot:value type="string">Invoice 000005</slot:value>
+        </slot>
+      </lot:slots>
+    </gnc:lot>
+  </act:lots>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>Accounts Payable</act:name>
+  <act:id type="guid">40db9abd7ba14bd498b7612e192d927d</act:id>
+  <act:type>PAYABLE</act:type>
+  <act:commodity>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>100</act:commodity-scu>
+  <act:slots>
+    <slot>
+      <slot:key>balance-limit</slot:key>
+      <slot:value type="frame"/>
+    </slot>
+  </act:slots>
+  <act:parent type="guid">39554e07a5234d2987e07148800d2eb3</act:parent>
+  <act:lots>
+    <gnc:lot version="2.0.0">
+      <lot:id type="guid">a849dae2dac64134b24a0827d93b0e95</lot:id>
+      <lot:slots>
+        <slot>
+          <slot:key>gncInvoice</slot:key>
+          <slot:value type="frame">
+            <slot>
+              <slot:key>invoice-guid</slot:key>
+              <slot:value type="guid">0c8769cae22a4c3abd3c6ac5b32351b3</slot:value>
+            </slot>
+          </slot:value>
+        </slot>
+        <slot>
+          <slot:key>title</slot:key>
+          <slot:value type="string">Bill 000001</slot:value>
+        </slot>
+      </lot:slots>
+    </gnc:lot>
+  </act:lots>
+</gnc:account>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">b18d43ae64f54717ae41ef9329df3967</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:date-posted>
+    <ts:date>2026-08-12 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-08-22 22:06:06 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Customer 1</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>trans-txn-type</slot:key>
+      <slot:value type="string">P</slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">5ca3d08ac2a34d47befc4870a015e07c</split:id>
+      <split:action>Payment</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>2100/100</split:value>
+      <split:quantity>2100/100</split:quantity>
+      <split:account type="guid">7467002200d943978c106213a12c72dc</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">57612d50598648c2b407cd2d02ddde15</split:id>
+      <split:memo>Customer 1</split:memo>
+      <split:action>Payment</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-2100/100</split:value>
+      <split:quantity>-2100/100</split:quantity>
+      <split:account type="guid">65f8b60c4bdb480f9a98ac84247ad490</split:account>
+      <split:lot type="guid">d11931bd811244cc88ef79f0411bfc1a</split:lot>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">30ccb4c430414345b7e1150e95aa7a2d</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:date-posted>
+    <ts:date>2026-08-12 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-08-22 22:06:13 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Customer 2</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>trans-txn-type</slot:key>
+      <slot:value type="string">P</slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">38cc8b8733f045f289003f7a0832b9c0</split:id>
+      <split:action>Payment</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>4500/100</split:value>
+      <split:quantity>4500/100</split:quantity>
+      <split:account type="guid">7467002200d943978c106213a12c72dc</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">6b1f6ab61c244a4b8759483300d5373d</split:id>
+      <split:memo>Customer 2</split:memo>
+      <split:action>Payment</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-4500/100</split:value>
+      <split:quantity>-4500/100</split:quantity>
+      <split:account type="guid">65f8b60c4bdb480f9a98ac84247ad490</split:account>
+      <split:lot type="guid">ddacdd9ebddb49e5a68594fbfa70c31b</split:lot>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">fa8d14b815fd4c0fafb9fac43f252156</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:date-posted>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-09-12 03:08:11 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Customer 1</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>trans-txn-type</slot:key>
+      <slot:value type="string">P</slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">53d4e1ebb621414fa69e105fa4c11089</split:id>
+      <split:action>Payment</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>5200/100</split:value>
+      <split:quantity>5200/100</split:quantity>
+      <split:account type="guid">7467002200d943978c106213a12c72dc</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">58cd564b06a24362b066704b0ec36521</split:id>
+      <split:action>Payment</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-5200/100</split:value>
+      <split:quantity>-5200/100</split:quantity>
+      <split:account type="guid">65f8b60c4bdb480f9a98ac84247ad490</split:account>
+      <split:lot type="guid">eeea1cfdb5a54beeba835bd75cfc43e0</split:lot>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">2b4c11a002cf417b93df96e3bbe3afa1</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:date-posted>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-09-12 03:15:26 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Monthly service charge</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>date-posted</slot:key>
+      <slot:value type="gdate">
+        <gdate>2026-09-11</gdate>
+      </slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">46c7879983b34cfcac38170a239f95f7</split:id>
+      <split:memo>Monthly service charge</split:memo>
+      <split:action>Sell</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>299/100</split:value>
+      <split:quantity>299/100</split:quantity>
+      <split:account type="guid">03fa0cb3f5544ad2a4d084da165d8d5f</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">cec962079ddd4a719ea897b983501944</split:id>
+      <split:memo>Monthly service charge</split:memo>
+      <split:action>Buy</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-299/100</split:value>
+      <split:quantity>-299/100</split:quantity>
+      <split:account type="guid">7467002200d943978c106213a12c72dc</split:account>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">c856bba622a445fa9ce0ab08cf3bc650</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:date-posted>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-09-12 03:21:08 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Customer 1</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>trans-txn-type</slot:key>
+      <slot:value type="string">P</slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">5930ead156474e679219110fd73a94e0</split:id>
+      <split:action>Payment</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>25000/100</split:value>
+      <split:quantity>25000/100</split:quantity>
+      <split:account type="guid">7467002200d943978c106213a12c72dc</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">47bec3318b264ddca8781c4e8373344e</split:id>
+      <split:action>Payment</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-25000/100</split:value>
+      <split:quantity>-25000/100</split:quantity>
+      <split:account type="guid">65f8b60c4bdb480f9a98ac84247ad490</split:account>
+      <split:lot type="guid">82d2eb7f44d44553a0fc7399aa082717</split:lot>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">1688e594ea3542ecb80d0cf23bf51f25</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:date-posted>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-09-12 03:23:05 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>123 Attorney</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>trans-txn-type</slot:key>
+      <slot:value type="string">P</slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">76eb641545f9468da79374cfd638028e</split:id>
+      <split:action>Payment</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>25000/100</split:value>
+      <split:quantity>25000/100</split:quantity>
+      <split:account type="guid">40db9abd7ba14bd498b7612e192d927d</split:account>
+      <split:lot type="guid">a849dae2dac64134b24a0827d93b0e95</split:lot>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">36682dcea6074487aa50437388e182b8</split:id>
+      <split:action>Payment</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-25000/100</split:value>
+      <split:quantity>-25000/100</split:quantity>
+      <split:account type="guid">7467002200d943978c106213a12c72dc</split:account>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">2727e269a3594966b8a67208b6abd7c3</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:date-posted>
+    <ts:date>2026-07-01 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-07-28 16:21:56 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Opening balance</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>date-posted</slot:key>
+      <slot:value type="gdate">
+        <gdate>2026-07-01</gdate>
+      </slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">8a16639ccbc54d71888949eac0da72fa</split:id>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>20000000/100</split:value>
+      <split:quantity>20000000/100</split:quantity>
+      <split:account type="guid">ee72f9ec46da4deea160f7ce58a076c3</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">1f28d82cb4354152a8274b66e5c4d1dc</split:id>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-20000000/100</split:value>
+      <split:quantity>-20000000/100</split:quantity>
+      <split:account type="guid">eda369ffcc724c4188fe1615b488ef6b</split:account>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">2176328036764b9abee22c3993a7796c</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:num>000001</trn:num>
+  <trn:date-posted>
+    <ts:date>2026-08-22 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-08-22 22:02:45 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Customer 1</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>date-posted</slot:key>
+      <slot:value type="gdate">
+        <gdate>2026-08-22</gdate>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>gncInvoice</slot:key>
+      <slot:value type="frame">
+        <slot>
+          <slot:key>invoice-guid</slot:key>
+          <slot:value type="guid">66a6d04b0bfd4c669bc09b7c6efaf19e</slot:value>
+        </slot>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-date-due</slot:key>
+      <slot:value type="timespec">
+        <ts:date>2026-08-22 10:59:00 +0000</ts:date>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-read-only</slot:key>
+      <slot:value type="string">Generated from an invoice. Try unposting the invoice.</slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-txn-type</slot:key>
+      <slot:value type="string">I</slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">f84cbd3345834d5a8e61138f8e99bf2a</split:id>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>2100/100</split:value>
+      <split:quantity>2100/100</split:quantity>
+      <split:account type="guid">65f8b60c4bdb480f9a98ac84247ad490</split:account>
+      <split:lot type="guid">d11931bd811244cc88ef79f0411bfc1a</split:lot>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">c9985ae10a974877a8a5e0e5c8acbc7f</split:id>
+      <split:memo>Late fee</split:memo>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-100/100</split:value>
+      <split:quantity>-100/100</split:quantity>
+      <split:account type="guid">d6a724a6d9bc42d8b2a34647fc10e70f</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">6d94821520ec4bf4ae3770873a80354b</split:id>
+      <split:memo>Interest payment</split:memo>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-600/100</split:value>
+      <split:quantity>-600/100</split:quantity>
+      <split:account type="guid">09651747af42455dac6de3a4118b7348</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">c0f6de1bc9204a6fb7744aba5ea311d1</split:id>
+      <split:memo>Escrow deposit</split:memo>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-1200/100</split:value>
+      <split:quantity>-1200/100</split:quantity>
+      <split:account type="guid">84f9dc325daf43abb07a8fab14758cdc</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">2ff71a1d49ae4fb2a877c364e59791e0</split:id>
+      <split:memo>Principal payment</split:memo>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-200/100</split:value>
+      <split:quantity>-200/100</split:quantity>
+      <split:account type="guid">ee72f9ec46da4deea160f7ce58a076c3</split:account>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">45f4228ffe3d449d8f1758d4643a4e2c</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:date-posted>
+    <ts:date>2026-07-01 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-07-28 16:24:20 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Opening balance</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>date-posted</slot:key>
+      <slot:value type="gdate">
+        <gdate>2026-07-01</gdate>
+      </slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">197e42ba869446a2a6aa5cc5daac2b63</split:id>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>35000000/100</split:value>
+      <split:quantity>35000000/100</split:quantity>
+      <split:account type="guid">0cf36cbc05764de4a0b2817e964b04fb</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">935696c68f0643ec90cfff2a8af40a0d</split:id>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-35000000/100</split:value>
+      <split:quantity>-35000000/100</split:quantity>
+      <split:account type="guid">eda369ffcc724c4188fe1615b488ef6b</split:account>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">a1e99856e35b42368c6e082c626cd734</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:num>000002</trn:num>
+  <trn:date-posted>
+    <ts:date>2026-08-22 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-08-22 22:03:30 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Customer 2</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>date-posted</slot:key>
+      <slot:value type="gdate">
+        <gdate>2026-08-22</gdate>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>gncInvoice</slot:key>
+      <slot:value type="frame">
+        <slot>
+          <slot:key>invoice-guid</slot:key>
+          <slot:value type="guid">8c7aaf8243484155bfef40e334bb3107</slot:value>
+        </slot>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-date-due</slot:key>
+      <slot:value type="timespec">
+        <ts:date>2026-08-22 10:59:00 +0000</ts:date>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-read-only</slot:key>
+      <slot:value type="string">Generated from an invoice. Try unposting the invoice.</slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-txn-type</slot:key>
+      <slot:value type="string">I</slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">443f3643b7834b759ce8b17e12b0c3ce</split:id>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>4500/100</split:value>
+      <split:quantity>4500/100</split:quantity>
+      <split:account type="guid">65f8b60c4bdb480f9a98ac84247ad490</split:account>
+      <split:lot type="guid">ddacdd9ebddb49e5a68594fbfa70c31b</split:lot>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">22dccc0270d94f8b95d77cb178447558</split:id>
+      <split:memo>Late fee</split:memo>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-1400/100</split:value>
+      <split:quantity>-1400/100</split:quantity>
+      <split:account type="guid">d6a724a6d9bc42d8b2a34647fc10e70f</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">6c161575d59d41cfb7fda30b7da9142e</split:id>
+      <split:memo>Interest payment</split:memo>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-300/100</split:value>
+      <split:quantity>-300/100</split:quantity>
+      <split:account type="guid">09651747af42455dac6de3a4118b7348</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">de36b09966d1461ca6a4b381cdd427af</split:id>
+      <split:memo>Escrow deposit</split:memo>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-1200/100</split:value>
+      <split:quantity>-1200/100</split:quantity>
+      <split:account type="guid">d54a928e27274ecd97336196060777d6</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">ae0b536b1e46450d8da06b843292f4a4</split:id>
+      <split:memo>Principal payment</split:memo>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-1600/100</split:value>
+      <split:quantity>-1600/100</split:quantity>
+      <split:account type="guid">0cf36cbc05764de4a0b2817e964b04fb</split:account>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">a56f25051e4e4c59a10f3fff92e6b8ab</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:num>000006</trn:num>
+  <trn:date-posted>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-09-12 03:20:52 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Customer 1</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>date-posted</slot:key>
+      <slot:value type="gdate">
+        <gdate>2026-09-11</gdate>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>gncInvoice</slot:key>
+      <slot:value type="frame">
+        <slot>
+          <slot:key>invoice-guid</slot:key>
+          <slot:value type="guid">61848de22167417986c9d681e619eaa0</slot:value>
+        </slot>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-date-due</slot:key>
+      <slot:value type="timespec">
+        <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-read-only</slot:key>
+      <slot:value type="string">Generated from an invoice. Try unposting the invoice.</slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-txn-type</slot:key>
+      <slot:value type="string">I</slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">8c369e4701d14b3993f53b549e0755c6</split:id>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>25000/100</split:value>
+      <split:quantity>25000/100</split:quantity>
+      <split:account type="guid">65f8b60c4bdb480f9a98ac84247ad490</split:account>
+      <split:lot type="guid">82d2eb7f44d44553a0fc7399aa082717</split:lot>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">867e9b87308647cfbda993064b14a35c</split:id>
+      <split:memo>Reimbursed legal fees</split:memo>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-25000/100</split:value>
+      <split:quantity>-25000/100</split:quantity>
+      <split:account type="guid">23809993597543e6ab1e8234fb6eea54</split:account>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">bfa55f9f14b04ad1a41c7acec673c988</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:num>000001</trn:num>
+  <trn:date-posted>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-09-12 03:22:53 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>123 Attorney</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>date-posted</slot:key>
+      <slot:value type="gdate">
+        <gdate>2026-09-11</gdate>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>gncInvoice</slot:key>
+      <slot:value type="frame">
+        <slot>
+          <slot:key>invoice-guid</slot:key>
+          <slot:value type="guid">0c8769cae22a4c3abd3c6ac5b32351b3</slot:value>
+        </slot>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-date-due</slot:key>
+      <slot:value type="timespec">
+        <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-read-only</slot:key>
+      <slot:value type="string">Generated from an invoice. Try unposting the invoice.</slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-txn-type</slot:key>
+      <slot:value type="string">I</slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">87d9076c52f649e5aea1e995e7681a7e</split:id>
+      <split:memo>Demand letter</split:memo>
+      <split:action>Bill</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>25000/100</split:value>
+      <split:quantity>25000/100</split:quantity>
+      <split:account type="guid">da4a35d9c91b4a5098310411cbf4f8dd</split:account>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">2913da9aea6a41eea97206bcedd718eb</split:id>
+      <split:action>Bill</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-25000/100</split:value>
+      <split:quantity>-25000/100</split:quantity>
+      <split:account type="guid">40db9abd7ba14bd498b7612e192d927d</split:account>
+      <split:lot type="guid">a849dae2dac64134b24a0827d93b0e95</split:lot>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">807d240b20dc416f90e1fd8684e9039c</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </trn:currency>
+  <trn:num>000005</trn:num>
+  <trn:date-posted>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2026-09-12 03:07:37 +0000</ts:date>
+  </trn:date-entered>
+  <trn:description>Customer 1</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>date-posted</slot:key>
+      <slot:value type="gdate">
+        <gdate>2026-09-11</gdate>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>gncInvoice</slot:key>
+      <slot:value type="frame">
+        <slot>
+          <slot:key>invoice-guid</slot:key>
+          <slot:value type="guid">37e4654795994abca77c9d8e3758a03d</slot:value>
+        </slot>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-date-due</slot:key>
+      <slot:value type="timespec">
+        <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+      </slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-read-only</slot:key>
+      <slot:value type="string">Generated from an invoice. Try unposting the invoice.</slot:value>
+    </slot>
+    <slot>
+      <slot:key>trans-txn-type</slot:key>
+      <slot:value type="string">I</slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">7977544251d44e0aa8b5ccc32d369140</split:id>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>5200/100</split:value>
+      <split:quantity>5200/100</split:quantity>
+      <split:account type="guid">65f8b60c4bdb480f9a98ac84247ad490</split:account>
+      <split:lot type="guid">eeea1cfdb5a54beeba835bd75cfc43e0</split:lot>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">e4ac6099cde6422a8341d76422d30e91</split:id>
+      <split:memo>Escrow deposit</split:memo>
+      <split:action>Invoice</split:action>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>-5200/100</split:value>
+      <split:quantity>-5200/100</split:quantity>
+      <split:account type="guid">84f9dc325daf43abb07a8fab14758cdc</split:account>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+<gnc:GncCustomer version="2.0.0">
+  <cust:guid type="guid">899e73371d3143a097095f48b963f21d</cust:guid>
+  <cust:name>Customer 1</cust:name>
+  <cust:id>000001</cust:id>
+  <cust:addr version="2.0.0"/>
+  <cust:shipaddr version="2.0.0"/>
+  <cust:taxincluded>USEGLOBAL</cust:taxincluded>
+  <cust:active>1</cust:active>
+  <cust:discount>0/1</cust:discount>
+  <cust:credit>0/1</cust:credit>
+  <cust:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </cust:currency>
+  <cust:use-tt>0</cust:use-tt>
+  <cust:slots>
+    <slot>
+      <slot:key>last-posted-to-acct</slot:key>
+      <slot:value type="guid">65f8b60c4bdb480f9a98ac84247ad490</slot:value>
+    </slot>
+    <slot>
+      <slot:key>payment</slot:key>
+      <slot:value type="frame">
+        <slot>
+          <slot:key>last_acct</slot:key>
+          <slot:value type="guid">7467002200d943978c106213a12c72dc</slot:value>
+        </slot>
+      </slot:value>
+    </slot>
+  </cust:slots>
+</gnc:GncCustomer>
+<gnc:GncCustomer version="2.0.0">
+  <cust:guid type="guid">8f69ea973c0a4182b471f92015ea5333</cust:guid>
+  <cust:name>Customer 2</cust:name>
+  <cust:id>000002</cust:id>
+  <cust:addr version="2.0.0"/>
+  <cust:shipaddr version="2.0.0"/>
+  <cust:taxincluded>USEGLOBAL</cust:taxincluded>
+  <cust:active>1</cust:active>
+  <cust:discount>0/1</cust:discount>
+  <cust:credit>0/1</cust:credit>
+  <cust:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </cust:currency>
+  <cust:use-tt>0</cust:use-tt>
+  <cust:slots>
+    <slot>
+      <slot:key>last-posted-to-acct</slot:key>
+      <slot:value type="guid">65f8b60c4bdb480f9a98ac84247ad490</slot:value>
+    </slot>
+    <slot>
+      <slot:key>payment</slot:key>
+      <slot:value type="frame">
+        <slot>
+          <slot:key>last_acct</slot:key>
+          <slot:value type="guid">7467002200d943978c106213a12c72dc</slot:value>
+        </slot>
+      </slot:value>
+    </slot>
+  </cust:slots>
+</gnc:GncCustomer>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">1c6fb1cdf28445989eebfcd4fa869cc1</entry:guid>
+  <entry:date>
+    <ts:date>2026-08-12 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-08-13 03:51:07 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Interest payment</entry:description>
+  <entry:qty>2/1</entry:qty>
+  <entry:i-acct type="guid">09651747af42455dac6de3a4118b7348</entry:i-acct>
+  <entry:i-price>3/1</entry:i-price>
+  <entry:invoice type="guid">66a6d04b0bfd4c669bc09b7c6efaf19e</entry:invoice>
+  <entry:i-disc-type>PERCENT</entry:i-disc-type>
+  <entry:i-disc-how>PRETAX</entry:i-disc-how>
+  <entry:i-taxable>0</entry:i-taxable>
+  <entry:i-taxincluded>0</entry:i-taxincluded>
+</gnc:GncEntry>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">2cc2070ffd1f4d08b2097c7d7ad67a8c</entry:guid>
+  <entry:date>
+    <ts:date>2026-08-12 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-08-13 03:52:37 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Interest payment</entry:description>
+  <entry:qty>3/1</entry:qty>
+  <entry:i-acct type="guid">09651747af42455dac6de3a4118b7348</entry:i-acct>
+  <entry:i-price>1/1</entry:i-price>
+  <entry:invoice type="guid">8c7aaf8243484155bfef40e334bb3107</entry:invoice>
+  <entry:i-disc-type>PERCENT</entry:i-disc-type>
+  <entry:i-disc-how>PRETAX</entry:i-disc-how>
+  <entry:i-taxable>0</entry:i-taxable>
+  <entry:i-taxincluded>0</entry:i-taxincluded>
+</gnc:GncEntry>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">36517a6aa9714a17ad8eedc3b320309f</entry:guid>
+  <entry:date>
+    <ts:date>2026-08-12 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-08-13 04:09:00 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Principal payment</entry:description>
+  <entry:qty>1/1</entry:qty>
+  <entry:i-acct type="guid">ee72f9ec46da4deea160f7ce58a076c3</entry:i-acct>
+  <entry:i-price>2/1</entry:i-price>
+  <entry:invoice type="guid">66a6d04b0bfd4c669bc09b7c6efaf19e</entry:invoice>
+  <entry:i-disc-type>PERCENT</entry:i-disc-type>
+  <entry:i-disc-how>PRETAX</entry:i-disc-how>
+  <entry:i-taxable>0</entry:i-taxable>
+  <entry:i-taxincluded>1</entry:i-taxincluded>
+</gnc:GncEntry>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">36ccaf85999f4a5688f6159693fd36ae</entry:guid>
+  <entry:date>
+    <ts:date>2026-09-11 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-09-12 03:19:25 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Demand letter</entry:description>
+  <entry:qty>1/1</entry:qty>
+  <entry:b-acct type="guid">da4a35d9c91b4a5098310411cbf4f8dd</entry:b-acct>
+  <entry:b-price>250/1</entry:b-price>
+  <entry:bill type="guid">0c8769cae22a4c3abd3c6ac5b32351b3</entry:bill>
+  <entry:billable>0</entry:billable>
+  <entry:b-taxable>0</entry:b-taxable>
+  <entry:b-taxincluded>0</entry:b-taxincluded>
+  <entry:b-pay>CASH</entry:b-pay>
+</gnc:GncEntry>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">6d13c914f6b745c68bfa02d5386e5046</entry:guid>
+  <entry:date>
+    <ts:date>2026-09-11 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-09-12 03:07:27 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Escrow deposit</entry:description>
+  <entry:qty>1/1</entry:qty>
+  <entry:i-acct type="guid">84f9dc325daf43abb07a8fab14758cdc</entry:i-acct>
+  <entry:i-price>52/1</entry:i-price>
+  <entry:invoice type="guid">37e4654795994abca77c9d8e3758a03d</entry:invoice>
+  <entry:i-disc-type>PERCENT</entry:i-disc-type>
+  <entry:i-disc-how>PRETAX</entry:i-disc-how>
+  <entry:i-taxable>0</entry:i-taxable>
+  <entry:i-taxincluded>0</entry:i-taxincluded>
+</gnc:GncEntry>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">87b57c27b744442a951736ef8e9b9f1b</entry:guid>
+  <entry:date>
+    <ts:date>2026-09-11 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-09-12 03:20:45 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Reimbursed legal fees</entry:description>
+  <entry:qty>1/1</entry:qty>
+  <entry:i-acct type="guid">23809993597543e6ab1e8234fb6eea54</entry:i-acct>
+  <entry:i-price>250/1</entry:i-price>
+  <entry:invoice type="guid">61848de22167417986c9d681e619eaa0</entry:invoice>
+  <entry:i-disc-type>PERCENT</entry:i-disc-type>
+  <entry:i-disc-how>PRETAX</entry:i-disc-how>
+  <entry:i-taxable>0</entry:i-taxable>
+  <entry:i-taxincluded>0</entry:i-taxincluded>
+</gnc:GncEntry>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">95d7f46ad3b34708ae2fee3eb8b35162</entry:guid>
+  <entry:date>
+    <ts:date>2026-08-12 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-08-13 03:51:31 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Escrow deposit</entry:description>
+  <entry:qty>3/1</entry:qty>
+  <entry:i-acct type="guid">84f9dc325daf43abb07a8fab14758cdc</entry:i-acct>
+  <entry:i-price>4/1</entry:i-price>
+  <entry:invoice type="guid">66a6d04b0bfd4c669bc09b7c6efaf19e</entry:invoice>
+  <entry:i-disc-type>PERCENT</entry:i-disc-type>
+  <entry:i-disc-how>PRETAX</entry:i-disc-how>
+  <entry:i-taxable>0</entry:i-taxable>
+  <entry:i-taxincluded>0</entry:i-taxincluded>
+</gnc:GncEntry>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">ac8983e5ce72470ca2e7e1461b1afdab</entry:guid>
+  <entry:date>
+    <ts:date>2026-08-12 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-08-13 03:52:24 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Late fee</entry:description>
+  <entry:qty>7/1</entry:qty>
+  <entry:i-acct type="guid">d6a724a6d9bc42d8b2a34647fc10e70f</entry:i-acct>
+  <entry:i-price>2/1</entry:i-price>
+  <entry:invoice type="guid">8c7aaf8243484155bfef40e334bb3107</entry:invoice>
+  <entry:i-disc-type>PERCENT</entry:i-disc-type>
+  <entry:i-disc-how>PRETAX</entry:i-disc-how>
+  <entry:i-taxable>0</entry:i-taxable>
+  <entry:i-taxincluded>0</entry:i-taxincluded>
+</gnc:GncEntry>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">b4970d9831f34fefbfb5d736ea0d51e7</entry:guid>
+  <entry:date>
+    <ts:date>2026-08-12 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-08-13 03:53:07 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Escrow deposit</entry:description>
+  <entry:qty>4/1</entry:qty>
+  <entry:i-acct type="guid">d54a928e27274ecd97336196060777d6</entry:i-acct>
+  <entry:i-price>3/1</entry:i-price>
+  <entry:invoice type="guid">8c7aaf8243484155bfef40e334bb3107</entry:invoice>
+  <entry:i-disc-type>PERCENT</entry:i-disc-type>
+  <entry:i-disc-how>PRETAX</entry:i-disc-how>
+  <entry:i-taxable>0</entry:i-taxable>
+  <entry:i-taxincluded>0</entry:i-taxincluded>
+</gnc:GncEntry>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">e64a2a8738c1455bb70c44b58478826f</entry:guid>
+  <entry:date>
+    <ts:date>2026-08-12 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-08-13 03:50:53 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Late fee</entry:description>
+  <entry:qty>1/1</entry:qty>
+  <entry:i-acct type="guid">d6a724a6d9bc42d8b2a34647fc10e70f</entry:i-acct>
+  <entry:i-price>1/1</entry:i-price>
+  <entry:invoice type="guid">66a6d04b0bfd4c669bc09b7c6efaf19e</entry:invoice>
+  <entry:i-disc-type>PERCENT</entry:i-disc-type>
+  <entry:i-disc-how>PRETAX</entry:i-disc-how>
+  <entry:i-taxable>0</entry:i-taxable>
+  <entry:i-taxincluded>0</entry:i-taxincluded>
+</gnc:GncEntry>
+<gnc:GncEntry version="2.0.0">
+  <entry:guid type="guid">fb57d58fb31e41d29899d0a26979ee63</entry:guid>
+  <entry:date>
+    <ts:date>2026-08-12 17:00:00 +0000</ts:date>
+  </entry:date>
+  <entry:entered>
+    <ts:date>2026-08-13 04:11:37 +0000</ts:date>
+  </entry:entered>
+  <entry:description>Principal payment</entry:description>
+  <entry:qty>8/1</entry:qty>
+  <entry:i-acct type="guid">0cf36cbc05764de4a0b2817e964b04fb</entry:i-acct>
+  <entry:i-price>2/1</entry:i-price>
+  <entry:invoice type="guid">8c7aaf8243484155bfef40e334bb3107</entry:invoice>
+  <entry:i-disc-type>PERCENT</entry:i-disc-type>
+  <entry:i-disc-how>PRETAX</entry:i-disc-how>
+  <entry:i-taxable>0</entry:i-taxable>
+  <entry:i-taxincluded>1</entry:i-taxincluded>
+</gnc:GncEntry>
+<gnc:GncInvoice version="2.0.0">
+  <invoice:guid type="guid">0c8769cae22a4c3abd3c6ac5b32351b3</invoice:guid>
+  <invoice:id>000001</invoice:id>
+  <invoice:owner version="2.0.0">
+    <owner:type>gncVendor</owner:type>
+    <owner:id type="guid">8b53b2f2157248bc9fef338283ad25ad</owner:id>
+  </invoice:owner>
+  <invoice:opened>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </invoice:opened>
+  <invoice:posted>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </invoice:posted>
+  <invoice:active>1</invoice:active>
+  <invoice:posttxn type="guid">bfa55f9f14b04ad1a41c7acec673c988</invoice:posttxn>
+  <invoice:postlot type="guid">a849dae2dac64134b24a0827d93b0e95</invoice:postlot>
+  <invoice:postacc type="guid">40db9abd7ba14bd498b7612e192d927d</invoice:postacc>
+  <invoice:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </invoice:currency>
+  <invoice:billto version="2.0.0">
+    <owner:type>gncCustomer</owner:type>
+    <owner:id type="guid">899e73371d3143a097095f48b963f21d</owner:id>
+  </invoice:billto>
+  <invoice:slots>
+    <slot>
+      <slot:key>credit-note</slot:key>
+      <slot:value type="integer">0</slot:value>
+    </slot>
+  </invoice:slots>
+</gnc:GncInvoice>
+<gnc:GncInvoice version="2.0.0">
+  <invoice:guid type="guid">37e4654795994abca77c9d8e3758a03d</invoice:guid>
+  <invoice:id>000005</invoice:id>
+  <invoice:owner version="2.0.0">
+    <owner:type>gncCustomer</owner:type>
+    <owner:id type="guid">899e73371d3143a097095f48b963f21d</owner:id>
+  </invoice:owner>
+  <invoice:opened>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </invoice:opened>
+  <invoice:posted>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </invoice:posted>
+  <invoice:active>1</invoice:active>
+  <invoice:posttxn type="guid">807d240b20dc416f90e1fd8684e9039c</invoice:posttxn>
+  <invoice:postlot type="guid">eeea1cfdb5a54beeba835bd75cfc43e0</invoice:postlot>
+  <invoice:postacc type="guid">65f8b60c4bdb480f9a98ac84247ad490</invoice:postacc>
+  <invoice:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </invoice:currency>
+  <invoice:slots>
+    <slot>
+      <slot:key>credit-note</slot:key>
+      <slot:value type="integer">0</slot:value>
+    </slot>
+  </invoice:slots>
+</gnc:GncInvoice>
+<gnc:GncInvoice version="2.0.0">
+  <invoice:guid type="guid">392f32cafd5a4925a9669a8358d4d2b9</invoice:guid>
+  <invoice:id>000003</invoice:id>
+  <invoice:owner version="2.0.0">
+    <owner:type>gncCustomer</owner:type>
+    <owner:id type="guid">899e73371d3143a097095f48b963f21d</owner:id>
+  </invoice:owner>
+  <invoice:opened>
+    <ts:date>2026-07-29 10:59:00 +0000</ts:date>
+  </invoice:opened>
+  <invoice:active>1</invoice:active>
+  <invoice:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </invoice:currency>
+  <invoice:slots>
+    <slot>
+      <slot:key>credit-note</slot:key>
+      <slot:value type="integer">0</slot:value>
+    </slot>
+  </invoice:slots>
+</gnc:GncInvoice>
+<gnc:GncInvoice version="2.0.0">
+  <invoice:guid type="guid">61848de22167417986c9d681e619eaa0</invoice:guid>
+  <invoice:id>000006</invoice:id>
+  <invoice:owner version="2.0.0">
+    <owner:type>gncCustomer</owner:type>
+    <owner:id type="guid">899e73371d3143a097095f48b963f21d</owner:id>
+  </invoice:owner>
+  <invoice:opened>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </invoice:opened>
+  <invoice:posted>
+    <ts:date>2026-09-11 10:59:00 +0000</ts:date>
+  </invoice:posted>
+  <invoice:active>1</invoice:active>
+  <invoice:posttxn type="guid">a56f25051e4e4c59a10f3fff92e6b8ab</invoice:posttxn>
+  <invoice:postlot type="guid">82d2eb7f44d44553a0fc7399aa082717</invoice:postlot>
+  <invoice:postacc type="guid">65f8b60c4bdb480f9a98ac84247ad490</invoice:postacc>
+  <invoice:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </invoice:currency>
+  <invoice:slots>
+    <slot>
+      <slot:key>credit-note</slot:key>
+      <slot:value type="integer">0</slot:value>
+    </slot>
+  </invoice:slots>
+</gnc:GncInvoice>
+<gnc:GncInvoice version="2.0.0">
+  <invoice:guid type="guid">66a6d04b0bfd4c669bc09b7c6efaf19e</invoice:guid>
+  <invoice:id>000001</invoice:id>
+  <invoice:owner version="2.0.0">
+    <owner:type>gncCustomer</owner:type>
+    <owner:id type="guid">899e73371d3143a097095f48b963f21d</owner:id>
+  </invoice:owner>
+  <invoice:opened>
+    <ts:date>2026-07-27 10:59:00 +0000</ts:date>
+  </invoice:opened>
+  <invoice:posted>
+    <ts:date>2026-08-22 10:59:00 +0000</ts:date>
+  </invoice:posted>
+  <invoice:active>1</invoice:active>
+  <invoice:posttxn type="guid">2176328036764b9abee22c3993a7796c</invoice:posttxn>
+  <invoice:postlot type="guid">d11931bd811244cc88ef79f0411bfc1a</invoice:postlot>
+  <invoice:postacc type="guid">65f8b60c4bdb480f9a98ac84247ad490</invoice:postacc>
+  <invoice:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </invoice:currency>
+  <invoice:slots>
+    <slot>
+      <slot:key>credit-note</slot:key>
+      <slot:value type="integer">0</slot:value>
+    </slot>
+  </invoice:slots>
+</gnc:GncInvoice>
+<gnc:GncInvoice version="2.0.0">
+  <invoice:guid type="guid">8c7aaf8243484155bfef40e334bb3107</invoice:guid>
+  <invoice:id>000002</invoice:id>
+  <invoice:owner version="2.0.0">
+    <owner:type>gncCustomer</owner:type>
+    <owner:id type="guid">8f69ea973c0a4182b471f92015ea5333</owner:id>
+  </invoice:owner>
+  <invoice:opened>
+    <ts:date>2026-07-28 10:59:00 +0000</ts:date>
+  </invoice:opened>
+  <invoice:posted>
+    <ts:date>2026-08-22 10:59:00 +0000</ts:date>
+  </invoice:posted>
+  <invoice:active>1</invoice:active>
+  <invoice:posttxn type="guid">a1e99856e35b42368c6e082c626cd734</invoice:posttxn>
+  <invoice:postlot type="guid">ddacdd9ebddb49e5a68594fbfa70c31b</invoice:postlot>
+  <invoice:postacc type="guid">65f8b60c4bdb480f9a98ac84247ad490</invoice:postacc>
+  <invoice:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </invoice:currency>
+  <invoice:slots>
+    <slot>
+      <slot:key>credit-note</slot:key>
+      <slot:value type="integer">0</slot:value>
+    </slot>
+  </invoice:slots>
+</gnc:GncInvoice>
+<gnc:GncInvoice version="2.0.0">
+  <invoice:guid type="guid">b574f4fc835b42c8a7b7d3d39f178cdc</invoice:guid>
+  <invoice:id>000004</invoice:id>
+  <invoice:owner version="2.0.0">
+    <owner:type>gncCustomer</owner:type>
+    <owner:id type="guid">8f69ea973c0a4182b471f92015ea5333</owner:id>
+  </invoice:owner>
+  <invoice:opened>
+    <ts:date>2026-07-29 10:59:00 +0000</ts:date>
+  </invoice:opened>
+  <invoice:active>1</invoice:active>
+  <invoice:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </invoice:currency>
+  <invoice:slots>
+    <slot>
+      <slot:key>credit-note</slot:key>
+      <slot:value type="integer">0</slot:value>
+    </slot>
+  </invoice:slots>
+</gnc:GncInvoice>
+<gnc:GncVendor version="2.0.0">
+  <vendor:guid type="guid">8b53b2f2157248bc9fef338283ad25ad</vendor:guid>
+  <vendor:name>123 Attorney</vendor:name>
+  <vendor:id>000001</vendor:id>
+  <vendor:addr version="2.0.0"/>
+  <vendor:taxincluded>USEGLOBAL</vendor:taxincluded>
+  <vendor:active>1</vendor:active>
+  <vendor:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>USD</cmdty:id>
+  </vendor:currency>
+  <vendor:use-tt>0</vendor:use-tt>
+  <vendor:slots>
+    <slot>
+      <slot:key>last-posted-to-acct</slot:key>
+      <slot:value type="guid">40db9abd7ba14bd498b7612e192d927d</slot:value>
+    </slot>
+    <slot>
+      <slot:key>payment</slot:key>
+      <slot:value type="frame">
+        <slot>
+          <slot:key>last_acct</slot:key>
+          <slot:value type="guid">7467002200d943978c106213a12c72dc</slot:value>
+        </slot>
+      </slot:value>
+    </slot>
+  </vendor:slots>
+</gnc:GncVendor>
+</gnc:book>
+</gnc-v2>
+

@@ -11,6 +11,7 @@ import com.druvu.acc.api.entity.Employee;
 import com.druvu.acc.api.entity.Entry;
 import com.druvu.acc.api.entity.Invoice;
 import com.druvu.acc.api.entity.Job;
+import com.druvu.acc.api.entity.Lot;
 import com.druvu.acc.api.entity.Order;
 import com.druvu.acc.api.entity.Owner;
 import com.druvu.acc.api.entity.OwnerType;
@@ -33,8 +34,10 @@ import com.druvu.acc.gnucash.mapper.EmployeeMapper;
 import com.druvu.acc.gnucash.mapper.EntryMapper;
 import com.druvu.acc.gnucash.mapper.InvoiceMapper;
 import com.druvu.acc.gnucash.mapper.JobMapper;
+import com.druvu.acc.gnucash.mapper.LotMapper;
 import com.druvu.acc.gnucash.mapper.OrderMapper;
 import com.druvu.acc.gnucash.mapper.PriceMapper;
+import com.druvu.acc.gnucash.mapper.SplitMapper;
 import com.druvu.acc.gnucash.mapper.TaxTableMapper;
 import com.druvu.acc.gnucash.mapper.TransactionMapper;
 import com.druvu.acc.gnucash.mapper.VendorMapper;
@@ -294,7 +297,36 @@ public final class GnucashAccStore implements WritableAccStore {
 
     @Override
     public Optional<Customer> customerForTransaction(String transactionId) {
-        return invoiceForTransaction(transactionId).flatMap(invoice -> resolveCustomer(invoice.owner()));
+        Optional<Customer> billed =
+                invoiceForTransaction(transactionId).flatMap(invoice -> resolveCustomer(invoice.owner()));
+        if (billed.isPresent()) {
+            return billed;
+        }
+        // A payment. GnuCash's own rule (gncOwnerGetOwnerFromTxn): the first receivable or payable split's lot
+        // names either the document it settles or, for a payment applied to nothing yet, the owner directly.
+        return transactionById(transactionId).stream()
+                .flatMap(transaction -> transaction.splits().stream())
+                .filter(split -> isReceivableOrPayable(split.accountId()))
+                .findFirst()
+                .flatMap(split -> splitPeer(split.id()))
+                .map(peer -> peer.split().getSplitLot())
+                .flatMap(reference -> lotPeer(reference.getValue()))
+                .flatMap(peer -> ownerOfLot(peer.lot()))
+                .flatMap(this::resolveCustomer);
+    }
+
+    private boolean isReceivableOrPayable(String accountId) {
+        return accountById(accountId)
+                .map(Account::type)
+                .filter(type -> type == AccountType.RECEIVABLE || type == AccountType.PAYABLE)
+                .isPresent();
+    }
+
+    /** What a lot settles: the owner of the document it was created for, else the owner GnuCash attached directly. */
+    private Optional<Owner> ownerOfLot(GncAccount.ActLots.GncLot peer) {
+        Optional<Owner> billed =
+                LotMapper.invoiceId(peer).flatMap(this::invoiceById).map(Invoice::owner);
+        return billed.isPresent() ? billed : LotMapper.owner(peer);
     }
 
     /** Follows the job indirection to the customer behind an owner reference; empty for vendors and employees. */
@@ -400,6 +432,43 @@ public final class GnucashAccStore implements WritableAccStore {
         return transactions().stream()
                 .flatMap(transaction -> transaction.splits().stream())
                 .filter(split -> split.accountId().equals(accountId))
+                .toList();
+    }
+
+    // ========== Lots ==========
+
+    @Override
+    public List<Lot> lots(String accountId) {
+        return accountPeer(accountId).stream()
+                .flatMap(GnucashAccStore::lotPeers)
+                .map(lot -> LotMapper.map(lot, accountId))
+                .toList();
+    }
+
+    @Override
+    public Optional<Lot> lotById(String lotId) {
+        return lotPeer(lotId)
+                .map(peer -> LotMapper.map(peer.lot(), peer.account().getActId().getValue()));
+    }
+
+    @Override
+    public Optional<Lot> lotForSplit(String splitId) {
+        return splitPeer(splitId)
+                .map(peer -> peer.split().getSplitLot())
+                .flatMap(reference -> lotById(reference.getValue()));
+    }
+
+    @Override
+    public List<Split> splitsInLot(String lotId) {
+        Set<String> members = splitPeersInLot(lotId)
+                .map(peer -> peer.split().getSplitId().getValue())
+                .collect(Collectors.toSet());
+        if (members.isEmpty()) {
+            return List.of();
+        }
+        return transactions().stream()
+                .flatMap(transaction -> transaction.splits().stream())
+                .filter(split -> members.contains(split.id()))
                 .toList();
     }
 
@@ -1173,6 +1242,79 @@ public final class GnucashAccStore implements WritableAccStore {
         return holders;
     }
 
+    // ========== Lots ==========
+
+    @Override
+    public void addLot(@NonNull Lot lot) {
+        if (lotPeer(lot.id()).isPresent()) {
+            throw new IllegalArgumentException("Lot already exists: " + lot.id());
+        }
+        GncAccount account = accountPeer(lot.accountId())
+                .orElseThrow(() -> new IllegalArgumentException("No account with ID: " + lot.accountId()));
+        GncAccount.ActLots.GncLot peer = LotMapper.toGnc(lot);
+        requireExpressible(peer, lot);
+        if (account.getActLots() == null) {
+            account.setActLots(new GncAccount.ActLots());
+        }
+        account.getActLots().getGncLot().add(peer);
+    }
+
+    @Override
+    public void updateLot(@NonNull Lot lot) {
+        LotPeer peer = lotPeer(lot.id()).orElseThrow(() -> new IllegalArgumentException("No lot with ID: " + lot.id()));
+        String accountId = peer.account().getActId().getValue();
+        if (!accountId.equals(lot.accountId())) {
+            throw new IllegalArgumentException("Lot " + lot.id() + " belongs to account " + accountId
+                    + " and cannot be moved to " + lot.accountId() + ": remove it and add a new one");
+        }
+        LotMapper.applyTo(peer.lot(), lot);
+        requireExpressible(peer.lot(), lot);
+    }
+
+    @Override
+    public void removeLot(String lotId) {
+        LotPeer peer = lotPeer(lotId).orElseThrow(() -> new IllegalArgumentException("No lot with ID: " + lotId));
+        long members = splitPeersInLot(lotId).count();
+        if (members > 0) {
+            throw new IllegalStateException(
+                    "Lot " + lotId + " still has " + members + " split(s) in it; detach them first");
+        }
+        List<GncAccount.ActLots.GncLot> lots = peer.account().getActLots().getGncLot();
+        lots.remove(peer.lot());
+        if (lots.isEmpty()) {
+            // The schema declares act:lots as one or more lots - an empty container is invalid.
+            peer.account().setActLots(null);
+        }
+    }
+
+    @Override
+    public void assignSplitToLot(String splitId, String lotId) {
+        LotPeer lot = lotPeer(lotId).orElseThrow(() -> new IllegalArgumentException("No lot with ID: " + lotId));
+        SplitPeer split =
+                splitPeer(splitId).orElseThrow(() -> new IllegalArgumentException("No split with ID: " + splitId));
+        String lotAccount = lot.account().getActId().getValue();
+        String splitAccount = split.split().getSplitAccount().getValue();
+        if (!lotAccount.equals(splitAccount)) {
+            throw new IllegalArgumentException("Split " + splitId + " is on account " + splitAccount + " but lot "
+                    + lotId + " groups account " + lotAccount + ": a lot only holds splits of its own account");
+        }
+        SplitMapper.assignLot(split.split(), lotId);
+    }
+
+    @Override
+    public void detachSplitFromLot(String splitId) {
+        SplitPeer split =
+                splitPeer(splitId).orElseThrow(() -> new IllegalArgumentException("No split with ID: " + splitId));
+        split.split().setSplitLot(null);
+    }
+
+    private static void requireExpressible(GncAccount.ActLots.GncLot peer, Lot lot) {
+        if (!LotMapper.hasSlots(peer)) {
+            throw new IllegalArgumentException("Lot " + lot.id()
+                    + " has neither a title nor notes; GnuCash's file format cannot express a blank lot");
+        }
+    }
+
     @Override
     public void save(Path path) throws IOException {
         List<String> problems = validate();
@@ -1284,6 +1426,26 @@ public final class GnucashAccStore implements WritableAccStore {
             });
         }
 
+        // Lot membership is a bare GUID on the split. GnuCash's engine keeps it consistent; a foreign writer may not.
+        final Map<String, String> lotAccounts = new HashMap<>();
+        bookElements(GncAccount.class)
+                .forEach(account -> lotPeers(account)
+                        .forEach(lot -> lotAccounts.put(
+                                lot.getLotId().getValue(), account.getActId().getValue())));
+        splitPeers().filter(peer -> peer.split().getSplitLot() != null).forEach(peer -> {
+            String lotId = peer.split().getSplitLot().getValue();
+            String lotAccount = lotAccounts.get(lotId);
+            String description = peer.transaction().getTrnDescription();
+            if (lotAccount == null) {
+                problems.add(
+                        "Transaction '" + description + "' has a split in a lot that is not in the book: " + lotId);
+            } else if (!lotAccount.equals(peer.split().getSplitAccount().getValue())) {
+                problems.add("Transaction '" + description + "' has a split on account "
+                        + peer.split().getSplitAccount().getValue() + " in a lot of account " + lotAccount
+                        + "; a lot only holds splits of its own account");
+            }
+        });
+
         return List.copyOf(problems);
     }
 
@@ -1300,6 +1462,49 @@ public final class GnucashAccStore implements WritableAccStore {
     }
 
     // ========== Helper Methods ==========
+
+    /** A lot together with the account element it lives in - the wire format names the account nowhere else. */
+    private record LotPeer(GncAccount account, GncAccount.ActLots.GncLot lot) {}
+
+    /** A split together with its transaction element. */
+    private record SplitPeer(GncTransaction transaction, GncTransaction.TrnSplits.TrnSplit split) {}
+
+    private Optional<GncAccount> accountPeer(String accountId) {
+        return bookElements(GncAccount.class)
+                .filter(account -> account.getActId().getValue().equals(accountId))
+                .findFirst();
+    }
+
+    private static Stream<GncAccount.ActLots.GncLot> lotPeers(GncAccount account) {
+        return account.getActLots() == null ? Stream.empty() : account.getActLots().getGncLot().stream();
+    }
+
+    private Optional<LotPeer> lotPeer(String lotId) {
+        return bookElements(GncAccount.class)
+                .flatMap(account -> lotPeers(account)
+                        .filter(lot -> lot.getLotId().getValue().equals(lotId))
+                        .map(lot -> new LotPeer(account, lot)))
+                .findFirst();
+    }
+
+    private Stream<SplitPeer> splitPeers() {
+        return bookElements(GncTransaction.class)
+                .filter(transaction -> transaction.getTrnSplits() != null)
+                .flatMap(transaction -> transaction.getTrnSplits().getTrnSplit().stream()
+                        .map(split -> new SplitPeer(transaction, split)));
+    }
+
+    private Optional<SplitPeer> splitPeer(String splitId) {
+        return splitPeers()
+                .filter(peer -> peer.split().getSplitId().getValue().equals(splitId))
+                .findFirst();
+    }
+
+    private Stream<SplitPeer> splitPeersInLot(String lotId) {
+        return splitPeers()
+                .filter(peer -> peer.split().getSplitLot() != null
+                        && lotId.equals(peer.split().getSplitLot().getValue()));
+    }
 
     private GncV2.GncBook book() {
         return root.getGncBook();

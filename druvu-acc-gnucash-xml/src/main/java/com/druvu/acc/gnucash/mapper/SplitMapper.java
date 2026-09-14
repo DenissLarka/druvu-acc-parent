@@ -55,6 +55,19 @@ public final class SplitMapper {
     }
 
     /**
+     * Declares the split a member of a lot, replacing any earlier membership.
+     *
+     * @param peer the split element
+     * @param lotId the lot ID
+     */
+    public static void assignLot(GncTransaction.TrnSplits.TrnSplit peer, String lotId) {
+        GncTransaction.TrnSplits.TrnSplit.SplitLot reference = new GncTransaction.TrnSplits.TrnSplit.SplitLot();
+        reference.setType(GncConstants.GUID);
+        reference.setValue(lotId);
+        peer.setSplitLot(reference);
+    }
+
+    /**
      * Writes a split's fields onto an existing element, leaving anything this library does not model - a memo, an
      * action, a lot reference, unknown slots - exactly as it was.
      *
