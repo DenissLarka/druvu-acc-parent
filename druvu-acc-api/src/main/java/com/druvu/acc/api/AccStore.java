@@ -278,9 +278,13 @@ public interface AccStore {
     Optional<Account> accountById(String id);
 
     /**
-     * Finds an account by its qualified name.
+     * Finds an account by its full name, starting at the root account.
      *
-     * @param qualifiedName the qualified name (e.g., "Assets:Bank:Checking")
+     * <p>The path names every level from the root down, e.g. {@code "Root Account:Assets:Bank:Checking"}. GnuCash
+     * displays full names without the root; {@link com.druvu.acc.api.service.AccountService#accountByName} takes that
+     * form when the service is created with the root account's name.
+     *
+     * @param qualifiedName the colon-separated path from the root account, e.g. "Root Account:Assets:Bank:Checking"
      * @return the account if found
      */
     Optional<Account> accountByName(String qualifiedName);

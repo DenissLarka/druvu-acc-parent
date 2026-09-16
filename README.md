@@ -1,7 +1,7 @@
 # Accounting Library
 
 [![CI](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/DenissLarka/druvu-acc-parent?label=GitHub%20Packages&color=blue)](https://github.com/DenissLarka/druvu-acc-parent/packages)
+[![Maven Central](https://img.shields.io/maven-central/v/com.druvu/druvu-acc-api.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/com.druvu/druvu-acc-api)
 ![Java](https://img.shields.io/badge/Java-25-blue)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
@@ -316,58 +316,24 @@ Run `AccApiReadExample` to print account balances and transactions from a GnuCas
 
 ## Installation
 
-This library is published to **GitHub Packages**. To use it, you need to configure Maven authentication.
-
-**1. Generate a GitHub Personal Access Token:**
-
-Create a **classic** token with the single `read:packages` scope — nothing more is needed to
-consume a public package.
-[This link](https://github.com/settings/tokens/new?scopes=read:packages&description=maven-read-packages)
-opens the form with the right type and scope pre-selected.
-
-> Note: it must be a *classic* token. GitHub's token page defaults to the newer fine-grained
-> tokens, which the GitHub Packages Maven registry does not accept — the symptom is an
-> unexplained `401 Unauthorized` from `maven.pkg.github.com`.
-
-**2. Add the server to `~/.m2/settings.xml`:**
-
-```xml
-<settings>
-  <servers>
-    <server>
-      <id>github</id>
-      <username>YOUR_GITHUB_USERNAME</username>
-      <password>YOUR_GITHUB_TOKEN</password>
-    </server>
-  </servers>
-</settings>
-```
-
-**3. Add the repository and dependency to your project `pom.xml`:**
-
-```xml
-<repositories>
-    <repository>
-        <id>github</id>
-        <url>https://maven.pkg.github.com/DenissLarka/druvu-acc-parent</url>
-    </repository>
-</repositories>
-```
+Published to **Maven Central** since 2.2.0, so no repository or credentials setup is needed:
 
 ```xml
 <dependency>
     <groupId>com.druvu</groupId>
     <artifactId>druvu-acc-api</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
 </dependency>
 
 <!-- GnuCash XML support (optional) -->
 <dependency>
     <groupId>com.druvu</groupId>
     <artifactId>druvu-acc-gnucash-xml</artifactId>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
 </dependency>
 ```
+
+Releases are also published to GitHub Packages, so an existing setup pointing there keeps working.
 
 ## Building
 

@@ -4,8 +4,8 @@
 # release time. It is also what lets Renovate's auto-merge fire: with no status check, its PRs sit
 # open indefinitely.
 #
-# The reactor declares a GitHub Packages repository (other druvu libs), which needs authentication
-# even for public packages, so setup-java writes a settings.xml wired to the automatic GITHUB_TOKEN.
+# Every dependency resolves from Maven Central (druvu-lib-loader included), so no registry
+# authentication is wired in: this build sees exactly what a consumer's build sees.
 
 name: CI
 
@@ -30,10 +30,6 @@ jobs:
           java-version: '25'
           distribution: 'zulu'
           cache: 'maven'
-          server-id: github # matches the <repositories> entry in pom.xml
-          settings-path: ${{ github.workspace }}
 
       - name: Build and verify
-        run: mvn -B verify -s $GITHUB_WORKSPACE/settings.xml
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+        run: mvn -B verify

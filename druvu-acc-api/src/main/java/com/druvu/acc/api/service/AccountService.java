@@ -37,6 +37,15 @@ public class AccountService {
         return new AccountService(store, rootAccountName);
     }
 
+    /**
+     * Finds an account by its full name as GnuCash displays it, e.g. {@code "Assets:Bank:Checking"}, when the service
+     * was created with the root account's name; without one the path must start at the root account, as for
+     * {@link AccStore#accountByName}.
+     *
+     * @param accountName the colon-separated account path
+     * @return the account
+     * @throws IllegalArgumentException if no account has that path
+     */
     public Account accountByName(String accountName) {
         final Optional<Account> accAccountOpt = rootAccountName == null
                 ? store.accountByName(accountName)
