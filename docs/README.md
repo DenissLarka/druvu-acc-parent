@@ -24,11 +24,35 @@ written for.
 
 Read them in order — each story continues where the previous one ends.
 
+## Run a story in one command
+
+Each story is also a single Java file next to this page — `HouseholdBooks.java`,
+`ContractorBill.java`, `WhoseMoney.java` — that runs with [JBang](https://www.jbang.dev), which
+fetches the library from Maven Central and the right Java on its own. Install JBang once:
+
+```bash
+# macOS / Linux
+curl -Ls https://sh.jbang.dev | bash -s - app setup
+```
+
+```powershell
+# Windows (PowerShell)
+iex "& { $(iwr -useb https://ps.jbang.dev) } app setup"
+```
+
+then, in a folder of your choice, run the file you downloaded — or run it straight from GitHub:
+
+```bash
+jbang HouseholdBooks.java
+jbang https://github.com/DenissLarka/druvu-acc-parent/blob/main/docs/HouseholdBooks.java
+```
+
+No project, no build file, nothing to add to a classpath. If you already have a Maven or Gradle
+project, the two coordinates are in [Installation](../README.md#installation) instead.
+
 ## What you need
 
-- **Java 25** or newer.
-- The two library jars on your classpath — see
-  [Installation](../README.md#installation) in the main README.
+- **JBang** (above) — or Java 25 and the library on your classpath if you prefer your own setup.
 - **GnuCash** ([gnucash.org](https://www.gnucash.org), free) is recommended, not required: the
   first story starts its book from code with `AccStore.newBook(...)`. But the library reads and
   writes GnuCash's own file format, so GnuCash is the natural place to *look at* what your

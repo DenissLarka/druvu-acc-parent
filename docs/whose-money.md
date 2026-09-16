@@ -50,19 +50,35 @@ public class WhoseMoney {
 }
 ```
 
-Run against the contractor's book from the [previous story](contractor-bill.md), once its invoice
-is posted and a few household movements are in, it prints something like:
+It is [WhoseMoney.java](WhoseMoney.java), and it takes the book as its argument. Run it against
+the contractor's book from the [previous story](contractor-bill.md) once its invoice is posted —
+or against the sample book below, a real one (fictitious data) whose invoices are settled by
+payments:
+
+```bash
+curl -LO https://raw.githubusercontent.com/DenissLarka/druvu-acc-parent/main/druvu-acc-tests/src/test/resources/payments.gnucash
+jbang WhoseMoney.java payments.gnucash
+```
 
 ```
-2026-08-02  Weekly groceries             -
-2026-08-12  Electricity July             -
-2026-08-20  Kitchen renovation           Familie Keller
-2026-08-25  Salary August                -
-2026-09-03  Familie Keller               Familie Keller
+2026-07-01  Opening balance              -
+2026-07-01  Opening balance              -
+2026-08-12  Customer 1                   Customer 1
+2026-08-12  Customer 2                   Customer 2
+2026-08-22  Customer 1                   Customer 1
+2026-08-22  Customer 2                   Customer 2
+2026-09-11  Customer 1                   Customer 1
+2026-09-11  Monthly service charge       -
+2026-09-11  Customer 1                   Customer 1
+2026-09-11  123 Attorney                 -
+2026-09-11  Customer 1                   Customer 1
+2026-09-11  123 Attorney                 -
+2026-09-11  Customer 1                   Customer 1
 ```
 
-The last line is the payment: GnuCash names the transaction after the customer, and the library
-finds the customer behind it the same way it did for the invoice.
+The August lines are the postings, the September ones the payments: GnuCash names a payment after
+the customer, and the library finds the customer behind it the same way it did for the invoice.
+The attorney's bill and the bank's charge stay unnamed — no customer is behind them.
 
 `AccStore.load` (without `Writable`) cannot modify anything — the right tool when you only want
 answers, and the polite way to open a book somebody else maintains.

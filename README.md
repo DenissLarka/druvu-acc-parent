@@ -10,8 +10,8 @@ A modular Java library for reading and writing accounting data. The library prov
 Project page: [druvu.com/projects/druvu-acc](https://druvu.com/projects/druvu-acc.html)
 
 > 📖 **New to the library? [Read how to use it](docs/README.md)** — three small accounting
-> stories, each solved by a complete runnable program: a household's books, a contractor's
-> invoice with VAT, and finding the customer behind a ledger transaction.
+> stories, each solved by a complete program that runs with one `jbang` command: a household's
+> books, a contractor's invoice with VAT, and finding the customer behind a ledger transaction.
 
 ## Features
 

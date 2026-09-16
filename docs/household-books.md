@@ -5,7 +5,14 @@ and electricity nibble at the rest — and at some point you want the answer to 
 that matters: **what did this month actually cost me?**
 
 This page builds that answer from nothing: an account tree, one month of money movements, and the
-totals — all in one small Java program.
+totals — all in one small Java program. The whole program is [HouseholdBooks.java](HouseholdBooks.java);
+with [JBang installed](README.md#run-a-story-in-one-command) it runs as
+
+```bash
+jbang HouseholdBooks.java
+```
+
+and leaves `household-august.gnucash` in the current folder.
 
 ## Before the code: one idea from bookkeeping
 

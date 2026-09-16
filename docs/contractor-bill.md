@@ -4,7 +4,13 @@ You renovated the Kellers' kitchen: sixteen hours of labour, a worktop with fitt
 the 18th. Now the money has to be asked for — an invoice with VAT on top, payable within 30 days.
 
 In GnuCash this is a click-path through the Business menus. Here it is code — which means next
-month's invoice, and the fifty after it, can build themselves.
+month's invoice, and the fifty after it, can build themselves. The whole program is
+[ContractorBill.java](ContractorBill.java):
+
+```bash
+jbang ContractorBill.java                        # starts from an empty book
+jbang ContractorBill.java household-august.gnucash   # or adds the bill to a copy of a book you have
+```
 
 ## Two accounts the bill will touch
 
@@ -13,7 +19,9 @@ An invoice is not yet money in the bank, but it already has an accounting meanin
 through your hands but was never yours, which is why it is a *liability*, not income):
 
 ```java
-var store = AccStore.loadWritable(Path.of("contractor.gnucash"));
+var store = args.length > 0
+        ? AccStore.loadWritable(Path.of(args[0]))   // a book of yours, written to a new file below
+        : AccStore.newBook(CommodityId.CHF);        // or start from nothing, as in the first story
 var rootId = store.rootAccounts().getFirst().id();
 var chf = CommodityId.CHF;
 
