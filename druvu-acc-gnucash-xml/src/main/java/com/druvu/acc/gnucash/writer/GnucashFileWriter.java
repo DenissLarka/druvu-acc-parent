@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.zip.GZIPOutputStream;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Writes GnuCash XML files from GncV2 objects.
@@ -24,8 +23,9 @@ import lombok.extern.slf4j.Slf4j;
  * @author Deniss Larka <br>
  *     on 13 Jan 2026
  */
-@Slf4j
 public final class GnucashFileWriter {
+
+    private static final System.Logger LOG = System.getLogger(GnucashFileWriter.class.getName());
 
     private final JAXBContext jaxbContext;
 
@@ -47,7 +47,7 @@ public final class GnucashFileWriter {
      * @throws IOException if the file cannot be written
      */
     public void write(GncV2 gncV2, Path path) throws IOException {
-        log.debug("Writing GnuCash file: {}", path);
+        LOG.log(System.Logger.Level.DEBUG, "Writing GnuCash file: {0}", path);
 
         boolean compress = shouldCompress(path);
 
@@ -58,7 +58,7 @@ public final class GnucashFileWriter {
             write(gncV2, effectiveOs);
         }
 
-        log.debug("Successfully wrote GnuCash file: {}", path);
+        LOG.log(System.Logger.Level.DEBUG, "Successfully wrote GnuCash file: {0}", path);
     }
 
     /**

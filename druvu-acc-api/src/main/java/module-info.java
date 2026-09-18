@@ -2,7 +2,6 @@ module com.druvu.acc.api {
     requires static lombok;
     requires static com.github.spotbugs.annotations;
     requires transitive com.druvu.lib.loader;
-    requires org.slf4j;
 
     exports com.druvu.acc.api;
     exports com.druvu.acc.api.entity;

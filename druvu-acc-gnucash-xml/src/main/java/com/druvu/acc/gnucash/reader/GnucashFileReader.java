@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
-import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.InputSource;
 
 /**
@@ -24,8 +23,9 @@ import org.xml.sax.InputSource;
  * @author Deniss Larka <br>
  *     on 10 Jan 2026
  */
-@Slf4j
 public final class GnucashFileReader {
+
+    private static final System.Logger LOG = System.getLogger(GnucashFileReader.class.getName());
 
     private static final int GZIP_MAGIC_1 = 0x1f;
     private static final int GZIP_MAGIC_2 = 0x8b;
@@ -48,7 +48,7 @@ public final class GnucashFileReader {
      * @throws IOException if the file cannot be read
      */
     public GncV2 read(Path path) throws IOException {
-        log.debug("Reading GnuCash file: {}", path);
+        LOG.log(System.Logger.Level.DEBUG, "Reading GnuCash file: {0}", path);
 
         try (InputStream is = Files.newInputStream(path);
                 BufferedInputStream bis = new BufferedInputStream(is)) {
@@ -74,7 +74,7 @@ public final class GnucashFileReader {
         effectiveStream.reset();
 
         if (b1 == GZIP_MAGIC_1 && b2 == GZIP_MAGIC_2) {
-            log.debug("Detected gzip-compressed file");
+            LOG.log(System.Logger.Level.DEBUG, "Detected gzip-compressed file");
             effectiveStream = new GZIPInputStream(effectiveStream);
         }
 
@@ -92,8 +92,9 @@ public final class GnucashFileReader {
                 throw new IOException("No gnc:book element found in file");
             }
 
-            log.debug(
-                    "Successfully parsed GnuCash file with book ID: {}",
+            LOG.log(
+                    System.Logger.Level.DEBUG,
+                    "Successfully parsed GnuCash file with book ID: {0}",
                     gncV2.getGncBook().getBookId().getValue());
 
             return gncV2;

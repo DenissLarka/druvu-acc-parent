@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Factory for creating AccStore instance from GnuCash XML file.
@@ -27,8 +26,9 @@ import lombok.extern.slf4j.Slf4j;
  * @author Deniss Larka <br>
  *     on 10 Jan 2026
  */
-@Slf4j
 public class GnucashBookFactory implements ComponentFactory<AccStore> {
+
+    private static final System.Logger LOG = System.getLogger(GnucashBookFactory.class.getName());
 
     private final GnucashFileReader reader = new GnucashFileReader();
 
@@ -43,7 +43,7 @@ public class GnucashBookFactory implements ComponentFactory<AccStore> {
         var pathOpt = dependencies.getOptionalDependency(Path.class);
         if (pathOpt.isPresent()) {
             Path path = pathOpt.get();
-            log.info("Loading GnuCash file from path: {}", path);
+            LOG.log(System.Logger.Level.DEBUG, "Loading GnuCash file from path: {0}", path);
             try {
                 return new GnucashAccStore(reader.read(path));
             } catch (IOException e) {
@@ -54,7 +54,7 @@ public class GnucashBookFactory implements ComponentFactory<AccStore> {
         var currencyOpt = dependencies.getOptionalDependency(CommodityId.class);
         if (currencyOpt.isPresent()) {
             CommodityId currency = currencyOpt.get();
-            log.info("Creating a new empty GnuCash book in {}", currency);
+            LOG.log(System.Logger.Level.DEBUG, "Creating a new empty GnuCash book in {0}", currency);
             try (InputStream template = GnucashBookFactory.class.getResourceAsStream(EMPTY_BOOK_TEMPLATE)) {
                 return GnucashAccStore.newBook(reader.read(template), currency);
             } catch (IOException e) {

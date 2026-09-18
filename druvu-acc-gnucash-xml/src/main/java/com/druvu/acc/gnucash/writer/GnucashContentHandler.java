@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Locale;
-import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
@@ -19,7 +18,6 @@ import org.xml.sax.SAXException;
  * @author Deniss Larka <br>
  *     on 13 Jan 2026
  */
-@Slf4j
 public class GnucashContentHandler implements ContentHandler {
 
     private static final String XML_DATA_TYPE_GUID = "guid";
@@ -51,8 +49,7 @@ public class GnucashContentHandler implements ContentHandler {
         try {
             writer.write("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
         } catch (IOException e) {
-            log.error("Error writing start document", e);
-            throw new SAXException(e);
+            throw new SAXException("Error writing start document", e);
         }
     }
 
@@ -61,8 +58,7 @@ public class GnucashContentHandler implements ContentHandler {
         try {
             writer.write("\n\n<!-- Local variables: -->\n<!-- mode: xml        -->\n<!-- End:             -->\n");
         } catch (IOException e) {
-            log.error("Error writing end document", e);
-            throw new SAXException(e);
+            throw new SAXException("Error writing end document", e);
         }
     }
 
@@ -106,8 +102,7 @@ public class GnucashContentHandler implements ContentHandler {
             depth += 2;
             lastWas = LAST_WAS_OPEN_ELEMENT;
         } catch (IOException e) {
-            log.error("Error writing start element: {}", qName, e);
-            throw new SAXException(e);
+            throw new SAXException("Error writing start element: " + qName, e);
         }
     }
 
@@ -141,8 +136,7 @@ public class GnucashContentHandler implements ContentHandler {
 
             lastWas = LAST_WAS_CLOSE_ELEMENT;
         } catch (IOException e) {
-            log.error("Error writing end element: {}", qName, e);
-            throw new SAXException(e);
+            throw new SAXException("Error writing end element: " + qName, e);
         }
     }
 
@@ -179,8 +173,7 @@ public class GnucashContentHandler implements ContentHandler {
 
             lastWas = LAST_WAS_CHARACTER_DATA;
         } catch (IOException e) {
-            log.error("Error writing characters", e);
-            throw new SAXException(e);
+            throw new SAXException("Error writing characters", e);
         }
     }
 
@@ -198,8 +191,7 @@ public class GnucashContentHandler implements ContentHandler {
             }
             writer.write("?>\n");
         } catch (IOException e) {
-            log.error("Error writing processing instruction", e);
-            throw new SAXException(e);
+            throw new SAXException("Error writing processing instruction", e);
         }
     }
 

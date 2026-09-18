@@ -4,7 +4,6 @@ module com.druvu.acc.gnucash.xml {
     requires com.druvu.acc.api;
     requires com.druvu.lib.loader;
     requires jakarta.xml.bind;
-    requires org.slf4j;
 
     // Open the generated package to JAXB for reflection
     opens com.druvu.acc.gnucash.generated to
