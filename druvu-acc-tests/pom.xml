@@ -17,9 +17,9 @@
 	<description>Integration tests for the accounting library</description>
 
 	<properties>
-		<!-- Test-only module: not published. maven.deploy.skip covers the standard deploy (GitHub Packages);
-		     the release profile below sets central-publishing skipPublishing=true, because that plugin does
-		     NOT honor maven.deploy.skip. -->
+		<!-- Test-only module: not published. The release profile below sets central-publishing
+		     skipPublishing=true, because that plugin does NOT honor maven.deploy.skip; the property stays
+		     as a guard against a plain `mvn deploy`. -->
 		<maven.deploy.skip>true</maven.deploy.skip>
 	</properties>
 

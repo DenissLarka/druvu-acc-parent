@@ -1,17 +1,51 @@
-# Accounting Library
+# druvu-acc
 
 [![CI](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/DenissLarka/druvu-acc-parent/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/com.druvu/druvu-acc-api.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/com.druvu/druvu-acc-api)
 ![Java](https://img.shields.io/badge/Java-25-blue)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
-A modular Java library for reading and writing accounting data. The library provides a clean API for working with double-entry bookkeeping data including accounts, transactions, commodities, and prices.
+A modular Java library for reading and writing accounting data - today, **GnuCash** files. The library provides a clean API for working with double-entry bookkeeping data including accounts, transactions, commodities, and prices.
 
 Project page: [druvu.com/projects/druvu-acc](https://druvu.com/projects/druvu-acc.html)
 
 > 📖 **New to the library? [Read how to use it](docs/README.md)** — three small accounting
 > stories, each solved by a complete program that runs with one `jbang` command: a household's
 > books, a contractor's invoice with VAT, and finding the customer behind a ledger transaction.
+
+## Quick start: one file, no project
+
+Save this as `Balances.java` and run `jbang Balances.java mybook.gnucash`.
+[JBang](https://www.jbang.dev) fetches Java 25 and the library from Maven Central by itself - there
+is nothing else to install or configure.
+
+```java
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 25
+//DEPS com.druvu:druvu-acc-gnucash-xml:2.2.0
+
+import com.druvu.acc.api.AccStore;
+import com.druvu.acc.api.service.AccountService;
+import java.nio.file.Path;
+
+public class Balances {
+
+    public static void main(String[] args) throws Exception {
+        var store = AccStore.load(Path.of(args[0]));   // read-only: the file cannot be changed
+        var service = AccountService.create(store);
+
+        for (var account : store.accounts()) {
+            System.out.printf("%-28s %s%n", account.name(), service.balance(account.id()));
+        }
+    }
+}
+```
+
+`AccStore.load` opens the book read-only; to change one, see [Writing and Modifying](#writing-and-modifying).
+The API lives in three packages: `com.druvu.acc.api` (`AccStore`, `WritableAccStore`),
+`com.druvu.acc.api.entity` (`Account`, `Transaction`, `Split`, `Amount`, `Customer`, `Invoice`, ...)
+and `com.druvu.acc.api.service` (`AccountService`). The snippets further down print with
+`IO.println` - that is `java.lang.IO`, standard since Java 25; `System.out.println` works just as well.
 
 ## Features
 
@@ -83,8 +117,8 @@ Implementation for reading and writing GnuCash XML files (`.gnucash`). Supports 
 
 ## Requirements
 
-- Java 25+
-- Maven 3.9+
+- Java 25+ (a JBang script fetches it by itself)
+- Maven 3.9+ - only to build the library from source
 
 ## Usage
 
@@ -316,16 +350,11 @@ Run `AccApiReadExample` to print account balances and transactions from a GnuCas
 
 ## Installation
 
-Published to **Maven Central** since 2.2.0, so no repository or credentials setup is needed:
+On **Maven Central** from version 2.2.0 - use 2.2.0 or newer. No extra repository, no credentials.
+
+One dependency is enough to work with GnuCash files; it brings the API with it:
 
 ```xml
-<dependency>
-    <groupId>com.druvu</groupId>
-    <artifactId>druvu-acc-api</artifactId>
-    <version>2.2.0</version>
-</dependency>
-
-<!-- GnuCash XML support (optional) -->
 <dependency>
     <groupId>com.druvu</groupId>
     <artifactId>druvu-acc-gnucash-xml</artifactId>
@@ -333,7 +362,16 @@ Published to **Maven Central** since 2.2.0, so no repository or credentials setu
 </dependency>
 ```
 
-Releases are also published to GitHub Packages, so an existing setup pointing there keeps working.
+The same thing elsewhere:
+
+```
+//DEPS com.druvu:druvu-acc-gnucash-xml:2.2.0                  (JBang script)
+implementation("com.druvu:druvu-acc-gnucash-xml:2.2.0")       (Gradle)
+```
+
+`druvu-acc-api` on its own is for code that must not depend on a file format, or for writing
+another backend. By itself it cannot open a file: `AccStore.load` finds the format implementation
+on the classpath, and `druvu-acc-gnucash-xml` is that implementation.
 
 ## Building
 
