@@ -45,9 +45,10 @@ and, when an Excel file is wanted, also:
   and state in one line which accounts you added up.
 - **Never guess account names.** They may be anything, in any language. Select by `AccountType` (`EXPENSE`, `INCOME`,
   `BANK`), or print the names first and let the user say which one they mean.
-- **Never print nothing.** If the accounts you selected turn out to be empty, say so in a line — a script that exits
-  silently looks broken. Test your selection against the shape described under *Placeholders* below: a book where the
-  only top-level EXPENSE account is a placeholder is the normal case, not an edge case.
+- **Never print nothing.** Count the rows you printed, and if the count is zero say so in a line naming what you looked
+  for. A heading with nothing under it is still nothing. Walk your filter through the account tree drawn under
+  *Placeholders* below before you hand the code over: that tree is the normal case, not an edge case, and the two
+  filters most likely to select zero accounts are named there.
 - **Money is `BigDecimal`.** When you divide, give a scale and a rounding mode:
   `a.divide(b, 2, RoundingMode.HALF_UP)`.
 - **Print the library's `Amount`, never `printf("%.2f")`** — `Amount` prints as `19911.00 CHF` on every machine, while
@@ -81,6 +82,10 @@ AccountType  ROOT BANK CASH CREDIT ASSET LIABILITY STOCK MUTUAL CURRENCY INCOME 
 Transaction  id()  datePosted() -> LocalDate   description() -> String   splits() -> List<Split>
 Split        accountId() -> String   value() -> BigDecimal   datePosted() -> LocalDate
 ```
+
+> **`parentId()` is empty for exactly one account in the book: the invisible ROOT.** Every account a person can see has
+> a parent, so `parentId().isEmpty()` does **not** mean "top-level" — it selects nothing you want. To mean "top-level
+> expense account", test the parent's *type*, as the code below does.
 
 **Signs.** A split that adds to an EXPENSE account is positive. INCOME splits are negative — negate them to show
 income as a positive number.
@@ -117,6 +122,7 @@ Root Account
 ```
 
 - Skipping every placeholder **and** every account that has an EXPENSE parent leaves you with nothing at all.
+- `parentId().isEmpty()` selects nothing but the ROOT: `Expenses` is a child of the root, not a parentless account.
 - Adding `totalAmount()` of a parent to `totalAmount()` of its children counts the same money twice.
 
 Pick one of these two and say which you did:
