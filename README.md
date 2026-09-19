@@ -12,6 +12,10 @@ Project page: [druvu.com/projects/druvu-acc](https://druvu.com/projects/druvu-ac
 > 📖 **New to the library? [Read how to use it](docs/README.md)** — three small accounting
 > stories, each solved by a complete program that runs with one `jbang` command: a household's
 > books, a contractor's invoice with VAT, and finding the customer behind a ledger transaction.
+>
+> 🤖 **Not a programmer?** Give your AI assistant the address of
+> [docs/ai-skill.md](docs/ai-skill.md) and say what you want from your book in plain words — it is a
+> brief written for assistants, covering this library and [druvu-lib-excel](https://github.com/DenissLarka/druvu-lib-excel).
 
 ## Quick start: one file, no project
 
