@@ -1,6 +1,6 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 25
-//DEPS com.druvu:druvu-acc-gnucash-xml:2.2.0
+//DEPS com.druvu:druvu-acc-gnucash-xml:2.2.1
 
 // The contractor sends a bill - see contractor-bill.md.
 // Run: jbang ContractorBill.java                    (starts from an empty book)

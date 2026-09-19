@@ -22,7 +22,7 @@ is nothing else to install or configure.
 ```java
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 25
-//DEPS com.druvu:druvu-acc-gnucash-xml:2.2.0
+//DEPS com.druvu:druvu-acc-gnucash-xml:2.2.1
 
 import com.druvu.acc.api.AccStore;
 import com.druvu.acc.api.service.AccountService;
@@ -359,15 +359,15 @@ One dependency is enough to work with GnuCash files; it brings the API with it:
 <dependency>
     <groupId>com.druvu</groupId>
     <artifactId>druvu-acc-gnucash-xml</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
 </dependency>
 ```
 
 The same thing elsewhere:
 
 ```
-//DEPS com.druvu:druvu-acc-gnucash-xml:2.2.0                  (JBang script)
-implementation("com.druvu:druvu-acc-gnucash-xml:2.2.0")       (Gradle)
+//DEPS com.druvu:druvu-acc-gnucash-xml:2.2.1                  (JBang script)
+implementation("com.druvu:druvu-acc-gnucash-xml:2.2.1")       (Gradle)
 ```
 
 `druvu-acc-api` on its own is for code that must not depend on a file format, or for writing
