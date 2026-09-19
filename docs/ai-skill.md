@@ -45,6 +45,9 @@ and, when an Excel file is wanted, also:
   and state in one line which accounts you added up.
 - **Never guess account names.** They may be anything, in any language. Select by `AccountType` (`EXPENSE`, `INCOME`,
   `BANK`), or print the names first and let the user say which one they mean.
+- **Never print nothing.** If the accounts you selected turn out to be empty, say so in a line — a script that exits
+  silently looks broken. Test your selection against the shape described under *Placeholders* below: a book where the
+  only top-level EXPENSE account is a placeholder is the normal case, not an edge case.
 - **Money is `BigDecimal`.** When you divide, give a scale and a rounding mode:
   `a.divide(b, 2, RoundingMode.HALF_UP)`.
 - **Print the library's `Amount`, never `printf("%.2f")`** — `Amount` prints as `19911.00 CHF` on every machine, while
@@ -80,8 +83,7 @@ Split        accountId() -> String   value() -> BigDecimal   datePosted() -> Loc
 ```
 
 **Signs.** A split that adds to an EXPENSE account is positive. INCOME splits are negative — negate them to show
-income as a positive number. A **placeholder** account only groups others: nothing is posted to it, so skip it in
-reports.
+income as a positive number.
 
 **Balances, as GnuCash shows them:**
 
@@ -94,6 +96,50 @@ service.totalAmount(accountId)   // Amount - the account and all beneath it (Gnu
 
 `Amount` is a number plus its currency: `value()` gives the `BigDecimal`, `plus`/`minus` return new amounts and refuse
 to mix currencies, and it prints as `1500.00 CHF`.
+
+**Placeholders — read this before you filter on them.** A placeholder account is a heading: no entry is ever posted to
+it, so `balance()` on it is zero and it must not be a *row* in a list of entries. But it is exactly the right account
+to ask for a **subtree total**, because `totalAmount()` on it adds up everything beneath it. So:
+
+```java
+service.totalAmount(placeholderId)   // CORRECT - the whole group, the GnuCash "Total" column
+service.balance(placeholderId)       // always 0.00 - a placeholder has no entries of its own
+```
+
+The usual GnuCash book looks like this, and both traps below are the normal case:
+
+```
+Root Account
+ └── Expenses        EXPENSE, placeholder   <- the only top-level expense account, and it IS a placeholder
+      ├── Rent       EXPENSE
+      ├── Groceries  EXPENSE
+      └── ...
+```
+
+- Skipping every placeholder **and** every account that has an EXPENSE parent leaves you with nothing at all.
+- Adding `totalAmount()` of a parent to `totalAmount()` of its children counts the same money twice.
+
+Pick one of these two and say which you did:
+
+```java
+// A - every category on its own line, and their sum. Leaf accounts only.
+for (Account a : store.accounts()) {
+    if (a.type() == AccountType.EXPENSE && !a.placeholder()) {
+        Amount own = service.balance(a.id());      // this account's own entries
+        ...
+    }
+}
+
+// B - one number for the whole group, headings included.
+for (Account a : store.accounts()) {
+    boolean parentIsExpense = a.parentId().flatMap(store::accountById)
+            .map(p -> p.type() == AccountType.EXPENSE).orElse(false);
+    if (a.type() == AccountType.EXPENSE && !parentIsExpense) {
+        Amount whole = service.totalAmount(a.id());  // includes everything beneath, placeholder or not
+        ...
+    }
+}
+```
 
 ## Writing an Excel file
 
