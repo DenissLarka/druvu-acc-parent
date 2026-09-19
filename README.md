@@ -58,7 +58,8 @@ and `com.druvu.acc.api.service` (`AccountService`). The snippets further down pr
 
 The whole of a GnuCash book except its planning side: accounts, transactions, commodities and
 prices; customers, vendors, employees, jobs, orders, invoices and bills, billing terms, tax tables,
-lots. Scheduled transactions and budgets are the open gap. Whatever the library does not model
+lots. Scheduled transactions and budgets are out of scope - they are GnuCash's planning tools, not
+bookkeeping - and are left exactly as GnuCash wrote them. Whatever the library does not model
 survives a load-modify-save untouched - an update writes only the fields it understands.
 
 What gets built next is decided by whoever turns up and asks. If you use this, or tried to and
@@ -270,7 +271,7 @@ can still be opened and repaired; call `store.validate()` yourself to see what i
 
 > ⚠️ **On preserving the whole file.** `save` rewrites the book from this library's own model of the
 > GnuCash format, so anything that model does not cover is **not** carried over. Entities the library
-> does not yet support (scheduled transactions, budgets) *are* preserved, as are slot keys it does
+> does not model (scheduled transactions, budgets) *are* preserved, as are slot keys it does
 > not model — that is covered by tests against books written by GnuCash itself.
 > But **full fidelity for every possible GnuCash file is not guaranteed**: a construct from a version
 > newer than this library knows about can be dropped without warning.
