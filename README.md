@@ -16,6 +16,7 @@ Project page: [druvu.com/projects/druvu-acc](https://druvu.com/projects/druvu-ac
 > 🤖 **Not a programmer?** Give your AI assistant the address of
 > [docs/ai-skill.md](docs/ai-skill.md) and say what you want from your book in plain words — it is a
 > brief written for assistants, covering this library and [druvu-lib-excel](https://github.com/DenissLarka/druvu-lib-excel).
+> See it done in five minutes: [GnuCash to Excel in one command — your AI writes the script](https://www.youtube.com/watch?v=7kThAQCC3Qg).
 
 ## Quick start: one file, no project
 

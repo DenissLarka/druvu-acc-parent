@@ -8,6 +8,8 @@ want from your GnuCash book:
 
 If your assistant cannot open web pages, copy this whole page into the chat instead — it works either way.
 
+Watch it done, start to finish, in five minutes: [GnuCash to Excel in one command](https://www.youtube.com/watch?v=7kThAQCC3Qg).
+
 Everything below is written for the assistant.
 
 ---
