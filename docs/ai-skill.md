@@ -46,7 +46,8 @@ and, when an Excel file is wanted, also:
   `0.00` and saying so is useless. If a total is asked for without saying of what, assume the **EXPENSE** accounts,
   and state in one line which accounts you added up.
 - **Never guess account names.** They may be anything, in any language. Select by `AccountType` (`EXPENSE`, `INCOME`,
-  `BANK`), or print the names first and let the user say which one they mean.
+  `BANK`), by account code when the user gives a number (see *Account codes* below), or print the names first and let
+  the user say which one they mean.
 - **Never print nothing.** Count the rows you printed, and if the count is zero say so in a line naming what you looked
   for. A heading with nothing under it is still nothing. Walk your filter through the account tree drawn under
   *Placeholders* below before you hand the code over: that tree is the normal case, not an edge case, and the two
@@ -79,7 +80,7 @@ AccStore store = AccStore.load(Path.of(args[0]));
 | `store.splitsForAccount(accountId)` | `List<Split>` |
 
 ```
-Account      id()  name()  type() -> AccountType   placeholder() -> boolean   parentId() -> Optional<String>
+Account      id()  name()  code() -> Optional<String>   type() -> AccountType   placeholder() -> boolean   parentId() -> Optional<String>
 AccountType  ROOT BANK CASH CREDIT ASSET LIABILITY STOCK MUTUAL CURRENCY INCOME EXPENSE EQUITY RECEIVABLE PAYABLE
 Transaction  id()  datePosted() -> LocalDate   description() -> String   splits() -> List<Split>
 Split        accountId() -> String   value() -> BigDecimal   datePosted() -> LocalDate
@@ -88,6 +89,20 @@ Split        accountId() -> String   value() -> BigDecimal   datePosted() -> Loc
 > **`parentId()` is empty for exactly one account in the book: the invisible ROOT.** Every account a person can see has
 > a parent, so `parentId().isEmpty()` does **not** mean "top-level" — it selects nothing you want. To mean "top-level
 > expense account", test the parent's *type*, as the code below does.
+
+**Account codes.** Books built on a numbered chart of accounts - the Swiss KMU chart, the German SKR03/SKR04 and many
+others - carry a number on every account, such as `2030` or `1020`. GnuCash keeps it as the account code and `code()`
+returns it, empty when the book has none. When the user names an account by its number, select by code, not by name;
+codes are text, so compare them as strings:
+
+```java
+import java.util.Optional;
+
+Account account = store.accounts().stream()
+        .filter(a -> a.code().equals(Optional.of("1020")))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("No account with code 1020"));
+```
 
 **Signs.** A split that adds to an EXPENSE account is positive. INCOME splits are negative — negate them to show
 income as a positive number.
@@ -104,16 +119,18 @@ service.totalAmount(accountId)   // Amount - the account and all beneath it (Gnu
 `Amount` is a number plus its currency: `value()` gives the `BigDecimal`, `plus`/`minus` return new amounts and refuse
 to mix currencies, and it prints as `1500.00 CHF`.
 
-**Placeholders — read this before you filter on them.** A placeholder account is a heading: no entry is ever posted to
-it, so `balance()` on it is zero and it must not be a *row* in a list of entries. But it is exactly the right account
-to ask for a **subtree total**, because `totalAmount()` on it adds up everything beneath it. So:
+**Placeholders — read this before you filter on them.** A placeholder account is a heading: GnuCash refuses *new*
+entries on it and shows its register read-only. It is **not guaranteed to be empty** — an account can be flagged
+placeholder after years of entries, and those stay where they are. So never use the flag to decide what to add up.
+`balance()` is an account's own entries, placeholder or not (a heading usually has none, but not always);
+`totalAmount()` is the account plus everything beneath it, and it is exactly the right call on a heading:
 
 ```java
-service.totalAmount(placeholderId)   // CORRECT - the whole group, the GnuCash "Total" column
-service.balance(placeholderId)       // always 0.00 - a placeholder has no entries of its own
+service.totalAmount(expensesId)   // the whole group - the GnuCash "Total" column
+service.balance(expensesId)       // the heading's own entries - usually 0.00, counted whenever there are some
 ```
 
-The usual GnuCash book looks like this, and both traps below are the normal case:
+The usual GnuCash book looks like this, and the traps below are the normal case:
 
 ```
 Root Account
@@ -124,16 +141,18 @@ Root Account
 ```
 
 - Skipping every placeholder **and** every account that has an EXPENSE parent leaves you with nothing at all.
+- Skipping placeholders when you list own entries silently drops whatever a heading holds itself.
 - `parentId().isEmpty()` selects nothing but the ROOT: `Expenses` is a child of the root, not a parentless account.
 - Adding `totalAmount()` of a parent to `totalAmount()` of its children counts the same money twice.
 
 Pick one of these two and say which you did:
 
 ```java
-// A - every category on its own line, and their sum. Leaf accounts only.
+// A - every account on its own line with its own entries, and their sum. No placeholder filter: a heading
+//     without entries of its own is a 0.00 row (leave those out if you like), a heading with some shows them.
 for (Account a : store.accounts()) {
-    if (a.type() == AccountType.EXPENSE && !a.placeholder()) {
-        Amount own = service.balance(a.id());      // this account's own entries
+    if (a.type() == AccountType.EXPENSE) {
+        Amount own = service.balance(a.id());      // this account's own entries only
         ...
     }
 }
@@ -148,6 +167,8 @@ for (Account a : store.accounts()) {
     }
 }
 ```
+
+In a normal book the rows of A add up to the number of B. If they differ, a filter dropped something.
 
 ## Writing an Excel file
 

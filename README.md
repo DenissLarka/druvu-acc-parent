@@ -108,6 +108,19 @@ Core interfaces and entities for accounting data:
   slot type; `false` is stored by deleting the key). None of that reaches the API: they are ordinary
   typed properties here, and how any given format records them is the backend's business.
 
+**Account codes:**
+- `code()` - the number a chart of accounts gives an account (`2030`, `1020`), as GnuCash shows it in its
+  *Account Code* column; empty when the book has none. `withCode("2030")` sets it. Books built on a numbered
+  chart - the Swiss KMU chart, the German SKR03/SKR04 and many others - carry one on every account, so a
+  script can select by number instead of by name:
+
+  ```java
+  Account payables = store.accounts().stream()
+          .filter(a -> a.code().equals(Optional.of("2000")))
+          .findFirst()
+          .orElseThrow();
+  ```
+
 **Validation:**
 - `AccStore.validate()` - reports structural problems (a second root, a dangling parent, a split on a
   missing account). Reading is tolerant so a damaged book can still be inspected or repaired;

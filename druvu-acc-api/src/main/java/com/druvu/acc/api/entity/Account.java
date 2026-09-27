@@ -21,7 +21,7 @@ import java.util.Optional;
  * @param description optional description
  * @param commodity account commodity (currency)
  * @param parentId ID of a parent account, empty for root accounts
- * @param placeholder a grouping account that transactions may not be posted to
+ * @param placeholder a grouping account GnuCash refuses new entries on; entries recorded before the flag was set stay
  * @param hidden hidden from the account tree
  * @param taxRelated relevant to tax reports
  * @param notes free-text notes, kept separately from {@link #description()}
@@ -150,8 +150,9 @@ public record Account(
     }
 
     /**
-     * A placeholder account groups its children and holds no transactions of its own; GnuCash and comparable
-     * applications refuse to post to one.
+     * A placeholder account is a heading: GnuCash refuses to post new entries to one and shows its register read-only.
+     * It is not guaranteed to be empty - entries recorded before the flag was set stay in it, and the balance methods
+     * count them like any other account's.
      *
      * @param placeholder whether the account is a placeholder
      * @return a copy with that flag
