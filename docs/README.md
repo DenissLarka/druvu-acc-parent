@@ -47,8 +47,14 @@ jbang HouseholdBooks.java
 jbang https://github.com/DenissLarka/druvu-acc-parent/blob/main/docs/HouseholdBooks.java
 ```
 
+Run from GitHub, JBang first asks whether you trust the address: type the number of **Trust limited url in future**
+(or **Trust once**) and press Enter within 30 seconds, or the run is cancelled. A downloaded file runs without the question.
+
 No project, no build file, nothing to add to a classpath. If you already have a Maven or Gradle
 project, the two coordinates are in [Installation](../README.md#installation) instead.
+
+Ready-made tools that run the same way are in [scripts](../scripts/README.md): monthly expenses to Excel, one
+account's entries, the customer behind each transaction.
 
 ## What you need
 

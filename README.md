@@ -13,6 +13,9 @@ Project page: [druvu.com/projects/druvu-acc](https://druvu.com/projects/druvu-ac
 > stories, each solved by a complete program that runs with one `jbang` command: a household's
 > books, a contractor's invoice with VAT, and finding the customer behind a ledger transaction.
 >
+> **Just want a spreadsheet?** [Ready-made scripts](scripts/README.md) turn a GnuCash book into Excel files:
+> monthly expenses by category, one account's entries, the customer behind each payment. One `jbang` command each.
+>
 > 🤖 **Not a programmer?** Give your AI assistant the address of
 > [docs/ai-skill.md](docs/ai-skill.md) and say what you want from your book in plain words — it is a
 > brief written for assistants, covering this library and [druvu-lib-excel](https://github.com/DenissLarka/druvu-lib-excel).
