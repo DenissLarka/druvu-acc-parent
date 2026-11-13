@@ -66,7 +66,7 @@ public class GnucashBookFactory implements ComponentFactory<AccStore> {
     }
 
     @Override
-    public Class<? extends AccStore> type() {
+    public Class<AccStore> type() {
         return AccStore.class;
     }
 }
