@@ -18,7 +18,7 @@ import java.io.Writer;
 public class NamespaceAddingWriter extends Writer {
 
     private static final String XMLNS_DECLARATIONS = """
-			
+
 			xmlns:gnc="http://www.gnucash.org/XML/gnc"
 			xmlns:act="http://www.gnucash.org/XML/act"
 			xmlns:book="http://www.gnucash.org/XML/book"

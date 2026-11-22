@@ -16,14 +16,13 @@ import lombok.experimental.UtilityClass;
 final class OwnerCodes {
 
     static Owner map(String wireType, OwnerId id) {
-        OwnerType type =
-                switch (wireType == null ? "" : wireType) {
-                    case "gncCustomer" -> OwnerType.CUSTOMER;
-                    case "gncVendor" -> OwnerType.VENDOR;
-                    case "gncEmployee" -> OwnerType.EMPLOYEE;
-                    case "gncJob" -> OwnerType.JOB;
-                    default -> throw new IllegalArgumentException("Unknown GnuCash owner type: " + wireType);
-                };
+        OwnerType type = switch (wireType == null ? "" : wireType) {
+            case "gncCustomer" -> OwnerType.CUSTOMER;
+            case "gncVendor" -> OwnerType.VENDOR;
+            case "gncEmployee" -> OwnerType.EMPLOYEE;
+            case "gncJob" -> OwnerType.JOB;
+            default -> throw new IllegalArgumentException("Unknown GnuCash owner type: " + wireType);
+        };
         return new Owner(type, id.getValue());
     }
 

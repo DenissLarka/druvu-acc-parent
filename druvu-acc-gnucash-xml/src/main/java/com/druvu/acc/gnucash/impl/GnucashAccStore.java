@@ -1026,13 +1026,12 @@ public final class GnucashAccStore implements WritableAccStore {
 
     /** An owner reference must point at a party that is actually in the book. */
     private void requireOwner(Owner owner) {
-        boolean present =
-                switch (owner.type()) {
-                    case CUSTOMER -> customerPeer(owner.id()).isPresent();
-                    case VENDOR -> vendorPeer(owner.id()).isPresent();
-                    case EMPLOYEE -> employeePeer(owner.id()).isPresent();
-                    case JOB -> jobPeer(owner.id()).isPresent();
-                };
+        boolean present = switch (owner.type()) {
+            case CUSTOMER -> customerPeer(owner.id()).isPresent();
+            case VENDOR -> vendorPeer(owner.id()).isPresent();
+            case EMPLOYEE -> employeePeer(owner.id()).isPresent();
+            case JOB -> jobPeer(owner.id()).isPresent();
+        };
         if (!present) {
             throw new IllegalArgumentException(
                     "Owner " + owner.type() + " " + owner.id() + " is not in the book - add it first");
